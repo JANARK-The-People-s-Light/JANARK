@@ -1,11 +1,14 @@
-const VOTER_KEY = "janark_voter_key";
 const PHONE_SESSION = "janark_phone_session";
+/** Legacy keys — cleared on read so phone hashes are not left in localStorage */
+const LEGACY_VOTER_KEY = "janark_voter_key";
 
 export type PhoneSession = {
-  voterKey: string;
+  /** @deprecated Never store phoneHash in the browser; cookie holds the session */
+  voterKey?: string;
   hint: string;
   anonId?: string;
   anonymous: boolean;
+  authenticated?: boolean;
 };
 
 export type SocialPlatform =
@@ -17,47 +20,82 @@ export type SocialPlatform =
   | "copy"
   | "native";
 
-/** Prefer anonymous phone session; fall back to device key */
+function scrubLegacySecrets() {
+  try {
+    localStorage.removeItem(LEGACY_VOTER_KEY);
+  } catch {
+    /* ignore */
+  }
+}
+
+/** True when the user has a local UI session (cookie must also be valid for writes) */
+export function isLoggedInClient(): boolean {
+  const s = getPhoneSession();
+  return Boolean(s?.authenticated || s?.anonId);
+}
+
+/**
+ * Sentinel for client forms — real identity is bound server-side from the
+ * httpOnly session cookie. Do not treat this as a secret.
+ */
 export function getVoterKey(): string {
   if (typeof window === "undefined") return "server";
-  const phone = getPhoneSession();
-  if (phone?.voterKey) return phone.voterKey;
-
-  let key = localStorage.getItem(VOTER_KEY);
-  if (!key) {
-    key =
-      typeof crypto !== "undefined" && crypto.randomUUID
-        ? crypto.randomUUID()
-        : `v-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    localStorage.setItem(VOTER_KEY, key);
-  }
-  return key;
+  if (isLoggedInClient()) return "session";
+  return "";
 }
 
 export function getPhoneSession(): PhoneSession | null {
   if (typeof window === "undefined") return null;
+  scrubLegacySecrets();
   try {
     const raw = localStorage.getItem(PHONE_SESSION);
     if (!raw) return null;
-    return JSON.parse(raw) as PhoneSession;
+    const parsed = JSON.parse(raw) as PhoneSession;
+    // Drop any historically stored phoneHash
+    if (parsed.voterKey && parsed.voterKey.length >= 32) {
+      const cleaned: PhoneSession = {
+        hint: parsed.hint,
+        anonId: parsed.anonId,
+        anonymous: true,
+        authenticated: true,
+      };
+      localStorage.setItem(PHONE_SESSION, JSON.stringify(cleaned));
+      return cleaned;
+    }
+    return parsed;
   } catch {
     return null;
   }
 }
 
 export function savePhoneSession(session: PhoneSession) {
-  localStorage.setItem(PHONE_SESSION, JSON.stringify(session));
-  localStorage.setItem(VOTER_KEY, session.voterKey);
+  scrubLegacySecrets();
+  const safe: PhoneSession = {
+    hint: session.hint,
+    anonId: session.anonId,
+    anonymous: true,
+    authenticated: true,
+  };
+  localStorage.setItem(PHONE_SESSION, JSON.stringify(safe));
 }
 
-export function clearPhoneSession() {
+export async function clearPhoneSession() {
+  scrubLegacySecrets();
   localStorage.removeItem(PHONE_SESSION);
-  localStorage.removeItem(VOTER_KEY);
+  try {
+    await fetch("/api/auth/logout", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: "{}",
+    });
+  } catch {
+    /* ignore */
+  }
 }
 
 export function requirePhoneVoterKey(): string | null {
-  const s = getPhoneSession();
-  return s?.voterKey ?? null;
+  return isLoggedInClient() ? "session" : null;
 }
 
 export function buildShareUrls(opts: {
@@ -88,12 +126,12 @@ export async function trackShare(
   title?: string,
 ) {
   try {
-    const voterKey = getPhoneSession()?.voterKey;
-    if (!voterKey) return; // share UI may still open; counts need phone OTP
+    if (!isLoggedInClient()) return;
     await fetch("/api/social/share", {
       method: "POST",
+      credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ platform, path, title, voterKey, website: "" }),
+      body: JSON.stringify({ platform, path, title, website: "" }),
     });
   } catch {
     // non-blocking

@@ -497,13 +497,14 @@ export async function getDashboardData(filters: DashboardFilters = {}) {
     };
   }
   if (q) {
+    const safeQ = escapeRegex(q.slice(0, 80));
     const textClause = {
       $or: [
-        { title: { $regex: q, $options: "i" } },
-        { excerpt: { $regex: q, $options: "i" } },
-        { body: { $regex: q, $options: "i" } },
-        { tags: { $regex: q, $options: "i" } },
-        { meta: { $regex: q, $options: "i" } },
+        { title: { $regex: safeQ, $options: "i" } },
+        { excerpt: { $regex: safeQ, $options: "i" } },
+        { body: { $regex: safeQ, $options: "i" } },
+        { tags: { $regex: safeQ, $options: "i" } },
+        { meta: { $regex: safeQ, $options: "i" } },
       ],
     };
     mongoFilter.$and = [textClause];
@@ -662,7 +663,7 @@ export async function getDashboardData(filters: DashboardFilters = {}) {
             },
           }
         : q
-          ? { term: { $regex: q, $options: "i" } }
+          ? { term: { $regex: escapeRegex(q.slice(0, 80)), $options: "i" } }
           : {},
     )
       .sort({ score: -1 })
@@ -671,7 +672,12 @@ export async function getDashboardData(filters: DashboardFilters = {}) {
     computeLiveStateSignals(),
     Activity.find(
       filtered && (q || tagNorm)
-        ? { summary: { $regex: q || tagNorm, $options: "i" } }
+        ? {
+            summary: {
+              $regex: escapeRegex((q || tagNorm).slice(0, 80)),
+              $options: "i",
+            },
+          }
         : {},
     )
       .sort({ createdAt: -1 })

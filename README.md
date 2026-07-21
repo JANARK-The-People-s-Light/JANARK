@@ -96,9 +96,24 @@ Open [http://localhost:3000](http://localhost:3000).
 1. User browses without login.
 2. On publish / react, OTP modal opens.
 3. Phone is hashed (`PHONE_HASH_SALT`); never shown publicly.
-4. Profile uses `anonId` (e.g. `/u/…`).
+4. Session is an **httpOnly** cookie — phone hashes are not stored in the browser.
+5. Profile uses `anonId` (e.g. `/u/…`).
 
-Local tip: set `EXPOSE_DEV_OTP=1` in `.env` so the OTP is returned in API responses during development.
+Local tip: set `EXPOSE_DEV_OTP=1` in `.env` so the OTP is returned in API responses during development. **Never** enable this in production.
+
+---
+
+## Public hosting (security)
+
+Before going live, follow the checklist in [SECURITY.md](SECURITY.md):
+
+- Strong unique salts (`PHONE_HASH_SALT`, `HUMAN_TOKEN_SECRET`, `IP_HASH_SALT`)
+- Real `MONGODB_URI` + `NEXT_PUBLIC_SITE_URL` (HTTPS)
+- OTP SMS via Twilio or MSG91
+- Optional Cloudflare Turnstile for OTP
+- Prefer Postgres over SQLite for multi-instance deploys
+
+Production refuses to start if defaults / `EXPOSE_DEV_OTP` are still set.
 
 ---
 
@@ -111,6 +126,8 @@ DATABASE_URL="file:./prisma/dev.db"
 MONGODB_URI="mongodb://127.0.0.1:27017/janark"
 NEXT_PUBLIC_SITE_URL="http://localhost:3000"
 PHONE_HASH_SALT="change-me-to-a-long-random-string"
+HUMAN_TOKEN_SECRET="change-me-to-a-long-random-string"
+IP_HASH_SALT="change-me-to-a-long-random-string"
 EXPOSE_DEV_OTP=1
 ```
 

@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthModal";
-import { getVoterKey } from "@/lib/client-id";
 import type { EngageTarget } from "@/lib/engage";
 import { CommentThread } from "@/components/CommentThread";
 import { ShareMenuButton } from "@/components/SocialShare";
@@ -71,10 +70,11 @@ export function EngageBar({
   }, [sharePath]);
 
   const load = useCallback(async () => {
-    const vk = getVoterKey();
     const qs = new URLSearchParams({ targetType, targetId });
-    if (vk) qs.set("voterKey", vk);
-    const res = await fetch(`/api/engage?${qs}`, { cache: "no-store" });
+    const res = await fetch(`/api/engage?${qs}`, {
+      cache: "no-store",
+      credentials: "same-origin",
+    });
     const data = await res.json();
     if (!res.ok) return;
     const next: EngageCounts = {
@@ -103,12 +103,12 @@ export function EngageBar({
     try {
       const res = await fetch("/api/engage", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           targetType,
           targetId,
           choice,
-          voterKey,
           website: "",
         }),
       });

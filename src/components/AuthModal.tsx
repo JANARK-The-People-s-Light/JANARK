@@ -10,6 +10,7 @@ import {
 } from "react";
 import {
   getPhoneSession,
+  isLoggedInClient,
   requirePhoneVoterKey,
   savePhoneSession,
   type PhoneSession,
@@ -25,8 +26,8 @@ type AuthCtx = {
   }) => void;
   closeLogin: () => void;
   /**
-   * Returns voterKey if logged in; otherwise opens modal and returns null.
-   * Use before any post / react / vote.
+   * Returns a sentinel if logged in; otherwise opens modal and returns null.
+   * Real identity is bound server-side from the httpOnly session cookie.
    */
   ensureAuth: (reason?: string) => string | null;
   refreshSession: () => void;
@@ -49,20 +50,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const local = getPhoneSession();
     setSession(local);
-    if (local?.voterKey && !local.anonId) {
-      fetch(`/api/auth/me?voterKey=${encodeURIComponent(local.voterKey)}`, {
-        cache: "no-store",
-      })
-        .then(async (r) => {
-          if (!r.ok) return;
-          const data = await r.json();
-          if (data.session?.anonId) {
-            savePhoneSession(data.session);
-            setSession(data.session);
+    // Reconcile UI session with httpOnly cookie
+    fetch("/api/auth/me", { cache: "no-store", credentials: "same-origin" })
+      .then(async (r) => {
+        if (!r.ok) {
+          if (local) {
+            // Cookie gone — clear stale UI session
+            const { clearPhoneSession } = await import("@/lib/client-id");
+            // Only clear localStorage; avoid logout POST loop
+            try {
+              localStorage.removeItem("janark_phone_session");
+            } catch {
+              /* ignore */
+            }
+            setSession(null);
           }
-        })
-        .catch(() => {});
-    }
+          return;
+        }
+        const data = await r.json();
+        if (data.session) {
+          savePhoneSession(data.session);
+          setSession(data.session);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const closeLogin = useCallback(() => {
@@ -75,7 +86,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       reason?: string;
       onSuccess?: (session: PhoneSession) => void;
     }) => {
-      if (getPhoneSession()?.voterKey) {
+      if (isLoggedInClient()) {
         opts?.onSuccess?.(getPhoneSession()!);
         return;
       }

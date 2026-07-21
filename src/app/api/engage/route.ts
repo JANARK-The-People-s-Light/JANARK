@@ -8,17 +8,19 @@ import {
   isEngageTarget,
   type EngageTarget,
 } from "@/lib/engage";
+import { resolveSessionFromRequest } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const fetchCache = "force-no-store";
 
-/** GET ?targetType=&targetId=&voterKey= → counts + myVote */
+/** GET ?targetType=&targetId= → counts + myVote (from session cookie) */
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const targetType = url.searchParams.get("targetType") ?? "";
   const targetId = url.searchParams.get("targetId") ?? "";
-  const voterKey = url.searchParams.get("voterKey");
+  const session = await resolveSessionFromRequest(req);
+  const voterKey = session?.phoneHash ?? null;
 
   if (!isEngageTarget(targetType) || !targetId) {
     return NextResponse.json(
@@ -36,7 +38,7 @@ export async function GET(req: Request) {
   return liveJson({ ok: true, ...counts, targetType, targetId });
 }
 
-/** POST { targetType, targetId, choice: upvote|downvote, voterKey } */
+/** POST { targetType, targetId, choice: upvote|downvote } */
 export async function POST(req: Request) {
   const body = (await req.json()) as Record<string, unknown>;
   const gate = await guardAnonymousWrite({
@@ -79,12 +81,5 @@ export async function POST(req: Request) {
     targetId,
     voterKey,
   );
-
-  return liveJson({
-    ok: true,
-    ...counts,
-    myVote,
-    targetType,
-    targetId,
-  });
+  return liveJson({ ok: true, ...counts, myVote, targetType, targetId });
 }

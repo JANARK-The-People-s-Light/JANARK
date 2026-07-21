@@ -38,6 +38,7 @@ async function clearSqlite() {
   await prisma.comment.deleteMany();
   await prisma.socialShareEvent.deleteMany();
   await prisma.phoneOtp.deleteMany();
+  await prisma.authSession.deleteMany();
   await prisma.phoneIdentity.deleteMany();
   await prisma.proposal.deleteMany();
   await prisma.issue.deleteMany();

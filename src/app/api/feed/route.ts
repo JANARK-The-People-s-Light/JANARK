@@ -14,6 +14,8 @@ import {
   type FeedCandidate,
 } from "@/lib/trending";
 import { requireCivicPostTerms } from "@/lib/civic-post-terms";
+import { parseOptionalMedia } from "@/lib/media";
+import { publicAuthorFromVoterKey } from "@/lib/identity";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -176,14 +178,15 @@ export async function GET(req: Request) {
     filter.town = { $regex: new RegExp(`^${escapeRegex(town)}$`, "i") };
   }
   if (q) {
+    const safeQ = escapeRegex(q.slice(0, 80));
     filter.$or = [
-      { title: { $regex: q, $options: "i" } },
-      { excerpt: { $regex: q, $options: "i" } },
-      { tags: { $regex: q, $options: "i" } },
-      { meta: { $regex: q, $options: "i" } },
-      { state: { $regex: q, $options: "i" } },
-      { city: { $regex: q, $options: "i" } },
-      { district: { $regex: q, $options: "i" } },
+      { title: { $regex: safeQ, $options: "i" } },
+      { excerpt: { $regex: safeQ, $options: "i" } },
+      { tags: { $regex: safeQ, $options: "i" } },
+      { meta: { $regex: safeQ, $options: "i" } },
+      { state: { $regex: safeQ, $options: "i" } },
+      { city: { $regex: safeQ, $options: "i" } },
+      { district: { $regex: safeQ, $options: "i" } },
     ];
   }
 
@@ -452,6 +455,16 @@ export async function POST(req: Request) {
   const str = (v: unknown) =>
     typeof v === "string" && v.trim() ? v.trim() : undefined;
 
+  const media = parseOptionalMedia(body);
+  if (media.error) {
+    return NextResponse.json({ error: media.error }, { status: 400 });
+  }
+
+  const author = await publicAuthorFromVoterKey(String(body.voterKey ?? ""));
+  if (!author) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const post = await FeedPost.create({
     type: body.type ?? "discussion",
     title,
@@ -462,15 +475,10 @@ export async function POST(req: Request) {
     votes: 0,
     hot: true,
     tags: Array.isArray(body.tags) ? body.tags : ["citizen"],
-    author: String(body.author ?? "Citizen"),
+    author: author.authorLabel,
     refId: body.refId,
-    mediaUrl: typeof body.mediaUrl === "string" ? body.mediaUrl : undefined,
-    mediaType:
-      body.mediaType === "image" ||
-      body.mediaType === "gif" ||
-      body.mediaType === "video"
-        ? body.mediaType
-        : undefined,
+    mediaUrl: media.mediaUrl ?? undefined,
+    mediaType: media.mediaType ?? undefined,
     locationLevel: str(body.locationLevel),
     village: str(body.village),
     town: str(body.town),
@@ -510,9 +518,38 @@ export async function PATCH(req: Request) {
   if (!gate.ok) return guardFail(gate);
 
   const id = String(body.id ?? "");
+  const voterKey = String(body.voterKey ?? "");
   if (!id) {
     return NextResponse.json({ error: "id required" }, { status: 400 });
   }
+
+  // One boost per verified citizen — prevent vote inflation
+  const existing = await prisma.engagementVote.findUnique({
+    where: {
+      targetType_targetId_voterKey: {
+        targetType: "feed",
+        targetId: id,
+        voterKey,
+      },
+    },
+  });
+  if (existing) {
+    const post = await FeedPost.findById(id).select("votes").lean();
+    return NextResponse.json({
+      post: { id, votes: post?.votes ?? 0 },
+      alreadyVoted: true,
+    });
+  }
+
+  await prisma.engagementVote.create({
+    data: {
+      targetType: "feed",
+      targetId: id,
+      voterKey,
+      value: 1,
+    },
+  });
+
   const post = await FeedPost.findByIdAndUpdate(
     id,
     { $inc: { votes: 1 } },

@@ -206,14 +206,30 @@ model PhoneIdentity {
 }
 
 model PhoneOtp {
-  id        String   @id @default(cuid())
-  phoneHash String
-  codeHash  String
-  expiresAt DateTime
-  consumed  Boolean  @default(false)
-  createdAt DateTime @default(now())
+  id             String   @id @default(cuid())
+  phoneHash      String
+  codeHash       String
+  expiresAt      DateTime
+  consumed       Boolean  @default(false)
+  /// Failed verify attempts against this OTP (lock after threshold)
+  failedAttempts Int      @default(0)
+  createdAt      DateTime @default(now())
 
   @@index([phoneHash])
+}
+
+/// Opaque server sessions (httpOnly cookie). phoneHash never sent to the browser.
+model AuthSession {
+  id         String    @id @default(cuid())
+  tokenHash  String    @unique
+  phoneHash  String
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  lastSeenAt DateTime  @default(now())
+
+  @@index([phoneHash])
+  @@index([expiresAt])
 }
 
 /// Collective public demands citizens rally behind

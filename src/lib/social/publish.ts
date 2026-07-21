@@ -30,19 +30,19 @@ export async function maybePostToFacebook(link: string, message: string) {
   }
 
   try {
-    const res = await fetch(
-      `https://graph.facebook.com/v21.0/me/feed?access_token=${pageToken}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message, link }),
+    const res = await fetch("https://graph.facebook.com/v21.0/me/feed", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${pageToken}`,
+        "Content-Type": "application/json",
       },
-    );
-    const data = await res.json();
+      body: JSON.stringify({ message, link }),
+    });
+    const data = (await res.json()) as Record<string, unknown>;
     if (!res.ok) {
-      return { ok: false, error: data };
+      return { ok: false, error: "Facebook publish failed" };
     }
-    return { ok: true, data };
+    return { ok: true, data: { id: data.id } };
   } catch (e) {
     return { ok: false, error: String(e) };
   }
@@ -79,8 +79,8 @@ export async function maybePostToWhatsApp(text: string) {
       },
     );
     const data = await res.json();
-    if (!res.ok) return { ok: false, error: data };
-    return { ok: true, data };
+    if (!res.ok) return { ok: false, error: "WhatsApp publish failed" };
+    return { ok: true, data: { messages: (data as { messages?: unknown }).messages } };
   } catch (e) {
     return { ok: false, error: String(e) };
   }

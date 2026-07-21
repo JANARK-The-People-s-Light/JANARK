@@ -50,14 +50,17 @@ export async function POST(
   });
   if (!gate.ok) return guardFail(gate);
 
-  const voterKey = String(body.voterKey ?? "").trim();
   const choice = body.choice;
-
-  if (!voterKey || choice == null) {
+  if (choice == null) {
     return NextResponse.json(
-      { error: "voterKey and choice required" },
+      { error: "choice required" },
       { status: 400 },
     );
+  }
+
+  const voterKey = String(body.voterKey ?? "").trim();
+  if (!voterKey) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const proposal = await prisma.proposal.findUnique({ where: { id } });

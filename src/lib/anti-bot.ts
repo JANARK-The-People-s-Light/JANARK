@@ -5,6 +5,8 @@ import {
   timingSafeEqual,
 } from "node:crypto";
 import { prisma } from "@/lib/db";
+import { assertSameOrigin } from "@/lib/origin";
+import { resolveSessionFromRequest } from "@/lib/session";
 
 const TOKEN_SECRET =
   process.env.HUMAN_TOKEN_SECRET ||
@@ -24,7 +26,7 @@ export type GuardFail = {
   error: string;
 };
 
-export type GuardOk = { ok: true };
+export type GuardOk = { ok: true; voterKey?: string };
 
 function b64url(buf: Buffer | string) {
   const b = Buffer.isBuffer(buf) ? buf : Buffer.from(buf);
@@ -190,13 +192,17 @@ type WriteGuardOpts = {
   req: Request;
   /** Require phone OTP identity (hash only) */
   phoneRequired?: boolean;
+  /** Require Cloudflare Turnstile when configured */
+  requireTurnstile?: boolean;
   limit?: number;
   windowMs?: number;
+  /** Skip Origin check (rare; prefer keeping it on) */
+  skipOriginCheck?: boolean;
 };
 
 /**
- * Shared write guard: honeypot → rate limit → phone OTP identity (default).
- * Verification is by phone number hash only — complete anonymity publicly.
+ * Shared write guard: origin → honeypot → turnstile → rate limit → session cookie.
+ * Client-supplied voterKey is ignored; identity comes from the httpOnly session.
  * Never logs phone numbers or raw IPs.
  */
 export async function guardAnonymousWrite(
@@ -205,15 +211,46 @@ export async function guardAnonymousWrite(
   const { body, req, action } = opts;
   const phoneRequired = opts.phoneRequired !== false;
 
+  if (!opts.skipOriginCheck) {
+    const origin = assertSameOrigin(req);
+    if (!origin.ok) {
+      return { ok: false, status: 403, error: origin.error };
+    }
+  }
+
   if (honeypotTripped(body)) {
     return { ok: false, status: 400, error: "Rejected" };
   }
 
+  if (opts.requireTurnstile && turnstileConfigured()) {
+    const token =
+      typeof body.turnstileToken === "string"
+        ? body.turnstileToken
+        : typeof body.cfTurnstileResponse === "string"
+          ? body.cfTurnstileResponse
+          : "";
+    if (!token || !(await verifyTurnstile(token, req))) {
+      return {
+        ok: false,
+        status: 403,
+        error: "Human verification failed — refresh and try again",
+      };
+    }
+  }
+
+  const session = await resolveSessionFromRequest(req);
+  const phoneHash = session?.phoneHash ?? null;
+
+  // Never trust client voterKey as auth — bind from session when present
+  if (phoneHash) {
+    body.voterKey = phoneHash;
+  } else if (phoneRequired) {
+    // Strip any forged client hash so downstream cannot misuse it
+    delete body.voterKey;
+  }
+
   const fp = hashClientFingerprint(req);
-  const phonePart =
-    typeof body.voterKey === "string" && body.voterKey.length >= 32
-      ? body.voterKey.slice(0, 16)
-      : "anon";
+  const phonePart = phoneHash ? phoneHash.slice(0, 16) : "anon";
   const rl = await assertRateLimit(
     `${action}:${fp}:${phonePart}`,
     opts.limit ?? 30,
@@ -222,11 +259,20 @@ export async function guardAnonymousWrite(
   if (!rl.ok) return rl;
 
   if (phoneRequired) {
-    const phone = await assertAnonymousPhone(body.voterKey);
+    if (!phoneHash) {
+      return {
+        ok: false,
+        status: 401,
+        error:
+          "Verify your phone number to continue (anonymous — number never shown)",
+      };
+    }
+    const phone = await assertAnonymousPhone(phoneHash);
     if (!phone.ok) return phone;
+    return { ok: true, voterKey: phoneHash };
   }
 
-  return { ok: true };
+  return { ok: true, voterKey: phoneHash ?? undefined };
 }
 
 export function turnstileConfigured() {

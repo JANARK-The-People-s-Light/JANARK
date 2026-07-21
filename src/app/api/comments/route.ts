@@ -10,17 +10,19 @@ import {
 } from "@/lib/engage";
 import { parseOptionalMedia } from "@/lib/media";
 import { requireCivicPostTerms } from "@/lib/civic-post-terms";
+import { resolveSessionFromRequest } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const fetchCache = "force-no-store";
 
-/** GET ?targetType=&targetId=&voterKey= → threaded comments */
+/** GET ?targetType=&targetId= → threaded comments (my votes via session cookie) */
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const targetType = url.searchParams.get("targetType") ?? "";
   const targetId = url.searchParams.get("targetId") ?? "";
-  const voterKey = url.searchParams.get("voterKey");
+  const session = await resolveSessionFromRequest(req);
+  const voterKey = session?.phoneHash ?? null;
 
   if (!isEngageTarget(targetType) || targetType === "comment" || !targetId) {
     return NextResponse.json(

@@ -4,7 +4,7 @@ export type MediaType = "image" | "gif" | "video";
 
 const VIDEO_EXT = /\.(mp4|webm|ogg|mov|m4v)(\?|#|$)/i;
 const GIF_EXT = /\.gif(\?|#|$)/i;
-const IMAGE_EXT = /\.(png|jpe?g|webp|avif|bmp|svg)(\?|#|$)/i;
+const IMAGE_EXT = /\.(png|jpe?g|webp|avif|bmp)(\?|#|$)/i;
 
 /** Infer media kind from URL path / known hosts */
 export function detectMediaType(url: string): MediaType {

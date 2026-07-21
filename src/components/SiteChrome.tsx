@@ -51,10 +51,11 @@ export function SiteHeader() {
   }, [menuOpen]);
 
   function logout() {
-    clearPhoneSession();
-    refreshSession();
-    setMenuOpen(false);
-    router.refresh();
+    void clearPhoneSession().then(() => {
+      refreshSession();
+      setMenuOpen(false);
+      router.refresh();
+    });
   }
 
   const isActive = (href: string) =>

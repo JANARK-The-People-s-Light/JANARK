@@ -7,7 +7,6 @@ import { MediaAttach } from "@/components/MediaAttach";
 import { MediaViewer } from "@/components/MediaViewer";
 import { ReportButton } from "@/components/ReportButton";
 import { PostTermsAccept } from "@/components/PostTermsAccept";
-import { getVoterKey } from "@/lib/client-id";
 import type { EngageTarget } from "@/lib/engage";
 import type { MediaType } from "@/lib/media";
 import { termsPayload } from "@/lib/civic-post-terms";
@@ -62,10 +61,11 @@ export function CommentThread({
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const load = useCallback(async () => {
-    const vk = getVoterKey();
     const qs = new URLSearchParams({ targetType, targetId });
-    if (vk) qs.set("voterKey", vk);
-    const res = await fetch(`/api/comments?${qs}`, { cache: "no-store" });
+    const res = await fetch(`/api/comments?${qs}`, {
+      cache: "no-store",
+      credentials: "same-origin",
+    });
     const data = await res.json();
     if (!res.ok) return;
     const list = (data.comments ?? []) as Comment[];
@@ -101,6 +101,7 @@ export function CommentThread({
     try {
       const res = await fetch("/api/comments", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           targetType,
@@ -108,7 +109,6 @@ export function CommentThread({
           body: body.trim(),
           mediaUrl: mediaLink || undefined,
           parentId,
-          voterKey,
           website: "",
           ...termsPayload(acceptedTerms),
         }),
@@ -139,12 +139,12 @@ export function CommentThread({
     if (!voterKey) return;
     const res = await fetch("/api/engage", {
       method: "POST",
+      credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         targetType: "comment",
         targetId: id,
         choice,
-        voterKey,
         website: "",
       }),
     });

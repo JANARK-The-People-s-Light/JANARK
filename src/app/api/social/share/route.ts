@@ -27,7 +27,10 @@ const PLATFORMS = new Set([
   "native",
 ]);
 
-/** Track a share — requires phone OTP so bots can't inflate share counts */
+/**
+ * Track a share — requires phone OTP so bots can't inflate share counts.
+ * Server-side page/WhatsApp publishing is OFF by default (ALLOW_CITIZEN_SOCIAL_PUBLISH=1 to enable).
+ */
 export async function POST(req: Request) {
   const body = (await req.json()) as Record<string, unknown>;
   const gate = await guardAnonymousWrite({
@@ -42,13 +45,17 @@ export async function POST(req: Request) {
 
   const platform = String(body.platform ?? "");
   const path = String(body.path ?? "");
-  const title = body.title ? String(body.title) : undefined;
+  const title = body.title ? String(body.title).slice(0, 280) : undefined;
 
-  if (!PLATFORMS.has(platform) || !path) {
+  if (!PLATFORMS.has(platform) || !path || path.length > 500) {
     return NextResponse.json(
       { error: "platform and path required" },
       { status: 400 },
     );
+  }
+  // Only allow relative site paths
+  if (!path.startsWith("/") || path.startsWith("//") || path.includes("://")) {
+    return NextResponse.json({ error: "Invalid path" }, { status: 400 });
   }
 
   const event = await prisma.socialShareEvent.create({
@@ -73,23 +80,25 @@ export async function POST(req: Request) {
   });
   await bumpMongoStats({ citizens: 1 });
 
-  const site =
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
-    "http://localhost:3000";
-  const url = `${site}${path.startsWith("/") ? path : `/${path}`}`;
-  const text = title
-    ? `${title} — via Janark`
-    : "Shared from Janark — the light of the people, for the people, by the people";
-
   const publishResults: Record<string, unknown> = {};
-  if (platform === "twitter") {
-    publishResults.x = await maybePostToX(`${text}\n${url}`);
-  }
-  if (platform === "facebook") {
-    publishResults.facebook = await maybePostToFacebook(url, text);
-  }
-  if (platform === "whatsapp") {
-    publishResults.whatsapp = await maybePostToWhatsApp(text);
+  if (process.env.ALLOW_CITIZEN_SOCIAL_PUBLISH === "1") {
+    const site =
+      process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
+      "http://localhost:3000";
+    const url = `${site}${path}`;
+    const text = title
+      ? `${title} — via Janark`
+      : "Shared from Janark — the light of the people, for the people, by the people";
+
+    if (platform === "twitter") {
+      publishResults.x = await maybePostToX(`${text}\n${url}`);
+    }
+    if (platform === "facebook") {
+      publishResults.facebook = await maybePostToFacebook(url, text);
+    }
+    if (platform === "whatsapp") {
+      publishResults.whatsapp = await maybePostToWhatsApp(text);
+    }
   }
 
   return NextResponse.json({ ok: true, event, publishResults });

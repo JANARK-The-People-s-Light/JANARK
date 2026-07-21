@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { guardAnonymousWrite } from "@/lib/anti-bot";
+import { guardAnonymousWrite, turnstileConfigured } from "@/lib/anti-bot";
 import { guardFail } from "@/lib/http";
 import { generateAnonId } from "@/lib/identity";
 import {
@@ -10,12 +10,15 @@ import {
   phoneHint,
   safeEqualHash,
 } from "@/lib/phone";
+import { createSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const fetchCache = "force-no-store";
 
-/** Confirm OTP → anonymous phone session (hash + public anonId) */
+const MAX_OTP_ATTEMPTS = 5;
+
+/** Confirm OTP → httpOnly session cookie + public anon profile fields */
 export async function POST(req: Request) {
   const body = (await req.json()) as Record<string, unknown>;
   const gate = await guardAnonymousWrite({
@@ -23,6 +26,7 @@ export async function POST(req: Request) {
     body,
     req,
     phoneRequired: false,
+    requireTurnstile: turnstileConfigured(),
     limit: 20,
     windowMs: 60 * 60 * 1000,
   });
@@ -39,6 +43,8 @@ export async function POST(req: Request) {
   }
 
   const phoneHash = hashPhone(normalized);
+  const { assertRateLimit } = await import("@/lib/anti-bot");
+
   const otp = await prisma.phoneOtp.findFirst({
     where: {
       phoneHash,
@@ -48,7 +54,43 @@ export async function POST(req: Request) {
     orderBy: { createdAt: "desc" },
   });
 
-  if (!otp || !safeEqualHash(otp.codeHash, hashOtp(code, phoneHash))) {
+  if (!otp) {
+    await assertRateLimit(`otp-verify-fail:${phoneHash}`, 15, 60 * 60 * 1000);
+    return NextResponse.json(
+      { error: "Invalid or expired OTP" },
+      { status: 401 },
+    );
+  }
+
+  if (otp.failedAttempts >= MAX_OTP_ATTEMPTS) {
+    await prisma.phoneOtp.update({
+      where: { id: otp.id },
+      data: { consumed: true },
+    });
+    return NextResponse.json(
+      { error: "Too many incorrect attempts — request a new OTP" },
+      { status: 429 },
+    );
+  }
+
+  if (!safeEqualHash(otp.codeHash, hashOtp(code, phoneHash))) {
+    const failRl = await assertRateLimit(
+      `otp-verify-fail:${phoneHash}`,
+      15,
+      60 * 60 * 1000,
+    );
+    if (!failRl.ok) return guardFail(failRl);
+
+    const updated = await prisma.phoneOtp.update({
+      where: { id: otp.id },
+      data: { failedAttempts: { increment: 1 } },
+    });
+    if (updated.failedAttempts >= MAX_OTP_ATTEMPTS) {
+      await prisma.phoneOtp.update({
+        where: { id: otp.id },
+        data: { consumed: true },
+      });
+    }
     return NextResponse.json(
       { error: "Invalid or expired OTP" },
       { status: 401 },
@@ -57,6 +99,12 @@ export async function POST(req: Request) {
 
   await prisma.phoneOtp.update({
     where: { id: otp.id },
+    data: { consumed: true },
+  });
+
+  // Consume any other outstanding OTPs for this phone
+  await prisma.phoneOtp.updateMany({
+    where: { phoneHash, consumed: false },
     data: { consumed: true },
   });
 
@@ -99,15 +147,25 @@ export async function POST(req: Request) {
     );
   }
 
-  return NextResponse.json({
+  // Revoke older sessions for this phone (single active session)
+  await prisma.authSession.updateMany({
+    where: { phoneHash, revokedAt: null },
+    data: { revokedAt: new Date() },
+  });
+
+  const res = NextResponse.json({
     ok: true,
     session: {
-      voterKey: identity.phoneHash,
+      // Never return phoneHash to the browser
       hint: identity.phoneHint,
       anonId: identity.anonId,
       anonymous: true,
+      authenticated: true,
     },
     message:
       "Phone verified anonymously. Your anonymity ID is public; your number is never shown.",
   });
+
+  await createSession(phoneHash, res);
+  return res;
 }

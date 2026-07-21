@@ -1,13 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   clearPhoneSession,
   getPhoneSession,
-  getVoterKey,
   savePhoneSession,
   type PhoneSession,
 } from "@/lib/client-id";
+import {
+  TurnstileField,
+  turnstileEnabledClient,
+} from "@/components/TurnstileField";
 
 type Props = {
   onVerified?: (session: PhoneSession) => void;
@@ -16,6 +19,7 @@ type Props = {
 /**
  * Log in with phone number + OTP.
  * Proves one real person; we store a one-way hash — number never shown.
+ * Auth cookie is httpOnly; browser only keeps public anon hint fields.
  */
 export function PhoneAuth({ onVerified }: Props) {
   const [session, setSession] = useState<PhoneSession | null>(null);
@@ -27,6 +31,12 @@ export function PhoneAuth({ onVerified }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [hp, setHp] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const needTurnstile = turnstileEnabledClient();
+
+  const onTurnstile = useCallback((token: string | null) => {
+    setTurnstileToken(token);
+  }, []);
 
   useEffect(() => {
     setSession(getPhoneSession());
@@ -37,10 +47,19 @@ export function PhoneAuth({ onVerified }: Props) {
     setBusy(true);
     setError(null);
     try {
+      if (needTurnstile && !turnstileToken) {
+        setError("Complete the human verification challenge");
+        return;
+      }
       const res = await fetch("/api/auth/phone/request", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, website: hp }),
+        body: JSON.stringify({
+          phone,
+          website: hp,
+          ...(turnstileToken ? { turnstileToken } : {}),
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -62,10 +81,20 @@ export function PhoneAuth({ onVerified }: Props) {
     setBusy(true);
     setError(null);
     try {
+      if (needTurnstile && !turnstileToken) {
+        setError("Complete the human verification challenge");
+        return;
+      }
       const res = await fetch("/api/auth/phone/verify", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone, code, website: hp }),
+        body: JSON.stringify({
+          phone,
+          code,
+          website: hp,
+          ...(turnstileToken ? { turnstileToken } : {}),
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -102,13 +131,11 @@ export function PhoneAuth({ onVerified }: Props) {
           type="button"
           className="text-xs text-amber underline"
           onClick={() => {
-            clearPhoneSession();
-            setSession(null);
+            void clearPhoneSession().then(() => setSession(null));
           }}
         >
           Log out
         </button>
-        <span className="sr-only">{getVoterKey()}</span>
       </div>
     );
   }
@@ -132,6 +159,10 @@ export function PhoneAuth({ onVerified }: Props) {
         aria-hidden
         name="website"
       />
+
+      {needTurnstile && (
+        <TurnstileField onToken={onTurnstile} />
+      )}
 
       {step === "idle" ? (
         <form onSubmit={requestOtp} className="mt-3 flex flex-col gap-2 sm:flex-row sm:flex-wrap">

@@ -1,6 +1,16 @@
 import { createHash, randomInt, timingSafeEqual } from "node:crypto";
+import { isProductionRuntime } from "@/lib/security-env";
 
-const SALT = process.env.PHONE_HASH_SALT || "janark-dev-salt-change-me";
+function phoneSalt(): string {
+  const salt = process.env.PHONE_HASH_SALT || "janark-dev-salt-change-me";
+  if (
+    isProductionRuntime() &&
+    (!process.env.PHONE_HASH_SALT || salt === "janark-dev-salt-change-me")
+  ) {
+    throw new Error("PHONE_HASH_SALT must be configured in production");
+  }
+  return salt;
+}
 
 /** Normalize Indian / international phone to digits with country code preference */
 export function normalizePhone(raw: string): string | null {
@@ -13,7 +23,7 @@ export function normalizePhone(raw: string): string | null {
 }
 
 export function hashPhone(normalized: string): string {
-  return createHash("sha256").update(`${SALT}:${normalized}`).digest("hex");
+  return createHash("sha256").update(`${phoneSalt()}:${normalized}`).digest("hex");
 }
 
 export function phoneHint(normalized: string): string {
@@ -21,7 +31,9 @@ export function phoneHint(normalized: string): string {
 }
 
 export function hashOtp(code: string, phoneHash: string): string {
-  return createHash("sha256").update(`${SALT}:otp:${phoneHash}:${code}`).digest("hex");
+  return createHash("sha256")
+    .update(`${phoneSalt()}:otp:${phoneHash}:${code}`)
+    .digest("hex");
 }
 
 export function generateOtp(): string {

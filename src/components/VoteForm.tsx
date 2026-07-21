@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { Proposal } from "@/lib/types";
-import { getPhoneSession, getVoterKey } from "@/lib/client-id";
+import { getPhoneSession } from "@/lib/client-id";
 import { DemoBadge, NonBindingLabel } from "@/components/Ui";
 import { SocialShare } from "@/components/SocialShare";
 import { useAuth } from "@/components/AuthModal";
@@ -31,11 +31,10 @@ export function VoteForm({ proposal }: { proposal: Proposal }) {
 
   useEffect(() => {
     refreshSession();
-    const voterKey = getVoterKey();
-    fetch(
-      `/api/votes/me?voterKey=${encodeURIComponent(voterKey)}&proposalId=${encodeURIComponent(proposal.id)}`,
-      { cache: "no-store" },
-    )
+    fetch(`/api/votes/me?proposalId=${encodeURIComponent(proposal.id)}`, {
+      cache: "no-store",
+      credentials: "same-origin",
+    })
       .then((r) => r.json())
       .then((data) => {
         if (data.vote?.choice != null) {
@@ -80,8 +79,9 @@ export function VoteForm({ proposal }: { proposal: Proposal }) {
     try {
       const res = await fetch(`/api/votes/${proposal.id}`, {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ voterKey, choice: payload, website: "" }),
+        body: JSON.stringify({ choice: payload, website: "" }),
       });
       const data = await res.json();
       if (!res.ok) {

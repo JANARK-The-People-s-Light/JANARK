@@ -48,9 +48,33 @@ write-ups.
 Use public GitHub Issues for ordinary bugs and feature requests. See
 [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Production hosting checklist
+
+Before exposing Janark on the public internet:
+
+1. Set strong unique `PHONE_HASH_SALT`, `HUMAN_TOKEN_SECRET`, and `IP_HASH_SALT`
+   (≥24 random characters). The process refuses to start in production with
+   defaults.
+2. Set `NEXT_PUBLIC_SITE_URL` to your real HTTPS origin (used for Origin checks).
+3. Set `MONGODB_URI` to a real MongoDB (no in-memory fallback in production).
+4. Configure OTP SMS via Twilio or MSG91. Do **not** set `EXPOSE_DEV_OTP`.
+5. Prefer HTTPS everywhere; HSTS is enabled when `NODE_ENV=production`.
+6. Enable Cloudflare Turnstile (`NEXT_PUBLIC_TURNSTILE_SITE_KEY` +
+   `TURNSTILE_SECRET_KEY`) for OTP abuse resistance.
+7. Keep `ALLOW_CITIZEN_SOCIAL_PUBLISH` unset unless you intentionally want
+   citizen shares to post to your Meta/WhatsApp channels.
+8. Use a managed database (Postgres recommended over SQLite) for multi-instance
+   deploys; SQLite file paths are fine only for single-node demos.
+
+### Auth model
+
+- Sessions are **httpOnly**, `Secure` (production), `SameSite=Lax` cookies.
+- Phone hashes are never returned to the browser or stored in `localStorage`.
+- Client-supplied `voterKey` values are ignored for authorization.
+
 ## Safe local development
 
-- Never commit `.env` or real `PHONE_HASH_SALT` values
+- Never commit `.env` or real salt values
 - Use `EXPOSE_DEV_OTP=1` only on local machines
 - Treat demo / seed data as non-production
 

@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { isProductionRuntime } from "@/lib/security-env";
 
 const globalForMongo = globalThis as unknown as {
   mongoosePromise: Promise<typeof mongoose> | undefined;
@@ -8,7 +9,11 @@ const globalForMongo = globalThis as unknown as {
 async function resolveMongoUri(): Promise<string> {
   if (process.env.MONGODB_URI) return process.env.MONGODB_URI;
 
-  // Prefer local Docker / installed mongod; fall back to in-memory for CI
+  if (isProductionRuntime()) {
+    throw new Error("MONGODB_URI is required in production");
+  }
+
+  // Prefer local Docker / installed mongod; fall back to in-memory for CI/dev
   const defaultUri = "mongodb://127.0.0.1:27017/janark";
   try {
     const { MongoClient } = await import("mongodb");

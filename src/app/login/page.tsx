@@ -13,7 +13,7 @@ function LoginInner() {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    if (getPhoneSession()?.voterKey) {
+    if (getPhoneSession()?.authenticated || getPhoneSession()?.anonId) {
       router.replace(next.startsWith("/") ? next : "/feed");
       return;
     }

@@ -4,6 +4,7 @@ import {
   assertRateLimit,
   guardAnonymousWrite,
   hashClientFingerprint,
+  turnstileConfigured,
 } from "@/lib/anti-bot";
 import { guardFail } from "@/lib/http";
 import {
@@ -13,6 +14,8 @@ import {
   normalizePhone,
   phoneHint,
 } from "@/lib/phone";
+import { allowDevOtpInResponse } from "@/lib/security-env";
+import { sendOtpSms, smsConfigured } from "@/lib/sms";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -29,6 +32,7 @@ export async function POST(req: Request) {
     body,
     req,
     phoneRequired: false,
+    requireTurnstile: turnstileConfigured(),
     limit: 8,
     windowMs: 60 * 60 * 1000,
   });
@@ -57,8 +61,25 @@ export async function POST(req: Request) {
   );
   if (!fpRl.ok) return guardFail(fpRl);
 
+  if (
+    process.env.NODE_ENV === "production" &&
+    !smsConfigured() &&
+    process.env.ALLOW_OTP_WITHOUT_SMS !== "1"
+  ) {
+    return NextResponse.json(
+      { error: "OTP delivery is temporarily unavailable" },
+      { status: 503 },
+    );
+  }
+
   const code = generateOtp();
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+  // Invalidate any unused OTPs for this phone
+  await prisma.phoneOtp.updateMany({
+    where: { phoneHash, consumed: false },
+    data: { consumed: true },
+  });
 
   await prisma.phoneOtp.create({
     data: {
@@ -68,9 +89,13 @@ export async function POST(req: Request) {
     },
   });
 
-  const isDev =
-    process.env.NODE_ENV !== "production" ||
-    process.env.EXPOSE_DEV_OTP === "1";
+  const sms = await sendOtpSms(normalized, code);
+  if (!sms.ok) {
+    return NextResponse.json(
+      { error: "Could not send OTP — try again shortly" },
+      { status: 503 },
+    );
+  }
 
   return NextResponse.json({
     ok: true,
@@ -78,6 +103,6 @@ export async function POST(req: Request) {
     expiresInSec: 600,
     message:
       "OTP sent. Verification is by phone only — we store a one-way hash, never show your number.",
-    ...(isDev ? { devCode: code } : {}),
+    ...(allowDevOtpInResponse() ? { devCode: code } : {}),
   });
 }
