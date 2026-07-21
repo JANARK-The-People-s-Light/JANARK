@@ -1,0 +1,217 @@
+/**
+ * Mobile layout validation for Janark at 375×812 and 390×844.
+ * Run: npx --yes playwright@1.49.0 install chromium && npx --yes tsx scripts/validate-mobile.ts
+ */
+import { chromium, type Page } from "playwright";
+
+const BASE = process.env.BASE_URL || "http://localhost:3000";
+const VIEWPORTS = [
+  { name: "iPhone-SE", width: 375, height: 667 },
+  { name: "iPhone-12", width: 390, height: 844 },
+];
+
+const ROUTES = [
+  "/",
+  "/feed",
+  "/memes",
+  "/demands",
+  "/reports",
+  "/explore",
+  "/issues",
+  "/about",
+  "/dashboard",
+  "/login",
+  "/memes/new",
+  "/demands/new",
+  "/reports/new",
+];
+
+type Issue = {
+  route: string;
+  viewport: string;
+  kind: string;
+  detail: string;
+};
+
+async function checkPage(page: Page, route: string, vpName: string): Promise<Issue[]> {
+  const issues: Issue[] = [];
+  const url = `${BASE}${route}`;
+  const res = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
+  if (!res || res.status() >= 500) {
+    issues.push({
+      route,
+      viewport: vpName,
+      kind: "http",
+      detail: `status ${res?.status() ?? "none"}`,
+    });
+    return issues;
+  }
+
+  await page.waitForTimeout(400);
+
+  const metrics = await page.evaluate(() => {
+    const doc = document.documentElement;
+    const body = document.body;
+    const scrollWidth = Math.max(doc.scrollWidth, body.scrollWidth);
+    const clientWidth = doc.clientWidth;
+    const overflowX = scrollWidth - clientWidth;
+
+    const header = document.querySelector("header");
+    const menuBtn = document.querySelector(
+      'header button[aria-label="Open menu"], header button[aria-label="Close menu"]',
+    );
+    const desktopNav = document.querySelector('header nav[aria-label="Primary"]');
+
+    // Elements extending past viewport
+    const offenders: string[] = [];
+    const all = Array.from(document.querySelectorAll("body *"));
+    for (const el of all.slice(0, 800)) {
+      const r = (el as HTMLElement).getBoundingClientRect?.();
+      if (!r || r.width === 0) continue;
+      if (r.right > clientWidth + 2 || r.left < -2) {
+        const tag = (el as HTMLElement).tagName.toLowerCase();
+        const cls = ((el as HTMLElement).className || "").toString().slice(0, 60);
+        offenders.push(`${tag}.${cls} L=${Math.round(r.left)} R=${Math.round(r.right)}`);
+        if (offenders.length >= 8) break;
+      }
+    }
+
+    return {
+      overflowX,
+      clientWidth,
+      scrollWidth,
+      hasHeader: !!header,
+      hasMenuBtn: !!menuBtn,
+      desktopNavHidden:
+        !desktopNav ||
+        getComputedStyle(desktopNav as Element).display === "none",
+      offenders,
+    };
+  });
+
+  if (metrics.overflowX > 2) {
+    issues.push({
+      route,
+      viewport: vpName,
+      kind: "horizontal-overflow",
+      detail: `scrollWidth ${metrics.scrollWidth} > clientWidth ${metrics.clientWidth} (Δ ${metrics.overflowX})`,
+    });
+  }
+
+  if (!metrics.hasHeader) {
+    issues.push({
+      route,
+      viewport: vpName,
+      kind: "missing-header",
+      detail: "no header",
+    });
+  }
+
+  if (!metrics.hasMenuBtn) {
+    issues.push({
+      route,
+      viewport: vpName,
+      kind: "missing-mobile-menu",
+      detail: "hamburger button not found",
+    });
+  }
+
+  if (!metrics.desktopNavHidden) {
+    issues.push({
+      route,
+      viewport: vpName,
+      kind: "desktop-nav-visible",
+      detail: "primary nav should be hidden on mobile",
+    });
+  }
+
+  if (metrics.offenders.length > 0 && metrics.overflowX > 2) {
+    issues.push({
+      route,
+      viewport: vpName,
+      kind: "overflow-elements",
+      detail: metrics.offenders.join(" | "),
+    });
+  }
+
+  // Open mobile menu and verify drawer
+  if (metrics.hasMenuBtn) {
+    await page.click('header button[aria-label="Open menu"]');
+    await page.waitForTimeout(200);
+    const menuOk = await page.evaluate(() => {
+      const drawer = document.getElementById("mobile-nav");
+      if (!drawer) return { ok: false, reason: "no #mobile-nav" };
+      const links = drawer.querySelectorAll("a");
+      return {
+        ok: links.length >= 8,
+        reason: links.length < 8 ? `only ${links.length} links` : "ok",
+      };
+    });
+    if (!menuOk.ok) {
+      issues.push({
+        route,
+        viewport: vpName,
+        kind: "mobile-menu-broken",
+        detail: menuOk.reason,
+      });
+    }
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(150);
+  }
+
+  return issues;
+}
+
+async function main() {
+  const browser = await chromium.launch({ headless: true });
+  const all: Issue[] = [];
+
+  for (const vp of VIEWPORTS) {
+    const context = await browser.newContext({
+      viewport: { width: vp.width, height: vp.height },
+      isMobile: true,
+      hasTouch: true,
+      userAgent:
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1",
+    });
+    const page = await context.newPage();
+    for (const route of ROUTES) {
+      try {
+        const found = await checkPage(page, route, vp.name);
+        all.push(...found);
+        process.stdout.write(
+          found.length === 0
+            ? `✓ ${vp.name} ${route}\n`
+            : `✗ ${vp.name} ${route} (${found.length} issues)\n`,
+        );
+      } catch (e) {
+        all.push({
+          route,
+          viewport: vp.name,
+          kind: "crash",
+          detail: String(e),
+        });
+        process.stdout.write(`✗ ${vp.name} ${route} CRASH\n`);
+      }
+    }
+    await context.close();
+  }
+
+  await browser.close();
+
+  console.log("\n=== SUMMARY ===");
+  if (all.length === 0) {
+    console.log(`All ${ROUTES.length * VIEWPORTS.length} checks passed.`);
+    process.exit(0);
+  }
+  for (const i of all) {
+    console.log(`[${i.viewport}] ${i.route} · ${i.kind}: ${i.detail}`);
+  }
+  console.log(`\n${all.length} issue(s) found.`);
+  process.exit(1);
+}
+
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

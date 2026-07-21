@@ -1,0 +1,401 @@
+// Janark civic platform schema
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Issue {
+  id               String    @id @default(cuid())
+  slug             String    @unique
+  title            String
+  category         String
+  summary          String
+  whyItMatters     String
+  currentSituation String
+  pros             String // JSON array
+  cons             String // JSON array
+  sources          String // JSON array of {label,url}
+  relatedSlugs     String // JSON array
+  voteCount        Int       @default(0)
+  rating           Float     @default(0)
+  trendingRank     Int?
+  comments         Comment[]
+  proposals        Proposal[]
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+}
+
+model Proposal {
+  id                String   @id // slug-like id e.g. asset-disclosure
+  title             String
+  description       String
+  benefits          String // JSON
+  argumentsFor      String // JSON
+  argumentsAgainst  String // JSON
+  voteType          String // likert | checklist | preference
+  options           String? // JSON
+  results           String? // JSON percentages
+  totalVotes        Int      @default(0)
+  issueSlug         String?
+  issue             Issue?   @relation(fields: [issueSlug], references: [slug])
+  /// Optional geographic scope for location browsing
+  locationLevel     String?  // town | city | district | state | national | country
+  town              String?
+  city              String?
+  district          String?
+  state             String?
+  country           String?  @default("India")
+  votes             Vote[]
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model Vote {
+  id         String   @id @default(cuid())
+  proposalId String
+  proposal   Proposal @relation(fields: [proposalId], references: [id])
+  choice     String // JSON string or string[]
+  voterKey   String // anonymous device fingerprint / session key
+  createdAt  DateTime @default(now())
+
+  @@unique([proposalId, voterKey])
+  @@index([proposalId])
+}
+
+model Notice {
+  id           String   @id @default(cuid())
+  title        String
+  description  String
+  target       String
+  targetDetail String?
+  author       String
+  /// Public anonymity ID of raiser
+  authorAnonId String?
+  category     String?
+  signatures   Int      @default(1)
+  upvotes      Int      @default(0)
+  downvotes    Int      @default(0)
+  commentCount Int      @default(0)
+  /// Optional image / GIF / video URL
+  mediaUrl     String?
+  mediaType    String?  // image | gif | video
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  signatureRecords Signature[]
+
+  @@index([authorAnonId])
+}
+
+model Signature {
+  id        String   @id @default(cuid())
+  noticeId  String
+  notice    Notice   @relation(fields: [noticeId], references: [id], onDelete: Cascade)
+  signerKey String
+  createdAt DateTime @default(now())
+
+  @@unique([noticeId, signerKey])
+  @@index([noticeId])
+}
+
+model Comment {
+  id           String   @id @default(cuid())
+  issueSlug    String
+  issue        Issue    @relation(fields: [issueSlug], references: [slug])
+  author       String
+  authorAnonId String?
+  body         String
+  upvotes      Int      @default(0)
+  kind         String // opinion | evidence | news
+  createdAt    DateTime @default(now())
+
+  @@index([issueSlug])
+  @@index([authorAnonId])
+}
+
+model SocialShareEvent {
+  id        String   @id @default(cuid())
+  platform  String // facebook | twitter | whatsapp | instagram | linkedin | copy | native
+  path      String
+  title     String?
+  createdAt DateTime @default(now())
+
+  @@index([platform])
+}
+
+/// Location-scoped citizen reports: issues, crimes, problems (village → country)
+model CitizenReport {
+  id            String   @id @default(cuid())
+  type          String   // issue | crime | problem | other
+  title         String
+  body          String
+  locationLevel String   // village | town | city | block | district | state | national | country
+  village       String?
+  town          String?
+  city          String?
+  block         String?
+  district      String?
+  state         String?
+  country       String   @default("India")
+  /// Public display only — never a phone number
+  authorLabel   String   @default("Anonymous citizen")
+  /// Public anonymity ID for profile links (e.g. jn-a7k2m9xq)
+  authorAnonId  String?
+  /// Hashed phone of poster (optional); never returned to clients
+  authorHash    String?
+  /// Optional image / GIF / video URL
+  mediaUrl      String?
+  mediaType     String?  // image | gif | video
+  upvotes       Int      @default(0)
+  downvotes     Int      @default(0)
+  commentCount  Int      @default(0)
+  shareCount    Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  reactions     ReportReaction[]
+  reportVotes   ReportVote[]
+
+  @@index([locationLevel])
+  @@index([state, district])
+  @@index([city])
+  @@index([town])
+  @@index([type, createdAt])
+  @@index([upvotes])
+  @@index([authorAnonId])
+}
+
+model ReportReaction {
+  id        String   @id @default(cuid())
+  reportId  String
+  report    CitizenReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  /// Anonymous phone/device hash — never public
+  voterKey  String
+  reaction  String   // support | concerned | angry | sad | important
+  createdAt DateTime @default(now())
+
+  @@unique([reportId, voterKey, reaction])
+  @@index([reportId])
+}
+
+model ReportVote {
+  id        String   @id @default(cuid())
+  reportId  String
+  report    CitizenReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  voterKey  String
+  choice    String   // upvote | endorse | dispute
+  createdAt DateTime @default(now())
+
+  @@unique([reportId, voterKey])
+  @@index([reportId])
+}
+
+/// Phone-verified anonymous identity (hash only; plaintext never stored long-term)
+model PhoneIdentity {
+  id           String   @id @default(cuid())
+  phoneHash    String   @unique
+  /// Public anonymity ID (e.g. jn-a7k2m9xq) — visit /u/{anonId}
+  anonId       String   @unique
+  /// Last 2 digits only for UX hint e.g. **87 — not full number
+  phoneHint    String
+  verifiedAt   DateTime @default(now())
+  lastSeenAt   DateTime @default(now())
+  createdAt    DateTime @default(now())
+}
+
+model PhoneOtp {
+  id        String   @id @default(cuid())
+  phoneHash String
+  codeHash  String
+  expiresAt DateTime
+  consumed  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([phoneHash])
+}
+
+/// Collective public demands citizens rally behind
+model PublicDemand {
+  id            String   @id @default(cuid())
+  title         String
+  body          String
+  /// What citizens are demanding (clear ask)
+  ask           String
+  /// Who should act: government | state | district | institution | public
+  target        String   @default("government")
+  targetDetail  String?
+  category      String?  // education | health | infrastructure | justice | other
+  status        String   @default("open") // open | gathering | delivered | won | closed
+  locationLevel String   // village | town | city | district | state | national | country
+  village       String?
+  town          String?
+  city          String?
+  block         String?
+  district      String?
+  state         String?
+  country       String   @default("India")
+  authorLabel   String   @default("Anonymous citizen")
+  authorAnonId  String?
+  authorHash    String?
+  /// Optional image / GIF / video URL
+  mediaUrl      String?
+  mediaType     String?  // image | gif | video
+  supportCount  Int      @default(0)
+  upvotes       Int      @default(0)
+  downvotes     Int      @default(0)
+  commentCount  Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  supports      DemandSupport[]
+
+  @@index([locationLevel])
+  @@index([state, district])
+  @@index([status, supportCount])
+  @@index([city])
+  @@index([town])
+  @@index([authorAnonId])
+}
+
+model DemandSupport {
+  id        String   @id @default(cuid())
+  demandId  String
+  demand    PublicDemand @relation(fields: [demandId], references: [id], onDelete: Cascade)
+  voterKey  String
+  createdAt DateTime @default(now())
+
+  @@unique([demandId, voterKey])
+  @@index([demandId])
+}
+
+/// Civic memes — image/GIF via link, hashtags, up/down votes, shareable permalink
+model Meme {
+  id          String     @id @default(cuid())
+  title       String
+  caption     String?
+  /// Direct image, GIF, or video URL (https)
+  imageUrl    String
+  /// image | gif | video (inferred from URL if omitted)
+  mediaType   String?
+  /// Optional original source / page link to share from
+  sourceUrl   String?
+  authorLabel  String     @default("Anonymous citizen")
+  authorAnonId String?
+  authorHash   String?
+  upvotes      Int        @default(0)
+  downvotes    Int        @default(0)
+  commentCount Int        @default(0)
+  shareCount   Int        @default(0)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  tags         MemeTag[]
+  votes        MemeVote[]
+
+  @@index([createdAt])
+  @@index([upvotes])
+  @@index([authorAnonId])
+}
+
+model Hashtag {
+  id        String    @id @default(cuid())
+  /// Normalized without #, lowercase
+  tag       String    @unique
+  createdAt DateTime  @default(now())
+  memes     MemeTag[]
+
+  @@index([tag])
+}
+
+model MemeTag {
+  id        String  @id @default(cuid())
+  memeId    String
+  meme      Meme    @relation(fields: [memeId], references: [id], onDelete: Cascade)
+  hashtagId String
+  hashtag   Hashtag @relation(fields: [hashtagId], references: [id], onDelete: Cascade)
+
+  @@unique([memeId, hashtagId])
+  @@index([hashtagId])
+  @@index([memeId])
+}
+
+model MemeVote {
+  id        String   @id @default(cuid())
+  memeId    String
+  meme      Meme     @relation(fields: [memeId], references: [id], onDelete: Cascade)
+  voterKey  String
+  /// 1 = upvote, -1 = downvote
+  value     Int
+  createdAt DateTime @default(now())
+
+  @@unique([memeId, voterKey])
+  @@index([memeId])
+}
+
+/// Unified Reddit-style vote across all post kinds (and comments)
+model EngagementVote {
+  id         String   @id @default(cuid())
+  /// meme | report | demand | notice | feed | issue | proposal | comment
+  targetType String
+  targetId   String
+  voterKey   String
+  /// 1 = upvote, -1 = downvote
+  value      Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([targetType, targetId, voterKey])
+  @@index([targetType, targetId])
+  @@index([voterKey])
+}
+
+/// Unified comments + nested replies (parentId) on any post kind
+model EngagementComment {
+  id           String   @id @default(cuid())
+  /// meme | report | demand | notice | feed | issue | proposal
+  targetType   String
+  targetId     String
+  /// Reply to another comment (null = top-level)
+  parentId     String?
+  parent       EngagementComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies      EngagementComment[] @relation("CommentReplies")
+  authorLabel  String
+  authorAnonId String?
+  authorHash   String?
+  body         String
+  /// Optional image / GIF / video on comment or reply
+  mediaUrl     String?
+  mediaType    String?  // image | gif | video
+  upvotes      Int      @default(0)
+  downvotes    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([targetType, targetId, createdAt])
+  @@index([parentId])
+  @@index([authorAnonId])
+}
+
+/// Anonymous content reports (flag posts / comments / replies)
+model ContentFlag {
+  id         String   @id @default(cuid())
+  /// Same target kinds as engagement: meme | report | demand | notice | feed | issue | proposal | comment
+  targetType String
+  targetId   String
+  reason     String   // spam | harassment | misinformation | illegal | doxxing | other
+  detail     String?
+  reporterKey String
+  createdAt  DateTime @default(now())
+
+  @@unique([targetType, targetId, reporterKey])
+  @@index([targetType, targetId])
+  @@index([createdAt])
+}
+
+/// Short-lived rate-limit counters (keyed by HMAC of action + anonymous fingerprint)
+model RateLimitBucket {
+  id          String   @id // hash key
+  count       Int      @default(0)
+  windowStart DateTime
+  updatedAt   DateTime @updatedAt
+}
