@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { BrandLogo } from "@/components/BrandLogo";
-import { PORTAL_BASE } from "@/lib/paths";
+import { PORTAL_BASE, portalHref } from "@/lib/paths";
 
 export const metadata = {
   title: "Coming soon · Janark",
@@ -25,8 +25,25 @@ export default function ComingSoonPage() {
       </div>
 
       <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center px-6 py-16 sm:px-8">
-        <div className="animate-rise">
+        <div className="animate-rise flex flex-wrap items-center justify-between gap-4">
           <BrandLogo size="lg" withWordmark onDark priority />
+          <nav
+            className="flex items-center gap-5 text-sm text-sand/70"
+            aria-label="Site"
+          >
+            <Link
+              href={portalHref("/about")}
+              className="transition hover:text-amber-bright"
+            >
+              About
+            </Link>
+            <Link
+              href={portalHref("/terms")}
+              className="transition hover:text-amber-bright"
+            >
+              Terms
+            </Link>
+          </nav>
         </div>
 
         <p className="animate-rise-delay mt-10 text-xs uppercase tracking-[0.28em] text-sand/55">
