@@ -8,6 +8,7 @@ import { FeedEngage } from "@/components/FeedEngage";
 import { MediaAttach } from "@/components/MediaAttach";
 import { PostTermsAccept } from "@/components/PostTermsAccept";
 import { termsPayload } from "@/lib/civic-post-terms";
+import { portalHref } from "@/lib/paths";
 
 type Post = {
   id: string;
@@ -156,25 +157,25 @@ export default function FeedPage() {
 
           <div className="mt-6 flex flex-wrap gap-x-4 gap-y-2">
             <Link
-              href="/notice/new"
+              href={portalHref("/notice/new")}
               className="text-sm text-muted hover:text-navy"
             >
               Raise notice
             </Link>
             <Link
-              href="/vote/new"
+              href={portalHref("/vote/new")}
               className="text-sm text-muted hover:text-navy"
             >
               Create vote
             </Link>
             <Link
-              href="/issues/new"
+              href={portalHref("/issues/new")}
               className="text-sm text-muted hover:text-navy"
             >
               New issue
             </Link>
             <Link
-              href="/memes/new"
+              href={portalHref("/memes/new")}
               className="text-sm text-muted hover:text-navy"
             >
               Post a meme
@@ -219,7 +220,7 @@ export default function FeedPage() {
               {trends.map((t) => (
                 <li key={t.term}>
                   <Link
-                    href="/issues"
+                    href={portalHref("/issues")}
                     className="flex justify-between border-b border-line py-2 text-sm text-navy hover:text-amber"
                   >
                     <span>{t.term}</span>

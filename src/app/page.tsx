@@ -1,50 +1,63 @@
 import Link from "next/link";
-import { HomeTrending } from "@/components/HomeTrending";
+import { BrandLogo } from "@/components/BrandLogo";
+import { PORTAL_BASE } from "@/lib/paths";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-export const fetchCache = "force-no-store";
+export const metadata = {
+  title: "Coming soon · Janark",
+  description:
+    "Janark launches 15 August 2026 — for the people, by the people.",
+};
 
-export default function HomePage() {
+export default function ComingSoonPage() {
   return (
-    <>
-      <section className="hero-atmosphere relative overflow-hidden text-cream">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -right-12 -top-8 h-48 w-48 rounded-full bg-amber/25 blur-3xl" />
-          <div className="absolute -bottom-10 left-1/4 h-36 w-36 rounded-full bg-saffron/20 blur-3xl" />
+    <div className="relative flex min-h-[100dvh] flex-col overflow-hidden bg-navy text-cream">
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -left-24 top-0 h-[28rem] w-[28rem] rounded-full bg-amber/20 blur-3xl" />
+        <div className="absolute bottom-0 right-0 h-[22rem] w-[22rem] rounded-full bg-saffron/15 blur-3xl" />
+        <div
+          className="absolute inset-0 opacity-[0.07]"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at 1px 1px, #f5e6c8 1px, transparent 0)",
+            backgroundSize: "28px 28px",
+          }}
+        />
+      </div>
+
+      <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center px-6 py-16 sm:px-8">
+        <div className="animate-rise">
+          <BrandLogo size="lg" withWordmark onDark priority />
         </div>
 
-        <div className="relative mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
-          <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between sm:gap-8">
-            <div className="animate-rise min-w-0 max-w-xl">
-              <h1 className="font-display text-lg leading-snug text-amber-bright sm:text-xl">
-                The light of the people, for the people, by the people
-              </h1>
-              <p className="mt-1.5 text-sm text-sand/75">
-                Independent civic square — a non-profit for the people, not a
-                party or portal.
-              </p>
-            </div>
+        <p className="animate-rise-delay mt-10 text-xs uppercase tracking-[0.28em] text-sand/55">
+          Public launch · 15 August 2026
+        </p>
+        <h1 className="animate-rise font-display mt-3 text-4xl leading-tight text-amber-bright sm:text-5xl md:text-6xl">
+          Coming soon
+        </h1>
+        <p className="animate-rise font-display mt-4 text-2xl leading-snug text-cream sm:text-3xl">
+          for the people, by the people
+        </p>
+        <p className="animate-rise-delay mt-4 max-w-xl text-base leading-relaxed text-sand/75 sm:text-lg">
+          Janark opens on{" "}
+          <time dateTime="2026-08-15" className="font-semibold text-cream">
+            15 August 2026
+          </time>
+          . An independent civic square.
+        </p>
 
-            <div className="animate-rise-delay flex shrink-0 flex-wrap gap-2">
-              <Link
-                href="/demands/new"
-                className="bg-amber px-4 py-2.5 text-sm font-semibold text-navy transition hover:bg-amber-bright"
-              >
-                Raise a demand
-              </Link>
-              <Link
-                href="/reports/new"
-                className="px-1 py-2.5 text-sm text-sand/80 transition hover:text-amber-bright"
-              >
-                Report an issue
-              </Link>
-            </div>
-          </div>
+        <div className="animate-rise mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <Link
+            href={PORTAL_BASE}
+            className="inline-flex items-center justify-center bg-amber px-6 py-3.5 text-sm font-semibold text-navy transition hover:bg-amber-bright"
+          >
+            Preview the portal
+          </Link>
+          <p className="text-sm text-sand/50 sm:ml-2">
+            Early access · work in progress
+          </p>
         </div>
-      </section>
-
-      <HomeTrending />
-    </>
+      </div>
+    </div>
   );
 }

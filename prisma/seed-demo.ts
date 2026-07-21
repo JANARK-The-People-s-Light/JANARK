@@ -1,5 +1,6 @@
 /**
- * Demo fixtures — India's top 20 civic trending issues (zero engagement).
+ * Demo fixtures — India's top 20 civic trending issues + dummy engagement
+ * from seeded anonymous citizens (votes, reactions, comments, supports).
  *
  *   npm run db:clear && npm run db:demo
  */
@@ -40,20 +41,99 @@ function daysAgo(n: number) {
   return new Date(Date.now() - n * 24 * 60 * 60 * 1000);
 }
 
-const SAMPLE_MEDIA = [
-  { url: "https://picsum.photos/seed/janark-edu/900/600", type: "image" as const },
-  { url: "https://picsum.photos/seed/janark-jobs/900/600", type: "image" as const },
-  { url: "https://picsum.photos/seed/janark-gov/900/600", type: "image" as const },
-  { url: "https://picsum.photos/seed/janark-health/900/600", type: "image" as const },
-  { url: "https://picsum.photos/seed/janark-env/900/600", type: "image" as const },
-];
+/** Topic-matched Unsplash covers (civic / India-relevant themes). */
+function u(id: string, w = 900) {
+  return `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&h=600&q=80`;
+}
 
-const MEME_IMAGES = [
-  "https://picsum.photos/seed/janark-meme1/800/600",
-  "https://picsum.photos/seed/janark-meme2/800/600",
-  "https://picsum.photos/seed/janark-meme3/800/600",
-  "https://picsum.photos/seed/janark-meme4/800/600",
-  "https://picsum.photos/seed/janark-meme5/800/600",
+const TOPIC_IMAGES: Record<string, string> = {
+  "education-exam-integrity": u("photo-1434030216411-0b793f4b4173"), // studying / writing exams
+  "employment-job-creation": u("photo-1521737711867-e3b97375f902"), // workplace / hiring
+  "government-accountability": u("photo-1587474260584-136574528ed5"), // India Gate / national civic
+  "corruption-governance": u("photo-1454165804606-c3d57bc86b40"), // desk work / paperwork trail
+  "judicial-legal-reforms": u("photo-1589829545856-d10d557cf95f"), // gavel / courts
+  "healthcare-access": u("photo-1538108149393-fbbd81895907"), // hospital ward beds
+  "womens-safety-equality": u("photo-1551836022-d5d88e9218df"), // women in workplace leadership
+  "inflation-cost-of-living": u("photo-1542838132-92c53300491e"), // grocery / market prices
+  "taxation-public-spending": u("photo-1554224155-6726b3ff858f"), // finance / accounts
+  "agriculture-farmers": u("photo-1625204151313-875e0ed3b6f3"), // rice field / Indian farming
+  "infrastructure-urban-planning": u("photo-1477959858617-67f85cf4f1df"), // city skyline / urban
+  "environment-climate": u("photo-1611273426858-450d8e3c9fce"), // industrial air pollution
+  "digital-rights-privacy": u("photo-1550751827-4bd374c3f58b"), // circuits / digital security
+  "police-criminal-justice": u("photo-1605806616949-1e87b487fc2f"), // crime / public safety
+  "election-political-reforms": u("photo-1540910419892-4a36d2c3266c"), // ballot / voting
+  "science-innovation-ai": u("photo-1677442136019-21780ecad995"), // AI / tech
+  "entrepreneurship-msmes": u("photo-1555529669-e69e7aa0ba9a"), // retail / small business
+  "youth-mental-health": u("photo-1584515933487-779824d29309"), // care / emotional support
+  "federalism-local-governance": u("photo-1529107386315-e1a2ed48a620"), // civic / government building
+  "media-misinformation-foi": u("photo-1585829365295-ab7cd400c167"), // journalism / news typing
+};
+
+function mediaFor(slug: string) {
+  const url = TOPIC_IMAGES[slug] ?? u("photo-1529107386315-e1a2ed48a620");
+  return { url, type: "image" as const };
+}
+
+/** Mark all demo content titles so they are obviously fixtures. */
+function asDummy(title: string) {
+  const t = title.trim();
+  return /\(dummy\)\s*$/i.test(t) ? t : `${t} (dummy)`;
+}
+
+type Citizen = {
+  phoneHash: string;
+  anonId: string;
+  phoneHint: string;
+  label: string;
+};
+
+/** Deterministic sample of n distinct citizens (wraps if n > pool). */
+function pickN(pool: Citizen[], n: number, salt: number): Citizen[] {
+  if (pool.length === 0 || n <= 0) return [];
+  const out: Citizen[] = [];
+  const used = new Set<string>();
+  for (let i = 0; out.length < n && i < n * 3; i++) {
+    const c = pool[(salt + i * 7) % pool.length]!;
+    if (used.has(c.phoneHash) && used.size < pool.length) continue;
+    used.add(c.phoneHash);
+    out.push(c);
+  }
+  return out;
+}
+
+const LIKERT = [
+  "strongly_support",
+  "support",
+  "support",
+  "neutral",
+  "oppose",
+  "strongly_oppose",
+] as const;
+
+const REPORT_REACTIONS = [
+  "support",
+  "concerned",
+  "important",
+  "angry",
+  "sad",
+] as const;
+
+const COMMENT_BODIES = [
+  "Agree — publish the timeline with dates citizens can verify.",
+  "Sharing district-level evidence would strengthen this ask.",
+  "Non-partisan framing helps more people engage productively.",
+  "Has anyone filed an RTI / grievance ticket on this yet?",
+  "Local ward photos + ticket IDs beat screenshots of rumour posts.",
+  "Support with caveats: capacity and staffing need to be funded.",
+  "This matches what aspirants and families are saying offline.",
+  "Please keep party logos out — focus on process and outcomes.",
+  "A public dashboard would reduce panic and speculation.",
+  "Neutral for now — need clearer metrics before endorsing.",
+  "Youth voices matter here; counseling waitlists are real.",
+  "Farmers need advance calendars, not last-minute SMS surprises.",
+  "Procurement transparency is the minimum for trust.",
+  "Air quality enforcement should list ward actions, not slogans.",
+  "Exam integrity needs independent audits people can read.",
 ];
 
 /** Top 20 trending civic issues — ranking matches public discourse priority */
@@ -421,14 +501,9 @@ const ISSUE_DEFS = [
 ] as const;
 
 async function main() {
-  console.log("Seeding top-20 India civic issues (zero engagement)…");
+  console.log("Seeding top-20 India civic issues + demo engagement…");
 
-  const citizens: {
-    phoneHash: string;
-    anonId: string;
-    phoneHint: string;
-    label: string;
-  }[] = [];
+  const citizens: Citizen[] = [];
   for (let i = 0; i < 12; i++) {
     const mobile = `9198765400${String(i).padStart(2, "0")}`;
     const id = `jn-demo${String(i).padStart(4, "0")}`;
@@ -456,23 +531,26 @@ async function main() {
   console.log(`  ${citizens.length} phone identities`);
 
   for (const [idx, iss] of ISSUE_DEFS.entries()) {
+    const cover = mediaFor(iss.slug);
     await prisma.issue.upsert({
       where: { slug: iss.slug },
       update: {
-        title: iss.title,
+        title: asDummy(iss.title),
         summary: iss.summary,
         whyItMatters: iss.why,
         currentSituation: iss.summary,
         pros: JSON.stringify(iss.pros),
         cons: JSON.stringify(iss.cons),
         category: iss.category,
+        mediaUrl: cover.url,
+        mediaType: cover.type,
         voteCount: 0,
         rating: 0,
         trendingRank: idx + 1,
       },
       create: {
         slug: iss.slug,
-        title: iss.title,
+        title: asDummy(iss.title),
         category: iss.category,
         summary: iss.summary,
         whyItMatters: iss.why,
@@ -483,6 +561,8 @@ async function main() {
         relatedSlugs: JSON.stringify(
           ISSUE_DEFS.filter((_, j) => Math.abs(j - idx) === 1).map((x) => x.slug),
         ),
+        mediaUrl: cover.url,
+        mediaType: cover.type,
         voteCount: 0,
         rating: 0,
         trendingRank: idx + 1,
@@ -494,7 +574,7 @@ async function main() {
   // One open proposal / vote per top issue (zero ballots)
   const proposalSpecs = ISSUE_DEFS.map((iss, idx) => ({
     id: `vote-${iss.slug}`,
-    title: `Citizen vote: priorities for ${iss.title}`,
+    title: asDummy(`Citizen vote: priorities for ${iss.title}`),
     description: `${iss.summary}\n\nShould public institutions publish a time-bound action plan on this issue with measurable milestones?`,
     issueSlug: iss.slug,
     voteType: idx % 5 === 0 ? ("preference" as const) : ("likert" as const),
@@ -505,11 +585,14 @@ async function main() {
   }));
 
   for (const p of proposalSpecs) {
+    const cover = mediaFor(p.issueSlug);
     await prisma.proposal.upsert({
       where: { id: p.id },
       update: {
         title: p.title,
         description: p.description,
+        mediaUrl: cover.url,
+        mediaType: cover.type,
         totalVotes: 0,
         results: null,
       },
@@ -534,11 +617,13 @@ async function main() {
         issueSlug: p.issueSlug,
         locationLevel: "national",
         country: "India",
+        mediaUrl: cover.url,
+        mediaType: cover.type,
         totalVotes: 0,
       },
     });
   }
-  console.log(`  ${proposalSpecs.length} proposals (0 votes)`);
+  console.log(`  ${proposalSpecs.length} proposals`);
 
   // Ground reports tied to trending themes
   const reportDefs = [
@@ -645,11 +730,11 @@ async function main() {
   const reportIds: string[] = [];
   for (const [ri, r] of reportDefs.entries()) {
     const author = pick(citizens);
-    const media = SAMPLE_MEDIA[ri % SAMPLE_MEDIA.length]!;
+    const media = mediaFor(r.issueSlug);
     const created = await prisma.citizenReport.create({
       data: {
         type: r.type,
-        title: r.title,
+        title: asDummy(r.title),
         body: r.body,
         locationLevel: r.locationLevel,
         city: r.city ?? null,
@@ -669,7 +754,7 @@ async function main() {
     });
     reportIds.push(created.id);
   }
-  console.log(`  ${reportIds.length} reports (0 reactions)`);
+  console.log(`  ${reportIds.length} reports`);
 
   // Public demands — one clear ask per major theme cluster
   const demandDefs = [
@@ -685,6 +770,7 @@ async function main() {
       city: null as string | null,
       district: null as string | null,
       tags: ["exams", "education"],
+      issueSlug: "education-exam-integrity",
     },
     {
       title: "Accelerate transparent government recruitment calendars",
@@ -698,6 +784,7 @@ async function main() {
       city: null,
       district: null,
       tags: ["jobs", "recruitment"],
+      issueSlug: "employment-job-creation",
     },
     {
       title: "Weekly PHC medicine stock on a public dashboard",
@@ -711,6 +798,7 @@ async function main() {
       city: null,
       district: null,
       tags: ["healthcare", "phc"],
+      issueSlug: "healthcare-access",
     },
     {
       title: "Street lighting + safe last-mile near campuses",
@@ -724,6 +812,7 @@ async function main() {
       state: "Maharashtra",
       category: "equality",
       tags: ["womensafety", "cities"],
+      issueSlug: "womens-safety-equality",
     },
     {
       title: "Transparent e-procurement for all major civic contracts",
@@ -737,6 +826,7 @@ async function main() {
       city: null,
       district: null,
       tags: ["corruption", "procurement"],
+      issueSlug: "corruption-governance",
     },
     {
       title: "Public case-age dashboards for district courts",
@@ -750,6 +840,7 @@ async function main() {
       city: null,
       district: null,
       tags: ["judiciary", "courts"],
+      issueSlug: "judicial-legal-reforms",
     },
     {
       title: "Ward-level air quality & construction dust enforcement board",
@@ -763,6 +854,7 @@ async function main() {
       state: "Delhi",
       category: "environment",
       tags: ["climate", "airquality"],
+      issueSlug: "environment-climate",
     },
     {
       title: "Campus counseling capacity matching student strength",
@@ -776,6 +868,7 @@ async function main() {
       city: null,
       district: null,
       tags: ["mentalhealth", "youth"],
+      issueSlug: "youth-mental-health",
     },
     {
       title: "Simplify MSME compliance into a single annual return where possible",
@@ -789,6 +882,7 @@ async function main() {
       city: null,
       district: null,
       tags: ["msme", "business"],
+      issueSlug: "entrepreneurship-msmes",
     },
     {
       title: "Advance irrigation calendars via SMS before sowing",
@@ -802,16 +896,17 @@ async function main() {
       city: null,
       district: null,
       tags: ["farmers", "irrigation"],
+      issueSlug: "agriculture-farmers",
     },
   ];
 
   const demandIds: string[] = [];
   for (const [di, d] of demandDefs.entries()) {
     const author = pick(citizens);
-    const media = SAMPLE_MEDIA[(di + 1) % SAMPLE_MEDIA.length]!;
+    const media = mediaFor(d.issueSlug);
     const created = await prisma.publicDemand.create({
       data: {
-        title: d.title,
+        title: asDummy(d.title),
         body: d.body,
         ask: d.ask,
         target: d.target,
@@ -837,48 +932,54 @@ async function main() {
     });
     demandIds.push(created.id);
   }
-  console.log(`  ${demandIds.length} demands (0 supports)`);
+  console.log(`  ${demandIds.length} demands`);
 
   const memeDefs = [
     {
       title: "When the exam paper ‘leaks’ before the hall ticket",
       caption: "Merit needs process credibility — publish the audit.",
       tags: ["exams", "education", "janark", "nta"],
+      issueSlug: "education-exam-integrity",
     },
     {
       title: "Graduate with degree, waiting for notification",
       caption: "Jobs need calendars, not vibes.",
       tags: ["jobs", "employment", "janark"],
+      issueSlug: "employment-job-creation",
     },
     {
       title: "PHC shelf: out of stock (again)",
       caption: "Primary care starts with medicines on the shelf.",
       tags: ["healthcare", "phc", "janark"],
+      issueSlug: "healthcare-access",
     },
     {
       title: "When the AQI app turns purple again",
       caption: "Air is a public service, not a personal problem.",
       tags: ["climate", "airquality", "janark"],
+      issueSlug: "environment-climate",
     },
     {
       title: "Counseling waitlist longer than the semester",
       caption: "Youth mental health needs staffed clinics.",
       tags: ["mentalhealth", "youth", "janark"],
+      issueSlug: "youth-mental-health",
     },
     {
       title: "Procurement: ‘trust us’ vs open bids",
       caption: "Sunshine is the best disinfectant.",
       tags: ["corruption", "procurement", "janark"],
+      issueSlug: "corruption-governance",
     },
   ];
 
   const memeIds: string[] = [];
   for (const [i, m] of memeDefs.entries()) {
     const author = pick(citizens);
-    const imageUrl = MEME_IMAGES[i % MEME_IMAGES.length]!;
+    const imageUrl = mediaFor(m.issueSlug).url;
     const created = await prisma.meme.create({
       data: {
-        title: m.title,
+        title: asDummy(m.title),
         caption: m.caption,
         imageUrl,
         mediaType: "image",
@@ -904,7 +1005,7 @@ async function main() {
       });
     }
   }
-  console.log(`  ${memeIds.length} memes (0 votes)`);
+  console.log(`  ${memeIds.length} memes`);
 
   const noticeDefs = [
     {
@@ -935,7 +1036,7 @@ async function main() {
     const author = pick(citizens);
     const notice = await prisma.notice.create({
       data: {
-        title: n.title,
+        title: asDummy(n.title),
         description: n.description,
         target: n.target,
         targetDetail: n.targetDetail,
@@ -950,7 +1051,7 @@ async function main() {
     });
     noticeIds.push(notice.id);
   }
-  console.log(`  ${noticeDefs.length} notices (0 signatures)`);
+  console.log(`  ${noticeDefs.length} notices`);
 
   await prisma.engagementVote.deleteMany();
   await prisma.engagementComment.deleteMany();
@@ -961,7 +1062,7 @@ async function main() {
   await prisma.demandSupport.deleteMany();
   await prisma.memeVote.deleteMany();
   await prisma.signature.deleteMany();
-  console.log("  engagement tables cleared (0 likes / comments / votes)");
+  console.log("  engagement tables cleared (will reseed reactions)");
 
   await connectMongo();
   await Promise.all([
@@ -998,9 +1099,10 @@ async function main() {
 
   for (const [idx, iss] of ISSUE_DEFS.entries()) {
     const a = pick(citizens);
+    const cover = mediaFor(iss.slug);
     feedItems.push({
       type: "issue",
-      title: `#${idx + 1} ${iss.title}`,
+      title: asDummy(`#${idx + 1} ${iss.title}`),
       excerpt: iss.summary,
       href: `/issues/${iss.slug}`,
       meta: `Trending #${idx + 1} · ${iss.category} · India`,
@@ -1010,6 +1112,8 @@ async function main() {
       author: a.label,
       authorAnonId: a.anonId,
       refId: iss.slug,
+      mediaUrl: cover.url,
+      mediaType: cover.type,
       country: "India",
       createdAt: daysAgo(idx + 1),
     });
@@ -1017,6 +1121,7 @@ async function main() {
 
   for (const [idx, p] of proposalSpecs.entries()) {
     const a = pick(citizens);
+    const cover = mediaFor(p.issueSlug);
     feedItems.push({
       type: "proposal",
       title: p.title,
@@ -1029,6 +1134,8 @@ async function main() {
       author: a.label,
       authorAnonId: a.anonId,
       refId: p.id,
+      mediaUrl: cover.url,
+      mediaType: cover.type,
       country: "India",
       createdAt: daysAgo(idx + 2),
     });
@@ -1038,10 +1145,10 @@ async function main() {
     const r = reportDefs[i]!;
     const id = reportIds[i]!;
     const a = pick(citizens);
-    const media = SAMPLE_MEDIA[i % SAMPLE_MEDIA.length]!;
+    const media = mediaFor(r.issueSlug);
     feedItems.push({
       type: "discussion",
-      title: `[${r.type}] ${r.title}`,
+      title: asDummy(`[${r.type}] ${r.title}`),
       excerpt: r.body,
       href: `/reports/${id}`,
       meta: `${r.locationLevel} · ${r.state}`,
@@ -1066,9 +1173,10 @@ async function main() {
     const d = demandDefs[i]!;
     const id = demandIds[i]!;
     const a = pick(citizens);
+    const media = mediaFor(d.issueSlug);
     feedItems.push({
       type: "discussion",
-      title: `[demand] ${d.title}`,
+      title: asDummy(`[demand] ${d.title}`),
       excerpt: d.ask,
       href: `/demands/${id}`,
       meta: `${d.locationLevel} · public demand`,
@@ -1078,6 +1186,8 @@ async function main() {
       author: a.label,
       authorAnonId: a.anonId,
       refId: id,
+      mediaUrl: media.url,
+      mediaType: media.type,
       locationLevel: d.locationLevel,
       city: d.city ?? undefined,
       district: d.district ?? undefined,
@@ -1091,9 +1201,10 @@ async function main() {
     const m = memeDefs[i]!;
     const id = memeIds[i]!;
     const a = pick(citizens);
+    const media = mediaFor(m.issueSlug);
     feedItems.push({
       type: "meme",
-      title: m.title,
+      title: asDummy(m.title),
       excerpt: m.caption,
       href: `/memes/${id}`,
       meta: m.tags.map((t) => `#${t}`).join(" "),
@@ -1103,8 +1214,8 @@ async function main() {
       author: a.label,
       authorAnonId: a.anonId,
       refId: id,
-      mediaUrl: MEME_IMAGES[i % MEME_IMAGES.length],
-      mediaType: "image",
+      mediaUrl: media.url,
+      mediaType: media.type,
       country: "India",
       createdAt: daysAgo(i % 7),
     });
@@ -1115,7 +1226,7 @@ async function main() {
     const a = pick(citizens);
     feedItems.push({
       type: "notice",
-      title: n.title,
+      title: asDummy(n.title),
       excerpt: n.description.slice(0, 200),
       href: `/notice/${noticeId}`,
       meta: "Notice · 0 signatures",
@@ -1135,6 +1246,7 @@ async function main() {
       title: "India's civic square — top 20 issues this season",
       body: "From exam integrity and jobs to climate, privacy, and local governance — pick a rank, add place + hashtags, keep it non-partisan. Browse /issues for the full list.",
       tags: ["discussion", "india", "janark", "civic", "trending"],
+      issueSlug: "government-accountability",
       locationLevel: "national",
       state: undefined as string | undefined,
       city: undefined as string | undefined,
@@ -1145,6 +1257,7 @@ async function main() {
       title: "How do we verify exam-process claims without rumour?",
       body: "Share centre codes, dates, and official ticket numbers. Label facts vs opinions. No party branding.",
       tags: ["discussion", "exams", "education", "janark"],
+      issueSlug: "education-exam-integrity",
       locationLevel: "national",
       state: undefined,
       city: undefined,
@@ -1155,6 +1268,7 @@ async function main() {
       title: "Documenting air quality and dust enforcement locally",
       body: "Ward photos, dates, and municipal ticket IDs help more than screenshots of party posts.",
       tags: ["discussion", "climate", "airquality", "janark"],
+      issueSlug: "environment-climate",
       locationLevel: "city",
       city: "Delhi",
       district: "New Delhi",
@@ -1163,12 +1277,13 @@ async function main() {
     },
   ];
 
+  const freeTalkPostIds: string[] = [];
   for (const [fi, f] of freeTalk.entries()) {
     const a = pick(citizens);
-    const media = SAMPLE_MEDIA[fi % SAMPLE_MEDIA.length]!;
+    const media = mediaFor(f.issueSlug);
     const post = await FeedPost.create({
       type: "discussion",
-      title: f.title,
+      title: asDummy(f.title),
       excerpt: f.body.slice(0, 220),
       body: f.body,
       href: "/feed",
@@ -1187,10 +1302,12 @@ async function main() {
       country: f.country,
       createdAt: daysAgo(fi + 1),
     });
-    post.href = `/feed?post=${post._id}`;
+    const postId = String(post._id);
+    post.href = `/feed?post=${postId}`;
     await post.save();
+    freeTalkPostIds.push(postId);
     await Discussion.create({
-      feedPostId: String(post._id),
+      feedPostId: postId,
       author: a.label,
       authorAnonId: a.anonId,
       authorHash: a.phoneHash,
@@ -1207,7 +1324,425 @@ async function main() {
     await FeedPost.create(item);
   }
 
-  // Trend scores mirror ranking priority (unique terms; not fake engagement)
+  // ——— Dummy engagement from seeded citizens ———
+  console.log("  seeding reactions, votes, comments…");
+  let engageVotes = 0;
+  let engageComments = 0;
+  let ballotVotes = 0;
+  let signatures = 0;
+  let supports = 0;
+  let reactions = 0;
+
+  async function addEngageVotes(
+    targetType: string,
+    targetId: string,
+    ups: number,
+    downs: number,
+    salt: number,
+  ) {
+    const upCitizens = pickN(citizens, ups, salt);
+    const downPool = citizens.filter(
+      (c) => !upCitizens.some((u) => u.phoneHash === c.phoneHash),
+    );
+    const downCitizens = pickN(downPool.length ? downPool : citizens, downs, salt + 3);
+    for (const c of upCitizens) {
+      await prisma.engagementVote.create({
+        data: { targetType, targetId, voterKey: c.phoneHash, value: 1 },
+      });
+      engageVotes++;
+    }
+    for (const c of downCitizens) {
+      await prisma.engagementVote.create({
+        data: { targetType, targetId, voterKey: c.phoneHash, value: -1 },
+      });
+      engageVotes++;
+    }
+    return { ups: upCitizens.length, downs: downCitizens.length, net: upCitizens.length - downCitizens.length };
+  }
+
+  async function addComments(
+    targetType: string,
+    targetId: string,
+    count: number,
+    salt: number,
+  ) {
+    const authors = pickN(citizens, count, salt + 11);
+    for (const [i, c] of authors.entries()) {
+      await prisma.engagementComment.create({
+        data: {
+          targetType,
+          targetId,
+          authorLabel: c.label,
+          authorAnonId: c.anonId,
+          authorHash: c.phoneHash,
+          body: COMMENT_BODIES[(salt + i) % COMMENT_BODIES.length]!,
+          upvotes: (salt + i) % 4,
+          downvotes: (salt + i) % 5 === 0 ? 1 : 0,
+        },
+      });
+      engageComments++;
+    }
+    return authors.length;
+  }
+
+  async function bumpFeed(refId: string, votes: number, meta?: string, hot?: boolean) {
+    const $set: Record<string, unknown> = {};
+    if (meta) $set.meta = meta;
+    if (hot != null) $set.hot = hot;
+    await FeedPost.updateOne(
+      { refId },
+      { $set: { votes, ...$set } },
+    );
+  }
+
+  // Issues — likes + discussion comments + legacy Comment rows
+  for (const [idx, iss] of ISSUE_DEFS.entries()) {
+    const ups = 4 + ((idx * 3) % 6);
+    const downs = idx % 4 === 0 ? 1 : 0;
+    const { net } = await addEngageVotes("issue", iss.slug, ups, downs, idx + 1);
+    const nComments = 2 + (idx % 3);
+    await addComments("issue", iss.slug, nComments, idx + 20);
+    for (const [ci, c] of pickN(citizens, Math.min(2, nComments), idx + 40).entries()) {
+      await prisma.comment.create({
+        data: {
+          issueSlug: iss.slug,
+          author: c.label,
+          authorAnonId: c.anonId,
+          body: COMMENT_BODIES[(idx + ci) % COMMENT_BODIES.length]!,
+          upvotes: 1 + (ci % 3),
+          kind: ci % 2 === 0 ? "opinion" : "evidence",
+        },
+      });
+    }
+    await Discussion.create({
+      issueSlug: iss.slug,
+      author: pickN(citizens, 1, idx)[0]!.label,
+      authorAnonId: pickN(citizens, 1, idx)[0]!.anonId,
+      authorHash: pickN(citizens, 1, idx)[0]!.phoneHash,
+      body: COMMENT_BODIES[idx % COMMENT_BODIES.length]!,
+      kind: "opinion",
+      upvotes: ups,
+      voters: pickN(citizens, ups, idx + 1).map((c) => c.phoneHash),
+    });
+    await bumpFeed(iss.slug, Math.max(0, net + nComments), undefined, idx < 8 || net >= 5);
+  }
+
+  // Proposals — ballots + social engage + comments
+  for (const [idx, p] of proposalSpecs.entries()) {
+    const voters = pickN(citizens, 5 + (idx % 5), idx + 50);
+    const counts: Record<string, number> = {};
+    for (const [vi, c] of voters.entries()) {
+      let choice: string;
+      if (p.voteType === "preference" && p.options?.length) {
+        choice = p.options[vi % p.options.length]!;
+      } else {
+        choice = LIKERT[vi % LIKERT.length]!;
+      }
+      await prisma.vote.create({
+        data: {
+          proposalId: p.id,
+          voterKey: c.phoneHash,
+          choice: JSON.stringify(choice),
+        },
+      });
+      counts[choice] = (counts[choice] ?? 0) + 1;
+      ballotVotes++;
+    }
+    const totalForPct = Object.values(counts).reduce((a, b) => a + b, 0) || 1;
+    const results: Record<string, number> = {};
+    for (const [key, n] of Object.entries(counts)) {
+      results[key] = Math.round((n / totalForPct) * 100);
+    }
+    const social = await addEngageVotes("proposal", p.id, 3 + (idx % 4), idx % 5 === 0 ? 1 : 0, idx + 60);
+    const nComments = 1 + (idx % 3);
+    await addComments("proposal", p.id, nComments, idx + 70);
+    await prisma.proposal.update({
+      where: { id: p.id },
+      data: {
+        totalVotes: voters.length,
+        results: JSON.stringify(results),
+      },
+    });
+    await bumpFeed(
+      p.id,
+      voters.length + social.net,
+      `Open vote · ${voters.length} ballots`,
+      voters.length >= 6,
+    );
+  }
+
+  // Reports — votes, emoji reactions, comments
+  for (let i = 0; i < reportIds.length; i++) {
+    const id = reportIds[i]!;
+    const ups = 3 + (i % 5);
+    const downs = i % 3 === 0 ? 1 : 0;
+    const social = await addEngageVotes("report", id, ups, downs, i + 80);
+    const nComments = 1 + (i % 3);
+    await addComments("report", id, nComments, i + 90);
+
+    for (const [ri, c] of pickN(citizens, 2 + (i % 3), i + 100).entries()) {
+      const reaction = REPORT_REACTIONS[(i + ri) % REPORT_REACTIONS.length]!;
+      await prisma.reportReaction.create({
+        data: { reportId: id, voterKey: c.phoneHash, reaction },
+      });
+      reactions++;
+    }
+    for (const [vi, c] of pickN(citizens, ups, i + 80).entries()) {
+      const choice = vi === 0 && downs > 0 ? "dispute" : vi % 2 === 0 ? "upvote" : "endorse";
+      try {
+        await prisma.reportVote.create({
+          data: { reportId: id, voterKey: c.phoneHash, choice },
+        });
+      } catch {
+        /* unique voter */
+      }
+    }
+    await prisma.citizenReport.update({
+      where: { id },
+      data: {
+        upvotes: social.ups,
+        downvotes: social.downs,
+        commentCount: nComments,
+        shareCount: 1 + (i % 4),
+      },
+    });
+    await bumpFeed(id, Math.max(0, social.net), undefined, social.net >= 4);
+  }
+
+  // Demands — supports + engage + comments
+  for (let i = 0; i < demandIds.length; i++) {
+    const id = demandIds[i]!;
+    const supporters = pickN(citizens, 4 + (i % 5), i + 110);
+    for (const c of supporters) {
+      await prisma.demandSupport.create({
+        data: { demandId: id, voterKey: c.phoneHash },
+      });
+      supports++;
+    }
+    // Engagement ups from same supporters (unique voterKey per target)
+    for (const c of supporters) {
+      await prisma.engagementVote.create({
+        data: {
+          targetType: "demand",
+          targetId: id,
+          voterKey: c.phoneHash,
+          value: 1,
+        },
+      });
+      engageVotes++;
+    }
+    const downs = i % 4 === 0 ? 1 : 0;
+    if (downs) {
+      const downer = citizens.find(
+        (c) => !supporters.some((s) => s.phoneHash === c.phoneHash),
+      );
+      if (downer) {
+        await prisma.engagementVote.create({
+          data: {
+            targetType: "demand",
+            targetId: id,
+            voterKey: downer.phoneHash,
+            value: -1,
+          },
+        });
+        engageVotes++;
+      }
+    }
+    const nComments = 1 + (i % 3);
+    await addComments("demand", id, nComments, i + 120);
+    await prisma.publicDemand.update({
+      where: { id },
+      data: {
+        supportCount: supporters.length,
+        upvotes: supporters.length,
+        downvotes: downs,
+        commentCount: nComments,
+      },
+    });
+    await bumpFeed(id, supporters.length - downs, undefined, supporters.length >= 6);
+  }
+
+  // Memes — dual-write MemeVote + EngagementVote
+  for (let i = 0; i < memeIds.length; i++) {
+    const id = memeIds[i]!;
+    const ups = 5 + (i % 4);
+    const downs = i % 2;
+    const upCitizens = pickN(citizens, ups, i + 130);
+    const downCitizens = pickN(
+      citizens.filter((c) => !upCitizens.some((u) => u.phoneHash === c.phoneHash)),
+      downs,
+      i + 131,
+    );
+    for (const c of upCitizens) {
+      await prisma.engagementVote.create({
+        data: { targetType: "meme", targetId: id, voterKey: c.phoneHash, value: 1 },
+      });
+      await prisma.memeVote.create({
+        data: { memeId: id, voterKey: c.phoneHash, value: 1 },
+      });
+      engageVotes++;
+    }
+    for (const c of downCitizens) {
+      await prisma.engagementVote.create({
+        data: { targetType: "meme", targetId: id, voterKey: c.phoneHash, value: -1 },
+      });
+      await prisma.memeVote.create({
+        data: { memeId: id, voterKey: c.phoneHash, value: -1 },
+      });
+      engageVotes++;
+    }
+    const nComments = 1 + (i % 2);
+    await addComments("meme", id, nComments, i + 140);
+    await prisma.meme.update({
+      where: { id },
+      data: {
+        upvotes: upCitizens.length,
+        downvotes: downCitizens.length,
+        commentCount: nComments,
+        shareCount: 2 + i,
+      },
+    });
+    await bumpFeed(id, upCitizens.length - downCitizens.length, undefined, true);
+  }
+
+  // Notices — signatures + engage + comments
+  for (let i = 0; i < noticeIds.length; i++) {
+    const id = noticeIds[i]!;
+    const signers = pickN(citizens, 6 + i * 2, i + 150);
+    for (const c of signers) {
+      await prisma.signature.create({
+        data: { noticeId: id, signerKey: c.phoneHash },
+      });
+      await prisma.engagementVote.create({
+        data: { targetType: "notice", targetId: id, voterKey: c.phoneHash, value: 1 },
+      });
+      signatures++;
+      engageVotes++;
+    }
+    const nComments = 2;
+    await addComments("notice", id, nComments, i + 160);
+    await prisma.notice.update({
+      where: { id },
+      data: {
+        signatures: signers.length,
+        upvotes: signers.length,
+        downvotes: 0,
+        commentCount: nComments,
+      },
+    });
+    await bumpFeed(
+      id,
+      signers.length,
+      `Notice · ${signers.length} signatures`,
+      true,
+    );
+  }
+
+  // Free-talk feed posts — boosts + comments
+  for (const [fi, postId] of freeTalkPostIds.entries()) {
+    const ups = 4 + fi * 2;
+    const social = await addEngageVotes("feed", postId, ups, fi === 2 ? 1 : 0, fi + 170);
+    const nComments = 2 + fi;
+    await addComments("feed", postId, nComments, fi + 180);
+    const voters = pickN(citizens, social.ups, fi + 170).map((c) => c.phoneHash);
+    await FeedPost.updateOne(
+      { _id: postId },
+      { $set: { votes: social.net, hot: social.net >= 4 } },
+    );
+    await Discussion.updateOne(
+      { feedPostId: postId },
+      { $set: { upvotes: social.ups, voters } },
+    );
+  }
+
+  // Sync live issue metrics from ballots + engage
+  for (const iss of ISSUE_DEFS) {
+    const proposals = await prisma.proposal.findMany({
+      where: { issueSlug: iss.slug },
+      select: { id: true },
+    });
+    const proposalIds = proposals.map((p) => p.id);
+    const [pollVotes, issueEngage, proposalEngage, issueComments, proposalComments] =
+      await Promise.all([
+        proposalIds.length
+          ? prisma.vote.findMany({
+              where: { proposalId: { in: proposalIds } },
+              select: { choice: true },
+            })
+          : Promise.resolve([]),
+        prisma.engagementVote.findMany({
+          where: { targetType: "issue", targetId: iss.slug },
+          select: { value: true },
+        }),
+        proposalIds.length
+          ? prisma.engagementVote.findMany({
+              where: { targetType: "proposal", targetId: { in: proposalIds } },
+              select: { value: true },
+            })
+          : Promise.resolve([]),
+        prisma.engagementComment.count({
+          where: { targetType: "issue", targetId: iss.slug },
+        }),
+        proposalIds.length
+          ? prisma.engagementComment.count({
+              where: { targetType: "proposal", targetId: { in: proposalIds } },
+            })
+          : Promise.resolve(0),
+      ]);
+
+    const allEngage = [...issueEngage, ...proposalEngage];
+    const ups = allEngage.filter((v) => v.value === 1).length;
+    const downs = allEngage.filter((v) => v.value === -1).length;
+    const comments = issueComments + proposalComments;
+    let likertSum = 0;
+    let likertN = 0;
+    for (const v of pollVotes) {
+      let parsed: string | string[] = v.choice;
+      try {
+        parsed = JSON.parse(v.choice) as string | string[];
+      } catch {
+        parsed = v.choice;
+      }
+      const choices = Array.isArray(parsed) ? parsed : [parsed];
+      for (const c of choices) {
+        const score =
+          c === "strongly_support"
+            ? 5
+            : c === "support"
+              ? 4
+              : c === "neutral"
+                ? 3
+                : c === "oppose"
+                  ? 2
+                  : c === "strongly_oppose"
+                    ? 1
+                    : 3;
+        likertSum += score;
+        likertN++;
+      }
+    }
+    const voteCount = pollVotes.length + ups + comments;
+    const engageTotal = ups + downs;
+    const engageStars =
+      engageTotal === 0 ? null : Math.max(1, Math.min(5, (ups / engageTotal) * 5));
+    const likertStars = likertN === 0 ? null : likertSum / likertN;
+    let rating = 0;
+    if (likertStars != null && engageStars != null) {
+      rating = Math.round(((likertStars + engageStars) / 2) * 10) / 10;
+    } else if (likertStars != null) {
+      rating = Math.round(likertStars * 10) / 10;
+    } else if (engageStars != null) {
+      rating = Math.round(engageStars * 10) / 10;
+    } else if (comments > 0) {
+      rating = 3;
+    }
+    await prisma.issue.update({
+      where: { slug: iss.slug },
+      data: { voteCount, rating },
+    });
+  }
+
+  // Trends — boost by engagement volume
   const seenTerms = new Set<string>();
   const trendTerms: { term: string; score: number; category: string }[] = [];
   for (const [idx, iss] of ISSUE_DEFS.entries()) {
@@ -1216,14 +1751,14 @@ async function main() {
     seenTerms.add(term);
     trendTerms.push({
       term,
-      score: 22 - idx,
+      score: 30 - idx + Math.floor(engageVotes / 40),
       category: iss.category.toLowerCase(),
     });
   }
   for (const extra of [
-    { term: "India", score: 25, category: "country" },
-    { term: "#janark", score: 18, category: "platform" },
-    { term: "#trending20", score: 16, category: "civic" },
+    { term: "India", score: 40, category: "country" },
+    { term: "#janark", score: 28, category: "platform" },
+    { term: "#trending20", score: 24, category: "civic" },
   ]) {
     if (seenTerms.has(extra.term)) continue;
     seenTerms.add(extra.term);
@@ -1235,38 +1770,52 @@ async function main() {
 
   await Activity.create([
     {
-      kind: "issue",
-      summary: "Top 20 India civic issues seeded — exams, jobs, governance, climate…",
-      href: "/issues",
-    },
-    {
-      kind: "proposal",
-      summary: "Open citizen votes posted for each trending issue — zero ballots yet",
+      kind: "vote",
+      summary: `${ballotVotes} citizen ballots cast across open votes`,
       href: "/vote/vote-education-exam-integrity",
     },
     {
       kind: "discussion",
-      summary: "Public demands on exams, jobs, healthcare, safety, procurement, courts…",
-      href: "/demands",
+      summary: `${engageComments} comments and ${reactions} report reactions from demo citizens`,
+      href: "/feed",
+    },
+    {
+      kind: "notice",
+      summary: `${signatures} signatures on evidence-window notices`,
+      href: "/notice",
+    },
+    {
+      kind: "meme",
+      summary: "Demo citizens upvoted civic memes on exams, jobs, healthcare…",
+      href: "/memes",
+    },
+    {
+      kind: "issue",
+      summary: "Top 20 India civic issues live with community reactions",
+      href: "/issues",
     },
   ]);
 
-  const [citizenCount, proposalCount, noticeCount] = await Promise.all([
+  const [citizenCount, proposalCount, noticeCount, totalEngage] = await Promise.all([
     prisma.phoneIdentity.count(),
     prisma.proposal.count(),
     prisma.notice.count(),
+    prisma.engagementVote.count(),
   ]);
   await PlatformStats.create({
     key: "global",
     citizens: citizenCount,
     activeProposals: proposalCount,
-    votes: 0,
+    votes: totalEngage + ballotVotes,
     notices: noticeCount,
   });
 
-  console.log(`  ${feedItems.length + freeTalk.length} feed posts (0 votes)`);
+  console.log(
+    `  engagement: ${engageVotes} likes, ${ballotVotes} ballots, ${engageComments} comments, ${supports} demand supports, ${signatures} signatures, ${reactions} report reactions`,
+  );
+  console.log(`  ${feedItems.length + freeTalk.length} feed posts`);
   console.log(`  ${trendTerms.length} topic trends`);
-  console.log("Demo seed complete — top 20 India issues, zero engagement.");
+  console.log("Demo seed complete — top 20 India issues with dummy engagement.");
   console.log("Open http://localhost:3000");
 }
 

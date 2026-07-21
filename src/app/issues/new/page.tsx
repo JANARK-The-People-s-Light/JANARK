@@ -6,6 +6,7 @@ import { useAuth } from "@/components/AuthModal";
 import { MediaAttach } from "@/components/MediaAttach";
 import { PostTermsAccept } from "@/components/PostTermsAccept";
 import { termsPayload } from "@/lib/civic-post-terms";
+import { portalHref } from "@/lib/paths";
 
 const CATEGORIES = [
   "Education",
@@ -74,7 +75,7 @@ export default function NewIssuePage() {
         setError(data.error ?? "Failed");
         return;
       }
-      router.push(`/issues/${data.issue.slug}`);
+      router.push(portalHref(`/issues/${data.issue.slug}`));
     } catch {
       setError("Network error");
     } finally {

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { portalHref } from "@/lib/paths";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -168,7 +169,7 @@ export default function AboutPage() {
 
       <p className="mt-12 text-sm text-muted">
         Ready to participate?{" "}
-        <Link href="/feed" className="text-amber hover:underline">
+        <Link href={portalHref("/feed")} className="text-amber hover:underline">
           Open the feed
         </Link>{" "}
         or{" "}

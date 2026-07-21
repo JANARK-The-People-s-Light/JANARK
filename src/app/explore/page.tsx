@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { IconFilter, IconSearch, IconX } from "@/components/Icons";
+import { portalHref } from "@/lib/paths";
 
 type Facets = {
   countries: string[];
@@ -388,13 +389,13 @@ export default function ExplorePage() {
         </div>
         <div className="flex flex-wrap gap-2">
           <Link
-            href="/demands/new"
+            href={portalHref("/demands/new")}
             className="px-1 py-2 text-sm text-muted hover:text-navy"
           >
             Raise a demand
           </Link>
           <Link
-            href="/reports/new"
+            href={portalHref("/reports/new")}
             className="bg-amber px-4 py-2 text-sm font-semibold text-navy"
           >
             Post for your place
@@ -513,7 +514,7 @@ export default function ExplorePage() {
           {!loading && items.length === 0 && (
             <p className="py-8 text-sm text-muted">
               Nothing for this place yet.{" "}
-              <Link href="/reports/new" className="text-amber hover:underline">
+              <Link href={portalHref("/reports/new")} className="text-amber hover:underline">
                 Be the first to post
               </Link>
               .
@@ -522,7 +523,7 @@ export default function ExplorePage() {
           {items.map((item) => (
             <Link
               key={`${item.kind}-${item.id}`}
-              href={item.href}
+              href={portalHref(item.href)}
               className="block py-5 transition hover:bg-sand/40"
             >
               <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-wider text-muted">

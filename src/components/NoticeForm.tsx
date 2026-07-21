@@ -7,6 +7,7 @@ import { useAuth } from "@/components/AuthModal";
 import { MediaAttach } from "@/components/MediaAttach";
 import { PostTermsAccept } from "@/components/PostTermsAccept";
 import { termsPayload } from "@/lib/civic-post-terms";
+import { portalHref } from "@/lib/paths";
 
 const TARGETS = [
   { value: "national", label: "National / Union" },
@@ -58,7 +59,7 @@ export function NoticeForm() {
         setError(data.error ?? "Could not publish notice");
         return;
       }
-      router.push(`/notice/${data.notice.id}`);
+      router.push(portalHref(`/notice/${data.notice.id}`));
     } catch {
       setError("Network error — check the database connection.");
     } finally {

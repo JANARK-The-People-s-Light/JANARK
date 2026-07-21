@@ -5,16 +5,17 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { PhoneAuth } from "@/components/PhoneAuth";
 import { getPhoneSession } from "@/lib/client-id";
 import Link from "next/link";
+import { portalHref } from "@/lib/paths";
 
 function LoginInner() {
   const router = useRouter();
   const search = useSearchParams();
-  const next = search.get("next") || "/feed";
+  const next = search.get("next") || portalHref("/feed");
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
     if (getPhoneSession()?.authenticated || getPhoneSession()?.anonId) {
-      router.replace(next.startsWith("/") ? next : "/feed");
+      router.replace(portalHref(next.startsWith("/") ? next : "/feed"));
       return;
     }
     setChecking(false);
@@ -50,17 +51,17 @@ function LoginInner() {
       <div className="mt-8">
         <PhoneAuth
           onVerified={() => {
-            router.replace(next.startsWith("/") ? next : "/feed");
+            router.replace(portalHref(next.startsWith("/") ? next : "/feed"));
           }}
         />
       </div>
 
       <p className="mt-8 text-center text-sm text-muted">
-        <Link href="/" className="text-amber hover:underline">
-          Back to home
+        <Link href={portalHref("/")} className="text-amber hover:underline">
+          Back to portal
         </Link>
         {" · "}
-        <Link href="/about" className="text-amber hover:underline">
+        <Link href={portalHref("/about")} className="text-amber hover:underline">
           About anonymity
         </Link>
       </p>

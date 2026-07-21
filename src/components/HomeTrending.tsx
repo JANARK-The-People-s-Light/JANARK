@@ -7,6 +7,7 @@ import { FeedCard } from "@/components/Ui";
 import { FeedEngage } from "@/components/FeedEngage";
 import { HashtagFilter, InlineTags } from "@/components/HashtagFilter";
 import { IconFilter, IconSearch, IconX } from "@/components/Icons";
+import { portalHref } from "@/lib/paths";
 
 type Post = {
   id: string;
@@ -390,7 +391,7 @@ function HomeTrendingInner() {
           </p>
         </div>
         <Link
-          href="/feed"
+          href={portalHref("/feed")}
           className="shrink-0 text-sm font-medium text-amber hover:underline"
         >
           Full feed →
@@ -515,19 +516,19 @@ function HomeTrendingInner() {
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <Link
-                href="/demands/new"
+                href={portalHref("/demands/new")}
                 className="bg-navy px-4 py-2 text-sm text-cream"
               >
                 Raise a demand
               </Link>
               <Link
-                href="/memes/new"
+                href={portalHref("/memes/new")}
                 className="px-1 py-2 text-sm text-muted hover:text-navy"
               >
                 Post a meme
               </Link>
               <Link
-                href="/feed"
+                href={portalHref("/feed")}
                 className="px-1 py-2 text-sm text-muted hover:text-navy"
               >
                 Start a discussion

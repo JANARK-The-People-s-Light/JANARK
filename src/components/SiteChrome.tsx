@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { clearPhoneSession } from "@/lib/client-id";
 import { useAuth } from "@/components/AuthModal";
 import { BrandLogo } from "@/components/BrandLogo";
+import { PORTAL_BASE, portalHref } from "@/lib/paths";
 
 const links = [
   { href: "/explore", label: "Explore" },
@@ -19,7 +20,7 @@ const links = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/about", label: "About" },
   { href: "/terms", label: "Terms" },
-];
+].map((l) => ({ ...l, href: portalHref(l.href) }));
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -49,6 +50,11 @@ export function SiteHeader() {
       window.removeEventListener("keydown", onKey);
     };
   }, [menuOpen]);
+
+  // Public coming-soon page has its own full-bleed layout
+  if (pathname === "/") {
+    return null;
+  }
 
   function logout() {
     void clearPhoneSession().then(() => {
@@ -113,7 +119,7 @@ export function SiteHeader() {
                 <div className="space-y-3">
                   {session.anonId ? (
                     <Link
-                      href={`/u/${session.anonId}`}
+                      href={portalHref(`/u/${session.anonId}`)}
                       onClick={() => setMenuOpen(false)}
                       className="block break-all font-mono text-sm text-amber-bright"
                     >
@@ -145,10 +151,10 @@ export function SiteHeader() {
       <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-navy/95 backdrop-blur-md pt-[env(safe-area-inset-top,0px)]">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
           <Link
-            href="/"
+            href={PORTAL_BASE}
             className="group shrink-0"
             onClick={() => setMenuOpen(false)}
-            aria-label="Janark home"
+            aria-label="Janark portal home"
           >
             <BrandLogo
               size="sm"
@@ -180,7 +186,7 @@ export function SiteHeader() {
               <span className="flex items-center gap-2 text-xs text-sand/70">
                 {session.anonId ? (
                   <Link
-                    href={`/u/${session.anonId}`}
+                    href={portalHref(`/u/${session.anonId}`)}
                     className="max-w-[9rem] truncate font-mono text-amber-bright hover:underline"
                     title="Your anonymous profile"
                   >
@@ -201,7 +207,7 @@ export function SiteHeader() {
           <div className="flex items-center gap-2 lg:hidden">
             {session?.anonId ? (
               <Link
-                href={`/u/${session.anonId}`}
+                href={portalHref(`/u/${session.anonId}`)}
                 className="max-w-[5.5rem] truncate font-mono text-[11px] text-amber-bright"
                 title="Your profile"
               >
@@ -237,31 +243,57 @@ export function SiteHeader() {
             </button>
           </div>
         </div>
+        <div
+          className="border-t border-amber/25 bg-amber text-center text-navy"
+          role="status"
+        >
+          <p className="px-4 py-2 text-xs font-semibold tracking-wide sm:text-sm">
+            Coming soon ·{" "}
+            <time dateTime="2026-08-15">15 August 2026</time>
+            <span className="font-normal">
+              {" "}
+              · for the people, by the people
+            </span>
+          </p>
+        </div>
         {mobileMenu}
       </header>
-      {/* Spacer so page content clears the fixed header */}
       <div
         className="shrink-0 pt-[env(safe-area-inset-top,0px)]"
         aria-hidden
       >
         <div className="h-14" />
+        <div className="h-9 sm:h-10" />
       </div>
     </>
   );
 }
 
 export function SiteFooter() {
+  const pathname = usePathname();
+  if (pathname === "/") {
+    return null;
+  }
+
   return (
     <footer className="mt-auto border-t border-line bg-navy text-sand pb-[env(safe-area-inset-bottom,0px)]">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 sm:flex-row sm:items-start sm:justify-between sm:gap-8 sm:px-6">
         <div className="min-w-0">
           <BrandLogo size="md" withWordmark onDark />
           <p className="mt-2 font-display text-sm leading-snug text-amber-bright/90">
-            The light of the people, for the people, by the people
+            for the people, by the people
           </p>
           <p className="mt-2 max-w-md text-sm leading-relaxed text-sand/70">
             A non-profit civic organisation — independent of government and
             parties. Just a unified voice.
+          </p>
+          <p className="mt-3 text-xs text-sand/40">
+            Coming soon · public launch{" "}
+            <time dateTime="2026-08-15">15 August 2026</time>
+            {" · "}
+            <Link href="/" className="text-amber-bright/70 hover:underline">
+              Launch page
+            </Link>
           </p>
         </div>
         <div className="shrink-0 space-y-2 text-xs leading-relaxed text-sand/50 sm:max-w-[14rem] sm:text-right">
@@ -269,7 +301,10 @@ export function SiteFooter() {
             Browse freely · login only to post or react · anonymity ID profiles
           </p>
           <p>
-            <Link href="/terms" className="text-amber-bright/80 hover:underline">
+            <Link
+              href={portalHref("/terms")}
+              className="text-amber-bright/80 hover:underline"
+            >
               Civic Posting Terms
             </Link>
           </p>

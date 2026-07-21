@@ -1,5 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import {
+  PORTAL_BASE,
+  isPortalAppPath,
+  stripPortalBase,
+} from "@/lib/paths";
 import { assertProductionSecurity } from "@/lib/security-env";
 
 const securityHeaders: Record<string, string> = {
@@ -39,25 +44,14 @@ function contentSecurityPolicy(isProd: boolean): string {
   ].join("; ");
 }
 
-/** Security headers + no-store for live civic data. */
-export function middleware(_req: NextRequest) {
-  try {
-    assertProductionSecurity();
-  } catch (e) {
-    console.error(e instanceof Error ? e.message : e);
-    return new NextResponse("Server misconfigured", { status: 503 });
-  }
-
-  const res = NextResponse.next();
+function withSecurityHeaders(res: NextResponse) {
   const isProd = process.env.NODE_ENV === "production";
-
   res.headers.set(
     "Cache-Control",
     "no-store, no-cache, must-revalidate, max-age=0",
   );
   res.headers.set("Pragma", "no-cache");
   res.headers.set("Expires", "0");
-
   for (const [k, v] of Object.entries(securityHeaders)) {
     res.headers.set(k, v);
   }
@@ -68,8 +62,59 @@ export function middleware(_req: NextRequest) {
       "max-age=63072000; includeSubDomains; preload",
     );
   }
-
   return res;
+}
+
+/**
+ * `/` = public coming soon.
+ * `/unreleased` = portal home; `/unreleased/*` rewrites to real app routes.
+ * Bare portal paths (e.g. `/feed`) redirect under `/unreleased`.
+ */
+export function middleware(req: NextRequest) {
+  try {
+    assertProductionSecurity();
+  } catch (e) {
+    console.error(e instanceof Error ? e.message : e);
+    return new NextResponse("Server misconfigured", { status: 503 });
+  }
+
+  const { pathname, search } = req.nextUrl;
+
+  if (
+    pathname.startsWith("/api/") ||
+    pathname.startsWith("/_next/") ||
+    pathname.startsWith("/logo/") ||
+    pathname.startsWith("/uploads/")
+  ) {
+    return withSecurityHeaders(NextResponse.next());
+  }
+
+  // Public coming-soon homepage
+  if (pathname === "/") {
+    return withSecurityHeaders(NextResponse.next());
+  }
+
+  // Portal home lives at /unreleased
+  if (pathname === PORTAL_BASE || pathname === `${PORTAL_BASE}/`) {
+    return withSecurityHeaders(NextResponse.next());
+  }
+
+  // /unreleased/feed → internally /feed (URL stays prefixed)
+  if (pathname.startsWith(`${PORTAL_BASE}/`)) {
+    const url = req.nextUrl.clone();
+    url.pathname = stripPortalBase(pathname);
+    return withSecurityHeaders(NextResponse.rewrite(url));
+  }
+
+  // /feed → /unreleased/feed so bookmarks and old links still work
+  if (isPortalAppPath(pathname)) {
+    const url = req.nextUrl.clone();
+    url.pathname = `${PORTAL_BASE}${pathname}`;
+    url.search = search;
+    return withSecurityHeaders(NextResponse.redirect(url));
+  }
+
+  return withSecurityHeaders(NextResponse.next());
 }
 
 export const config = {

@@ -6,6 +6,7 @@ import { useAuth } from "@/components/AuthModal";
 import { MediaAttach } from "@/components/MediaAttach";
 import { PostTermsAccept } from "@/components/PostTermsAccept";
 import { termsPayload } from "@/lib/civic-post-terms";
+import { portalHref } from "@/lib/paths";
 
 export default function NewVotePage() {
   const router = useRouter();
@@ -80,7 +81,7 @@ export default function NewVotePage() {
         setError(data.error ?? "Failed");
         return;
       }
-      router.push(`/vote/${data.proposal.id}`);
+      router.push(portalHref(`/vote/${data.proposal.id}`));
     } catch {
       setError("Network error");
     } finally {

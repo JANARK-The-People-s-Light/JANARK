@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { connectMongo } from "@/lib/mongo";
 import { FeedPost } from "@/lib/mongo-models";
 import { publicAuthorFromVoterKey } from "@/lib/identity";
+import { PORTAL_BASE, portalHref } from "@/lib/paths";
 import { bumpMongoStats, recordActivity, syncIssueLiveMetrics } from "@/lib/services";
 import type { MediaType } from "@/lib/media";
 
@@ -476,21 +477,21 @@ async function bumpCommentCount(
 export function hrefForTarget(targetType: string, targetId: string) {
   switch (targetType) {
     case "meme":
-      return `/memes/${targetId}`;
+      return portalHref(`/memes/${targetId}`);
     case "report":
-      return `/reports/${targetId}`;
+      return portalHref(`/reports/${targetId}`);
     case "demand":
-      return `/demands/${targetId}`;
+      return portalHref(`/demands/${targetId}`);
     case "notice":
-      return `/notices/${targetId}`;
+      return portalHref(`/notice/${targetId}`);
     case "issue":
-      return `/issues/${targetId}`;
+      return portalHref(`/issues/${targetId}`);
     case "proposal":
-      return `/vote/${targetId}`;
+      return portalHref(`/vote/${targetId}`);
     case "feed":
-      return `/feed`;
+      return portalHref(`/feed`);
     default:
-      return "/";
+      return PORTAL_BASE;
   }
 }
 

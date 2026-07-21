@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { portalHref } from "@/lib/paths";
 
 type Props = {
   anonId?: string | null;
@@ -14,7 +15,7 @@ export function AuthorLink({ anonId, label, className }: Props) {
   }
   return (
     <Link
-      href={`/u/${anonId}`}
+      href={portalHref(`/u/${anonId}`)}
       className={className ?? "text-amber hover:underline"}
       title={`View anonymous profile ${anonId}`}
     >

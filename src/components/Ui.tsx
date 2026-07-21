@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { portalHref } from "@/lib/paths";
 
 export function DemoBadge({ className = "" }: { className?: string }) {
   return (
@@ -89,7 +90,7 @@ export function FeedCard({
 }) {
   return (
     <Link
-      href={href}
+      href={portalHref(href)}
       className="group block border-b border-line py-5 transition hover:bg-sand/40"
     >
       <div className="flex items-start justify-between gap-3 sm:gap-4">

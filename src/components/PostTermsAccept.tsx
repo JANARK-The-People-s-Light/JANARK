@@ -6,6 +6,7 @@ import {
   CIVIC_POST_TERMS_TITLE,
   CIVIC_POST_TERMS_VERSION,
 } from "@/lib/civic-post-terms";
+import { portalHref } from "@/lib/paths";
 
 type Props = {
   accepted: boolean;
@@ -97,7 +98,7 @@ export function PostTermsAccept({
           </button>{" "}
           (
           <a
-            href="/terms"
+            href={portalHref("/terms")}
             target="_blank"
             rel="noopener noreferrer"
             className="text-muted underline-offset-2 hover:text-amber hover:underline"

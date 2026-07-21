@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { portalHref } from "@/lib/paths";
 
 type Report = {
   id: string;
@@ -56,7 +57,7 @@ export default function ReportsPage() {
           </p>
         </div>
         <Link
-          href="/reports/new"
+          href={portalHref("/reports/new")}
           className="bg-amber px-4 py-2.5 text-sm font-semibold text-navy"
         >
           Report a problem
@@ -115,7 +116,7 @@ export default function ReportsPage() {
         {reports.map((r) => (
           <Link
             key={r.id}
-            href={`/reports/${r.id}`}
+            href={portalHref(`/reports/${r.id}`)}
             className="block py-5 transition hover:bg-sand/40"
           >
             <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-wider text-muted">

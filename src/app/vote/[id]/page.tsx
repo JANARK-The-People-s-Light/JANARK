@@ -7,6 +7,7 @@ import { VoteForm } from "@/components/VoteForm";
 import { NonBindingLabel } from "@/components/Ui";
 import { EngageBar } from "@/components/EngageBar";
 import { MediaViewer } from "@/components/MediaViewer";
+import { portalHref } from "@/lib/paths";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -100,7 +101,7 @@ export default async function VotePage({ params }: Props) {
       {proposal.issueSlug && (
         <p className="mt-6 text-sm">
           <Link
-            href={`/issues/${proposal.issueSlug}`}
+            href={portalHref(`/issues/${proposal.issueSlug}`)}
             className="text-amber hover:underline"
           >
             View related issue →
@@ -132,7 +133,7 @@ export default async function VotePage({ params }: Props) {
       <section className="mt-12">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-navy">Other open votes</h2>
-          <Link href="/vote/new" className="text-sm text-amber hover:underline">
+          <Link href={portalHref("/vote/new")} className="text-sm text-amber hover:underline">
             Create vote
           </Link>
         </div>
@@ -140,7 +141,7 @@ export default async function VotePage({ params }: Props) {
           {others.map((p) => (
             <li key={p.id}>
               <Link
-                href={`/vote/${p.id}`}
+                href={portalHref(`/vote/${p.id}`)}
                 className="text-sm text-muted hover:text-amber"
               >
                 {p.title}

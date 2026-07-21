@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { getVoterKey } from "@/lib/client-id";
 import { MemeCard, type MemeCardData } from "@/components/MemeCard";
 import { HashtagFilter } from "@/components/HashtagFilter";
+import { portalHref } from "@/lib/paths";
 
 export default function MemesPage() {
   const [memes, setMemes] = useState<MemeCardData[]>([]);
@@ -66,7 +67,7 @@ export default function MemesPage() {
           </p>
         </div>
         <Link
-          href="/memes/new"
+          href={portalHref("/memes/new")}
           className="bg-amber px-4 py-2.5 text-sm font-semibold text-navy"
         >
           Post a meme
@@ -105,7 +106,7 @@ export default function MemesPage() {
         <p className="mt-10 text-muted">
           No memes yet
           {tag ? ` for #${tag}` : ""}.{" "}
-          <Link href="/memes/new" className="text-amber hover:underline">
+          <Link href={portalHref("/memes/new")} className="text-amber hover:underline">
             Be the first to post
           </Link>
           .

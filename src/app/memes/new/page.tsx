@@ -7,6 +7,7 @@ import { useAuth } from "@/components/AuthModal";
 import { MediaAttach } from "@/components/MediaAttach";
 import { PostTermsAccept } from "@/components/PostTermsAccept";
 import { termsPayload } from "@/lib/civic-post-terms";
+import { portalHref } from "@/lib/paths";
 
 export default function NewMemePage() {
   const router = useRouter();
@@ -51,7 +52,7 @@ export default function NewMemePage() {
         setError(data.error ?? "Could not post meme");
         return;
       }
-      router.push(`/memes/${data.meme.id}`);
+      router.push(portalHref(`/memes/${data.meme.id}`));
     } catch {
       setError("Network error");
     } finally {
@@ -136,7 +137,7 @@ export default function NewMemePage() {
             {saving ? "Posting…" : "Publish anonymously"}
           </button>
           <Link
-            href="/memes"
+            href={portalHref("/memes")}
             className="px-2 py-2.5 text-sm text-muted hover:text-navy"
           >
             Cancel

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { portalHref } from "@/lib/paths";
 import { useEffect, useState } from "react";
 import { AuthorLink } from "@/components/AuthorLink";
 
@@ -394,7 +395,7 @@ function Row({
 }) {
   return (
     <Link
-      href={href}
+      href={portalHref(href)}
       className="block border-b border-line py-3 hover:bg-sand/30"
     >
       <p className="text-sm font-medium text-navy">{title}</p>

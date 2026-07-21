@@ -6,6 +6,7 @@ import { useAuth } from "@/components/AuthModal";
 import { MediaAttach } from "@/components/MediaAttach";
 import { PostTermsAccept } from "@/components/PostTermsAccept";
 import { termsPayload } from "@/lib/civic-post-terms";
+import { portalHref } from "@/lib/paths";
 
 export default function NewReportPage() {
   const router = useRouter();
@@ -67,7 +68,7 @@ export default function NewReportPage() {
         setError(data.error ?? "Failed");
         return;
       }
-      router.push(`/reports/${data.report.id}`);
+      router.push(portalHref(`/reports/${data.report.id}`));
     } catch {
       setError("Network error");
     } finally {

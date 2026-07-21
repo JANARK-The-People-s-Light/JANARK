@@ -8,6 +8,7 @@ import {
   CIVIC_POST_TERMS_TITLE,
   CIVIC_POST_TERMS_VERSION,
 } from "@/lib/civic-post-terms";
+import { portalHref } from "@/lib/paths";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -247,7 +248,7 @@ export default function TermsPage() {
               </p>
               <div className="mt-6 flex flex-wrap gap-3 text-sm">
                 <Link
-                  href="/about"
+                  href={portalHref("/about")}
                   className="bg-amber px-4 py-2.5 font-semibold text-navy hover:bg-amber-bright"
                 >
                   How anonymity works
@@ -259,7 +260,7 @@ export default function TermsPage() {
                   Back to home
                 </Link>
                 <Link
-                  href="/feed"
+                  href={portalHref("/feed")}
                   className="border border-cream/40 px-4 py-2.5 text-cream hover:border-amber hover:text-amber-bright"
                 >
                   Open feed

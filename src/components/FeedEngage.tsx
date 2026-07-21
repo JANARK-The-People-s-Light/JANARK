@@ -2,6 +2,7 @@
 
 import { EngageBar } from "@/components/EngageBar";
 import type { EngageTarget } from "@/lib/engage";
+import { portalHref } from "@/lib/paths";
 
 /** Map a feed/mongo post type + ids to unified engage target */
 export function engageTargetForFeedPost(post: {
@@ -22,26 +23,33 @@ export function engageTargetForFeedPost(post: {
 }
 
 type Props = {
-  post: { id: string; type?: string; refId?: string | null; title?: string; href?: string };
+  post: {
+    id: string;
+    type?: string;
+    refId?: string | null;
+    title?: string;
+    href?: string;
+  };
   /** List cards: comments collapsed until opened */
   compact?: boolean;
 };
 
 export function FeedEngage({ post, compact = true }: Props) {
   const { targetType, targetId } = engageTargetForFeedPost(post);
-  const sharePath =
+  const sharePath = portalHref(
     post.href?.trim() ||
-    (targetType === "meme" && post.refId
-      ? `/memes/${post.refId}`
-      : targetType === "report" && post.refId
-        ? `/reports/${post.refId}`
-        : targetType === "demand" && post.refId
-          ? `/demands/${post.refId}`
-          : targetType === "notice" && post.refId
-            ? `/notice/${post.refId}`
-            : targetType === "issue" && post.refId
-              ? `/issues/${post.refId}`
-              : `/feed?post=${post.id}`);
+      (targetType === "meme" && post.refId
+        ? `/memes/${post.refId}`
+        : targetType === "report" && post.refId
+          ? `/reports/${post.refId}`
+          : targetType === "demand" && post.refId
+            ? `/demands/${post.refId}`
+            : targetType === "notice" && post.refId
+              ? `/notice/${post.refId}`
+              : targetType === "issue" && post.refId
+                ? `/issues/${post.refId}`
+                : `/feed?post=${post.id}`),
+  );
 
   return (
     <EngageBar

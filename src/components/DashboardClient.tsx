@@ -5,6 +5,7 @@ import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { HashtagFilter } from "@/components/HashtagFilter";
 import { IconFilter, IconSearch, IconX } from "@/components/Icons";
+import { portalHref } from "@/lib/paths";
 
 type Stats = {
   citizens: number;
@@ -515,11 +516,11 @@ function DashboardInner() {
           ) : (
             <>
               No signal yet.{" "}
-              <Link href="/demands/new" className="text-amber hover:underline">
+              <Link href={portalHref("/demands/new")} className="text-amber hover:underline">
                 Raise a demand
               </Link>{" "}
               or{" "}
-              <Link href="/reports/new" className="text-amber hover:underline">
+              <Link href={portalHref("/reports/new")} className="text-amber hover:underline">
                 report a problem
               </Link>
               .
@@ -536,7 +537,7 @@ function DashboardInner() {
                   {data.topIssues.map((issue, i) => (
                     <li key={issue.slug}>
                       <Link
-                        href={`/issues/${issue.slug}`}
+                        href={portalHref(`/issues/${issue.slug}`)}
                         className="group block"
                       >
                         <div className="mb-1 flex justify-between text-sm">
@@ -569,7 +570,7 @@ function DashboardInner() {
                 <ul className="mt-6 space-y-4">
                   {data.topReports.map((r, i) => (
                     <li key={r.id}>
-                      <Link href={r.href} className="group block">
+                      <Link href={portalHref(r.href)} className="group block">
                         <div className="mb-1 flex justify-between gap-3 text-sm">
                           <span className="min-w-0 text-navy group-hover:text-amber">
                             {r.title}
@@ -604,7 +605,7 @@ function DashboardInner() {
                   {data.topDemands.map((d) => (
                     <li key={d.id}>
                       <Link
-                        href={d.href}
+                        href={portalHref(d.href)}
                         className="flex justify-between gap-3 border-b border-line py-3 text-sm text-navy hover:text-amber"
                       >
                         <span className="min-w-0">
@@ -656,7 +657,7 @@ function DashboardInner() {
                   {data.hotFeed.map((f) => (
                     <li key={f.id}>
                       <Link
-                        href={f.href}
+                        href={portalHref(f.href)}
                         className="block py-3 text-sm text-navy hover:text-amber"
                       >
                         <span className="text-xs uppercase tracking-wider text-muted">
@@ -717,7 +718,7 @@ function DashboardInner() {
                   <li key={a.id} className="py-3">
                     {a.href ? (
                       <Link
-                        href={a.href}
+                        href={portalHref(a.href)}
                         className="text-sm text-navy hover:text-amber"
                       >
                         <span className="text-xs uppercase tracking-wider text-muted">

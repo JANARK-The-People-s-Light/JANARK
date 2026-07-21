@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { portalHref } from "@/lib/paths";
 
 type Demand = {
   id: string;
@@ -55,7 +56,7 @@ export default function DemandsPage() {
           </p>
         </div>
         <Link
-          href="/demands/new"
+          href={portalHref("/demands/new")}
           className="bg-amber px-4 py-2.5 text-sm font-semibold text-navy"
         >
           Raise a demand
@@ -89,7 +90,7 @@ export default function DemandsPage() {
           Search
         </button>
         <Link
-          href="/explore?kind=demands"
+          href={portalHref("/explore?kind=demands")}
           className="px-1 py-2 text-sm text-muted hover:text-navy"
         >
           By location →
@@ -101,7 +102,7 @@ export default function DemandsPage() {
         {!loading && demands.length === 0 && (
           <p className="py-8 text-sm text-muted">
             No demands yet.{" "}
-            <Link href="/demands/new" className="text-amber hover:underline">
+            <Link href={portalHref("/demands/new")} className="text-amber hover:underline">
               Raise the first one
             </Link>
             .
@@ -110,7 +111,7 @@ export default function DemandsPage() {
         {demands.map((d) => (
           <Link
             key={d.id}
-            href={`/demands/${d.id}`}
+            href={portalHref(`/demands/${d.id}`)}
             className="block py-5 transition hover:bg-sand/40"
           >
             <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-wider text-muted">

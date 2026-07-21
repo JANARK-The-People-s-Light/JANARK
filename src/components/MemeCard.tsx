@@ -7,6 +7,7 @@ import { EngageBar } from "@/components/EngageBar";
 import { InlineTags } from "@/components/HashtagFilter";
 import { MediaViewer } from "@/components/MediaViewer";
 import type { MediaType } from "@/lib/media";
+import { portalHref } from "@/lib/paths";
 
 export type MemeCardData = {
   id: string;
@@ -42,7 +43,7 @@ export function MemeCard({ meme, onTagClick, compact }: Props) {
 
   return (
     <article className="border-b border-line py-6">
-      <Link href={`/memes/${data.id}`} className="block overflow-hidden">
+      <Link href={portalHref(`/memes/${data.id}`)} className="block overflow-hidden">
         <MediaViewer
           url={data.imageUrl}
           mediaType={(data.mediaType as MediaType) ?? undefined}
@@ -51,7 +52,7 @@ export function MemeCard({ meme, onTagClick, compact }: Props) {
         />
       </Link>
       <div className="pt-4">
-        <Link href={`/memes/${data.id}`}>
+        <Link href={portalHref(`/memes/${data.id}`)}>
           <h2 className="font-display text-xl text-navy hover:text-amber">
             {data.title}
           </h2>

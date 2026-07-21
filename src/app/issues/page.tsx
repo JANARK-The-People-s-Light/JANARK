@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
 import { computeIssueLiveMetrics, mapIssue } from "@/lib/services";
 import { Stars } from "@/components/Ui";
+import { portalHref } from "@/lib/paths";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -60,7 +61,7 @@ export default async function IssuesPage() {
           </p>
         </div>
         <Link
-          href="/issues/new"
+          href={portalHref("/issues/new")}
           className="bg-navy px-4 py-2 text-sm font-medium text-cream hover:bg-navy-mid"
         >
           Raise new issue
@@ -89,7 +90,7 @@ export default async function IssuesPage() {
       {issues.length === 0 ? (
         <p className="mt-12 text-muted">
           No issues yet.{" "}
-          <Link href="/issues/new" className="text-amber hover:underline">
+          <Link href={portalHref("/issues/new")} className="text-amber hover:underline">
             Raise the first national issue
           </Link>
           .
@@ -99,7 +100,7 @@ export default async function IssuesPage() {
           {issues.map((issue) => (
             <Link
               key={issue.slug}
-              href={`/issues/${issue.slug}`}
+              href={portalHref(`/issues/${issue.slug}`)}
               className="block py-5 transition hover:bg-sand/30"
             >
               <p className="text-xs uppercase tracking-wider text-muted">

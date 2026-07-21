@@ -6,6 +6,7 @@ import { computeIssueLiveMetrics, mapIssue, mapProposal } from "@/lib/services";
 import { Stars } from "@/components/Ui";
 import { EngageBar } from "@/components/EngageBar";
 import { MediaViewer } from "@/components/MediaViewer";
+import { portalHref } from "@/lib/paths";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -166,7 +167,7 @@ export default async function IssueDetailPage({ params }: Props) {
         <ul className="mt-4 space-y-3">
           {linkedVotes.length === 0 && (
             <li>
-              <Link href="/vote/new" className="text-amber hover:underline">
+              <Link href={portalHref("/vote/new")} className="text-amber hover:underline">
                 Create a vote for this issue →
               </Link>
             </li>
@@ -174,7 +175,7 @@ export default async function IssueDetailPage({ params }: Props) {
           {linkedVotes.map((p) => (
             <li key={p.id}>
               <Link
-                href={`/vote/${p.id}`}
+                href={portalHref(`/vote/${p.id}`)}
                 className="block border-b border-line py-3 transition hover:text-amber"
               >
                 <span className="font-medium text-navy">{p.title}</span>
@@ -194,7 +195,7 @@ export default async function IssueDetailPage({ params }: Props) {
             {related.map((r) => (
               <li key={r.slug}>
                 <Link
-                  href={`/issues/${r.slug}`}
+                  href={portalHref(`/issues/${r.slug}`)}
                   className="text-navy hover:text-amber"
                 >
                   {r.title}
