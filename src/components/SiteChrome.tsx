@@ -252,7 +252,16 @@ export function SiteHeader() {
             <time dateTime="2026-08-15">15 August 2026</time>
             <span className="font-normal">
               {" "}
-              · for the people, by the people
+              · for the people, by the people · so feel free to contribute here
+              —{" "}
+              <a
+                href="https://github.com/JANARK-The-People-s-Light/JANARK"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 hover:text-navy/80"
+              >
+                GitHub
+              </a>
             </span>
           </p>
         </div>
@@ -263,7 +272,7 @@ export function SiteHeader() {
         aria-hidden
       >
         <div className="h-14" />
-        <div className="h-9 sm:h-10" />
+        <div className="h-12 sm:h-10" />
       </div>
     </>
   );
