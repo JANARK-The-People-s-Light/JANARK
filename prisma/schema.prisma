@@ -281,14 +281,24 @@ model PublicDemand {
 }
 
 model DemandSupport {
-  id        String   @id @default(cuid())
-  demandId  String
-  demand    PublicDemand @relation(fields: [demandId], references: [id], onDelete: Cascade)
-  voterKey  String
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  demandId    String
+  demand      PublicDemand @relation(fields: [demandId], references: [id], onDelete: Cascade)
+  /// Session / phone identity hash (unique per demand)
+  voterKey    String
+  /// Petition signer — first and last name (geographic relevance)
+  fullName    String   @default("")
+  /// ZIP / postal / PIN code for geographic relevance
+  postalCode  String   @default("")
+  /// Hash of phone used on the petition form (may match voterKey)
+  phoneHash   String   @default("")
+  /// Last-2 hint only — never full number
+  phoneHint   String   @default("")
+  createdAt   DateTime @default(now())
 
   @@unique([demandId, voterKey])
   @@index([demandId])
+  @@index([postalCode])
 }
 
 /// Civic memes — image/GIF via link, hashtags, up/down votes, shareable permalink
@@ -420,4 +430,77 @@ model RateLimitBucket {
   count       Int      @default(0)
   windowStart DateTime
   updatedAt   DateTime @updatedAt
+}
+
+/// Opaque browser visitor (localStorage) — not a public identity
+model VisitSession {
+  id            String    @id @default(cuid())
+  /// Client-generated opaque id (not phone, not anonId)
+  visitorId     String
+  /// Hashed IP only — never raw address
+  ipHash        String?
+  country       String?
+  region        String?
+  city          String?
+  isp           String?
+  userAgent     String?
+  deviceType    String?
+  browserName   String?
+  browserVersion String?
+  osName         String?
+  entryPage     String?
+  exitPage      String?
+  referrer      String?
+  /// JSON: utm_* params
+  utmJson       String?
+  trafficSource String?
+  isReturning   Boolean   @default(false)
+  pageViews     Int       @default(0)
+  /// Full sanitized client+server snapshot (JSON)
+  snapshotJson  String    @default("{}")
+  /// Linked only after OTP — never returned to clients / public APIs
+  phoneHash     String?
+  /// Denormalized public anon id when linked (safe to show internally)
+  anonId        String?
+  startedAt     DateTime  @default(now())
+  lastSeenAt    DateTime  @default(now())
+  endedAt       DateTime?
+
+  events VisitEvent[]
+
+  @@index([visitorId, lastSeenAt])
+  @@index([phoneHash])
+  @@index([startedAt])
+  @@index([ipHash])
+}
+
+/// Incremental visit signals (pageviews, clicks, scroll, errors, …)
+model VisitEvent {
+  id        String      @id @default(cuid())
+  sessionId String
+  session   VisitSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  visitorId String
+  /// pageview | click | scroll | heartbeat | error | paste | keyboard | mouse_sample | visibility | unload
+  kind      String
+  path      String?
+  /// Sanitized JSON payload (no keystrokes content, no clipboard text, no phone)
+  dataJson  String?
+  createdAt DateTime    @default(now())
+
+  @@index([sessionId, createdAt])
+  @@index([visitorId, createdAt])
+  @@index([kind, createdAt])
+}
+
+/// Maps opaque visitorId → phoneHash after OTP (server-only; never public)
+model VisitorPhoneLink {
+  id        String   @id @default(cuid())
+  visitorId String
+  phoneHash String
+  anonId    String?
+  linkedAt  DateTime @default(now())
+
+  @@unique([visitorId, phoneHash])
+  @@index([phoneHash])
+  @@index([visitorId])
 }

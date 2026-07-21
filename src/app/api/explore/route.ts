@@ -299,7 +299,7 @@ export async function GET(req: Request) {
       id: d.id,
       title: d.title,
       excerpt: d.ask.slice(0, 180),
-      href: `/demands/${d.id}`,
+      href: `/petitions/${d.id}`,
       locationLabel: reportLocationLabel(d),
       locationLevel: d.locationLevel,
       upvotes: d.supportCount,

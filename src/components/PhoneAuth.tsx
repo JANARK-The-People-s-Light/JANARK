@@ -93,6 +93,13 @@ export function PhoneAuth({ onVerified }: Props) {
           phone,
           code,
           website: hp,
+          visitorId: (() => {
+            try {
+              return localStorage.getItem("janark_vid") || undefined;
+            } catch {
+              return undefined;
+            }
+          })(),
           ...(turnstileToken ? { turnstileToken } : {}),
         }),
       });

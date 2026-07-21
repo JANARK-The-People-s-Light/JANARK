@@ -32,10 +32,10 @@ export default function PortalHomePage() {
 
             <div className="animate-rise-delay flex shrink-0 flex-wrap gap-2">
               <Link
-                href={portalHref("/demands/new")}
+                href={portalHref("/petitions/new")}
                 className="bg-amber px-4 py-2.5 text-sm font-semibold text-navy transition hover:bg-amber-bright"
               >
-                Raise a demand
+                Start a petition
               </Link>
               <Link
                 href={portalHref("/reports/new")}

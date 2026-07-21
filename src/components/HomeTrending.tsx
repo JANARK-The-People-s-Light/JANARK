@@ -516,10 +516,10 @@ function HomeTrendingInner() {
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
               <Link
-                href={portalHref("/demands/new")}
+                href={portalHref("/petitions/new")}
                 className="bg-navy px-4 py-2 text-sm text-cream"
               >
-                Raise a demand
+                Start a petition
               </Link>
               <Link
                 href={portalHref("/memes/new")}

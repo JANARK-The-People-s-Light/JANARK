@@ -66,6 +66,20 @@ Before exposing Janark on the public internet:
 8. Use a managed database (Postgres recommended over SQLite) for multi-instance
    deploys; SQLite file paths are fine only for single-node demos.
 
+## Visit telemetry (privacy)
+
+Every visit may record device / browser / coarse location signals for abuse
+resistance and product analytics. Rules:
+
+- **Raw IP addresses are never stored** — only salted hashes (`IP_HASH_SALT`).
+- **Phone numbers are never stored** in telemetry. After OTP login, an opaque
+  `visitorId` is linked to `phoneHash` server-side only.
+- **Public profiles still show `anonId` only** — never phone, IP, or visit
+  fingerprints.
+- Telemetry APIs never return `phoneHash`, IP, or full snapshots to browsers.
+- Keystroke **content** and clipboard **text** are not collected — counts only.
+- Cookie **values** (including `janark_sid`) are not stored — names may be.
+
 ### Auth model
 
 - Sessions are **httpOnly**, `Secure` (production), `SameSite=Lax` cookies.

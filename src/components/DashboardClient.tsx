@@ -516,8 +516,8 @@ function DashboardInner() {
           ) : (
             <>
               No signal yet.{" "}
-              <Link href={portalHref("/demands/new")} className="text-amber hover:underline">
-                Raise a demand
+              <Link href={portalHref("/petitions/new")} className="text-amber hover:underline">
+                Start a petition
               </Link>{" "}
               or{" "}
               <Link href={portalHref("/reports/new")} className="text-amber hover:underline">
@@ -600,7 +600,7 @@ function DashboardInner() {
 
             {data.topDemands.length > 0 && (
               <section>
-                <h2 className="font-display text-2xl text-navy">Top demands</h2>
+                <h2 className="font-display text-2xl text-navy">Top petitions</h2>
                 <ul className="mt-6 space-y-4">
                   {data.topDemands.map((d) => (
                     <li key={d.id}>
@@ -675,24 +675,27 @@ function DashboardInner() {
           {data.trends.length > 0 && (
             <section className="mt-12">
               <h2 className="font-display text-2xl text-navy">Live trends</h2>
-              <div className="mt-4 flex flex-wrap gap-x-3 gap-y-1">
-                {data.trends.map((t) => {
+              <ul className="mt-4 max-h-[13.75rem] divide-y divide-line overflow-y-auto overscroll-contain border-y border-line pr-1">
+                {data.trends.slice(0, 30).map((t) => {
                   const clean = t.term.replace(/^#/, "");
                   return (
-                    <button
-                      key={t.term}
-                      type="button"
-                      onClick={() => setParam("tag", clean)}
-                      className="py-1 text-sm text-muted transition hover:text-amber"
-                    >
-                      {t.term.startsWith("#") ? t.term : `#${clean}`}{" "}
-                      <span className="text-[11px] tabular-nums opacity-50">
-                        {t.score}
-                      </span>
-                    </button>
+                    <li key={t.term}>
+                      <button
+                        type="button"
+                        onClick={() => setParam("tag", clean)}
+                        className="flex h-11 w-full items-center justify-between text-left text-sm text-muted transition hover:text-amber"
+                      >
+                        <span className="truncate pr-2">
+                          {t.term.startsWith("#") ? t.term : `#${clean}`}
+                        </span>
+                        <span className="shrink-0 text-[11px] tabular-nums opacity-50">
+                          {t.score}
+                        </span>
+                      </button>
+                    </li>
                   );
                 })}
-              </div>
+              </ul>
             </section>
           )}
 

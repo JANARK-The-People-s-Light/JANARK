@@ -10,16 +10,12 @@ import { BrandLogo } from "@/components/BrandLogo";
 import { PORTAL_BASE, portalHref } from "@/lib/paths";
 
 const links = [
-  { href: "/explore", label: "Explore" },
-  { href: "/memes", label: "Memes" },
-  { href: "/demands", label: "Demands" },
-  { href: "/reports", label: "Reports" },
   { href: "/feed", label: "Feed" },
+  { href: "/petitions", label: "Petitions" },
+  { href: "/reports", label: "Reports" },
   { href: "/issues", label: "Issues" },
-  { href: "/vote/new", label: "Vote" },
+  { href: "/memes", label: "Memes" },
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/about", label: "About" },
-  { href: "/terms", label: "Terms" },
 ].map((l) => ({ ...l, href: portalHref(l.href) }));
 
 export function SiteHeader() {
@@ -309,12 +305,18 @@ export function SiteFooter() {
           <p>
             Browse freely · login only to post or react · anonymity ID profiles
           </p>
-          <p>
+          <p className="flex flex-wrap gap-x-3 gap-y-1 sm:justify-end">
+            <Link
+              href={portalHref("/about")}
+              className="text-amber-bright/80 hover:underline"
+            >
+              About
+            </Link>
             <Link
               href={portalHref("/terms")}
               className="text-amber-bright/80 hover:underline"
             >
-              Civic Posting Terms
+              Terms
             </Link>
           </p>
         </div>

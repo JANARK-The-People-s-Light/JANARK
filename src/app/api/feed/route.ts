@@ -229,7 +229,7 @@ export async function GET(req: Request) {
       orderBy: { memes: { _count: "desc" } },
       take: 30,
     }),
-    Trend.find().sort({ score: -1 }).limit(16).lean(),
+    Trend.find().sort({ score: -1 }).limit(30).lean(),
     FeedPost.distinct("state"),
     state
       ? FeedPost.distinct("district", {

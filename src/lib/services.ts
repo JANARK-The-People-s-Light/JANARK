@@ -675,7 +675,7 @@ export async function getDashboardData(filters: DashboardFilters = {}) {
           : {},
     )
       .sort({ score: -1 })
-      .limit(12)
+      .limit(30)
       .lean(),
     computeLiveStateSignals(),
     Activity.find(
@@ -873,7 +873,7 @@ export async function getDashboardData(filters: DashboardFilters = {}) {
       id: d.id,
       title: d.title,
       supportCount: d.supportCount,
-      href: `/demands/${d.id}`,
+      href: `/petitions/${d.id}`,
       place: [d.city || d.town, d.district, d.state].filter(Boolean).join(", "),
     })),
     trends: trends.map((t) => ({

@@ -1176,13 +1176,13 @@ async function main() {
     const media = mediaFor(d.issueSlug);
     feedItems.push({
       type: "discussion",
-      title: asDummy(`[demand] ${d.title}`),
+      title: asDummy(`[petition] ${d.title}`),
       excerpt: d.ask,
-      href: `/demands/${id}`,
-      meta: `${d.locationLevel} · public demand`,
+      href: `/petitions/${id}`,
+      meta: `${d.locationLevel} · petition`,
       votes: 0,
       hot: i < 3,
-      tags: ["demand", ...d.tags, "india", "janark"],
+      tags: ["petition", "demand", ...d.tags, "india", "janark"],
       author: a.label,
       authorAnonId: a.anonId,
       refId: id,
@@ -1515,7 +1515,14 @@ async function main() {
     const supporters = pickN(citizens, 4 + (i % 5), i + 110);
     for (const c of supporters) {
       await prisma.demandSupport.create({
-        data: { demandId: id, voterKey: c.phoneHash },
+        data: {
+          demandId: id,
+          voterKey: c.phoneHash,
+          fullName: `Citizen ${c.anonId.slice(-4)} Demo`,
+          postalCode: String(110001 + ((i * 17 + supports) % 90000)).padStart(6, "0"),
+          phoneHash: c.phoneHash,
+          phoneHint: c.phoneHint,
+        },
       });
       supports++;
     }

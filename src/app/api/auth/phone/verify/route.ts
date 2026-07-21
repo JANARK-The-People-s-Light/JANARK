@@ -167,5 +167,21 @@ export async function POST(req: Request) {
   });
 
   await createSession(phoneHash, res);
+
+  // Link opaque visit telemetry → phoneHash (never returned to client)
+  const visitorId = String(body.visitorId ?? "");
+  if (visitorId) {
+    const { isValidVisitorId, linkVisitorToPhone } = await import(
+      "@/lib/telemetry"
+    );
+    if (isValidVisitorId(visitorId)) {
+      await linkVisitorToPhone({
+        visitorId,
+        phoneHash,
+        anonId: identity.anonId,
+      });
+    }
+  }
+
   return res;
 }

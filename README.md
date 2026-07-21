@@ -176,7 +176,7 @@ Copyright 2026 JANARK - The People's Light and contributors.
 Licensed under the **Business Source License 1.1**. You may use the source for
 non-production purposes (including local development and contributions).
 Commercial use and hosting require a separate license from the Licensor.
-On the Change Date specified in [LICENSE](LICENSE), the Change License
-(Apache License 2.0) applies to that version.
+On the Change Date in [LICENSE](LICENSE), the Change License named there
+applies to that version.
 
 See [LICENSE](LICENSE), [NOTICE](NOTICE), and [TRADEMARK.md](TRADEMARK.md).

@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { Fraunces, Source_Sans_3 } from "next/font/google";
 import { AuthProvider } from "@/components/AuthModal";
 import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
+import { VisitTelemetry } from "@/components/VisitTelemetry";
 import "./globals.css";
 
 const display = Fraunces({
@@ -72,6 +74,9 @@ export default function RootLayout({
     >
       <body className="surface-grain flex min-h-full flex-col overflow-x-hidden">
         <AuthProvider>
+          <Suspense fallback={null}>
+            <VisitTelemetry />
+          </Suspense>
           <SiteHeader />
           <main className="min-w-0 flex-1">{children}</main>
           <SiteFooter />

@@ -481,7 +481,7 @@ export function hrefForTarget(targetType: string, targetId: string) {
     case "report":
       return portalHref(`/reports/${targetId}`);
     case "demand":
-      return portalHref(`/demands/${targetId}`);
+      return portalHref(`/petitions/${targetId}`);
     case "notice":
       return portalHref(`/notice/${targetId}`);
     case "issue":

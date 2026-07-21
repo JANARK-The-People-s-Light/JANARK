@@ -50,6 +50,7 @@ function publicDemand<T extends { authorHash?: string | null }>(row: T) {
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const status = searchParams.get("status");
+  const live = searchParams.get("live") === "1";
   const level = searchParams.get("level");
   const state = searchParams.get("state");
   const district = searchParams.get("district");
@@ -59,7 +60,11 @@ export async function GET(req: Request) {
 
   const demands = await prisma.publicDemand.findMany({
     where: {
-      ...(status ? { status } : {}),
+      ...(live
+        ? { status: { in: ["open", "gathering"] } }
+        : status
+          ? { status }
+          : {}),
       ...(level && LEVELS.has(level) ? { locationLevel: level } : {}),
       ...(state ? { state: { contains: state } } : {}),
       ...(district ? { district: { contains: district } } : {}),
@@ -162,10 +167,9 @@ export async function POST(req: Request) {
       authorHash: voterKey,
       mediaUrl: media.mediaUrl,
       mediaType: media.mediaType,
-      supportCount: 1,
-      upvotes: 1,
-      supports: { create: { voterKey } },
-      status: "gathering",
+      supportCount: 0,
+      upvotes: 0,
+      status: "open",
     },
   });
 
@@ -176,11 +180,11 @@ export async function POST(req: Request) {
     title: `[demand] ${title}`,
     excerpt: ask.slice(0, 220),
     body: text,
-    href: `/demands/${demand.id}`,
-    meta: `${label} · public demand`,
+    href: `/petitions/${demand.id}`,
+    meta: `${label} · petition`,
     votes: demand.supportCount,
     hot: true,
-    tags: ["demand", locationLevel, demand.state ?? "India"].filter(Boolean) as string[],
+    tags: ["petition", "demand", locationLevel, demand.state ?? "India"].filter(Boolean) as string[],
     refId: demand.id,
     author: demand.authorLabel,
     authorAnonId: publicAuthor.authorAnonId,
@@ -194,13 +198,13 @@ export async function POST(req: Request) {
     state: demand.state ?? undefined,
     country: demand.country,
   });
-  await bumpTrend("Public demand", 3);
+  await bumpTrend("Petition", 3);
   if (demand.state) await bumpTrend(demand.state, 1);
   await bumpMongoStats({ citizens: 1 });
   await recordActivity({
     kind: "proposal",
-    summary: `Public demand: ${title}`,
-    href: `/demands/${demand.id}`,
+    summary: `Petition: ${title}`,
+    href: `/petitions/${demand.id}`,
   });
 
   return NextResponse.json(

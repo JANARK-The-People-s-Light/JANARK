@@ -244,7 +244,7 @@ export function ProfileView({ anonId }: { anonId: string }) {
             ))}
           </Section>
 
-          <Section title="Demands" empty="No demands raised yet.">
+          <Section title="Petitions" empty="No petitions raised yet.">
             {posts.demands.map((d) => (
               <Row
                 key={d.id}
@@ -314,7 +314,7 @@ export function ProfileView({ anonId }: { anonId: string }) {
             ))}
           </Section>
 
-          <Section title="Demands supported" empty="No demand supports yet.">
+          <Section title="Petitions signed" empty="No petition signatures yet.">
             {reactions.demandSupports.map((s) => (
               <Row
                 key={s.id}

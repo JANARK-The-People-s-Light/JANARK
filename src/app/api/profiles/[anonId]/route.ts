@@ -167,7 +167,7 @@ export async function GET(_req: Request, ctx: Ctx) {
         supportCount: rest.supportCount,
         authorLabel: rest.authorLabel,
         authorAnonId: rest.authorAnonId ?? anonId,
-        href: `/demands/${rest.id}`,
+        href: `/petitions/${rest.id}`,
         createdAt: rest.createdAt,
       };
     }),
@@ -225,7 +225,7 @@ export async function GET(_req: Request, ctx: Ctx) {
       id: s.id,
       title: s.demand.title,
       ask: s.demand.ask,
-      href: `/demands/${s.demandId}`,
+      href: `/petitions/${s.demandId}`,
       createdAt: s.createdAt,
     })),
     proposalVotes: proposalVotes.map((v) => ({

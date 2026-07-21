@@ -60,12 +60,20 @@ export default async function IssuesPage() {
             and discuss.
           </p>
         </div>
-        <Link
-          href={portalHref("/issues/new")}
-          className="bg-navy px-4 py-2 text-sm font-medium text-cream hover:bg-navy-mid"
-        >
-          Raise new issue
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href={portalHref("/vote/new")}
+            className="border border-navy px-4 py-2 text-sm font-medium text-navy hover:bg-cream"
+          >
+            Start a vote
+          </Link>
+          <Link
+            href={portalHref("/issues/new")}
+            className="bg-navy px-4 py-2 text-sm font-medium text-cream hover:bg-navy-mid"
+          >
+            Raise new issue
+          </Link>
+        </div>
       </div>
 
       <div className="mt-10 flex flex-wrap gap-x-3 gap-y-1">

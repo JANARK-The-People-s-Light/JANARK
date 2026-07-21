@@ -5,6 +5,7 @@ const PORTAL_ROOTS = new Set([
   "explore",
   "memes",
   "demands",
+  "petitions",
   "reports",
   "feed",
   "issues",

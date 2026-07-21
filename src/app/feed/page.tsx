@@ -216,15 +216,17 @@ export default function FeedPage() {
               Trends appear as citizens vote and post.
             </p>
           ) : (
-            <ul className="mt-4 space-y-2">
-              {trends.map((t) => (
+            <ul className="mt-4 max-h-[13.75rem] space-y-0 overflow-y-auto overscroll-contain pr-1">
+              {trends.slice(0, 30).map((t) => (
                 <li key={t.term}>
                   <Link
                     href={portalHref("/issues")}
-                    className="flex justify-between border-b border-line py-2 text-sm text-navy hover:text-amber"
+                    className="flex h-11 items-center justify-between border-b border-line text-sm text-navy hover:text-amber"
                   >
-                    <span>{t.term}</span>
-                    <span className="text-xs text-muted">{t.score}</span>
+                    <span className="truncate pr-2">{t.term}</span>
+                    <span className="shrink-0 text-xs tabular-nums text-muted">
+                      {t.score}
+                    </span>
                   </Link>
                 </li>
               ))}
