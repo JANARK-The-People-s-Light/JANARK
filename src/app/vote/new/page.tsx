@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthModal";
+import { MediaAttach } from "@/components/MediaAttach";
 import { PostTermsAccept } from "@/components/PostTermsAccept";
 import { termsPayload } from "@/lib/civic-post-terms";
 
@@ -20,6 +21,7 @@ export default function NewVotePage() {
   const [district, setDistrict] = useState("");
   const [state, setState] = useState("");
   const [country, setCountry] = useState("India");
+  const [mediaUrl, setMediaUrl] = useState("");
   const [issues, setIssues] = useState<{ slug: string; title: string }[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -67,6 +69,7 @@ export default function NewVotePage() {
           district: district || undefined,
           state: state || undefined,
           country,
+          mediaUrl: mediaUrl.trim() || undefined,
           voterKey,
           website: "",
           ...termsPayload(acceptedTerms),
@@ -192,6 +195,8 @@ export default function NewVotePage() {
             className="border border-line bg-white px-3 py-2 sm:col-span-2"
           />
         </div>
+
+        <MediaAttach value={mediaUrl} onChange={setMediaUrl} />
 
         <PostTermsAccept
           accepted={acceptedTerms}

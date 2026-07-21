@@ -130,21 +130,15 @@ export default function AboutPage() {
       </section>
 
       <section className="mt-12">
-        <h2 className="font-display text-2xl text-navy">Open source</h2>
+        <h2 className="font-display text-2xl text-navy">Source &amp; license</h2>
         <p className="mt-4 leading-relaxed text-muted">
-          Janark is open source under the{" "}
-          <strong className="text-navy">Apache License 2.0</strong>. Anyone can
-          contribute — code, docs, design, bugs, or ideas — through our GitHub
-          organization{" "}
-          <a
-            href="https://github.com/JANARK-The-People-s-Light"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-amber hover:underline"
-          >
-            JANARK - The People&apos;s Light
-          </a>
-          .
+          Janark&apos;s source is public on GitHub under the{" "}
+          <strong className="text-navy">Business Source License 1.1</strong>.
+          Anyone can contribute through pull requests.{" "}
+          <strong className="text-navy">Commercial use</strong> and{" "}
+          <strong className="text-navy">public hosting</strong> require written
+          permission. The <strong className="text-navy">JANARK</strong> name and
+          logo are reserved.
         </p>
         <ul className="mt-4 space-y-3 text-muted leading-relaxed">
           <li>
@@ -160,10 +154,10 @@ export default function AboutPage() {
             .
           </li>
           <li>
-            · See <code className="text-navy">CONTRIBUTING.md</code>,{" "}
-            <code className="text-navy">LICENSE</code>, and{" "}
-            <code className="text-navy">NOTICE</code> in the repository for how
-            to contribute under Apache 2.0.
+            · See <code className="text-navy">LICENSE</code>,{" "}
+            <code className="text-navy">TRADEMARK.md</code>, and{" "}
+            <code className="text-navy">CONTRIBUTING.md</code> in the repository
+            for terms and how to contribute.
           </li>
           <li>
             · Contributions help keep this non-profit platform independent,

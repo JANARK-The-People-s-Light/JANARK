@@ -6,6 +6,7 @@ import { mapProposal } from "@/lib/services";
 import { VoteForm } from "@/components/VoteForm";
 import { NonBindingLabel } from "@/components/Ui";
 import { EngageBar } from "@/components/EngageBar";
+import { MediaViewer } from "@/components/MediaViewer";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -42,6 +43,16 @@ export default async function VotePage({ params }: Props) {
       <p className="mt-6 text-lg leading-relaxed text-navy/90">
         {proposal.description}
       </p>
+
+      {proposal.mediaUrl ? (
+        <div className="mt-6 overflow-hidden">
+          <MediaViewer
+            url={proposal.mediaUrl}
+            mediaType={proposal.mediaType}
+            alt={proposal.title}
+          />
+        </div>
+      ) : null}
 
       <section className="mt-8">
         <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">

@@ -24,6 +24,8 @@ export function mapIssue(row: {
   voteCount: number;
   rating: number;
   trendingRank: number | null;
+  mediaUrl?: string | null;
+  mediaType?: string | null;
 }) {
   return {
     slug: row.slug,
@@ -39,6 +41,8 @@ export function mapIssue(row: {
     voteCount: row.voteCount,
     rating: row.rating,
     trendingRank: row.trendingRank ?? undefined,
+    mediaUrl: row.mediaUrl ?? undefined,
+    mediaType: (row.mediaType as "image" | "gif" | "video" | undefined) ?? undefined,
   };
 }
 
@@ -54,6 +58,8 @@ export function mapProposal(row: {
   results: string | null;
   totalVotes: number;
   issueSlug: string | null;
+  mediaUrl?: string | null;
+  mediaType?: string | null;
 }) {
   return {
     id: row.id,
@@ -68,6 +74,8 @@ export function mapProposal(row: {
     results: undefined as Record<string, number> | undefined,
     totalVotes: row.totalVotes,
     issueSlug: row.issueSlug ?? undefined,
+    mediaUrl: row.mediaUrl ?? undefined,
+    mediaType: (row.mediaType as "image" | "gif" | "video" | undefined) ?? undefined,
   };
 }
 

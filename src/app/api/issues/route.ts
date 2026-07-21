@@ -11,6 +11,8 @@ import {
 import { guardAnonymousWrite } from "@/lib/anti-bot";
 import { guardFail } from "@/lib/http";
 import { requireCivicPostTerms } from "@/lib/civic-post-terms";
+import { parseOptionalMedia } from "@/lib/media";
+import { publicAuthorFromVoterKey } from "@/lib/identity";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -64,6 +66,13 @@ export async function POST(req: Request) {
   const existing = await prisma.issue.findUnique({ where: { slug } });
   if (existing) slug = `${slug}-${Date.now().toString(36)}`;
 
+  const media = parseOptionalMedia(body);
+  if (media.error) {
+    return NextResponse.json({ error: media.error }, { status: 400 });
+  }
+
+  const author = await publicAuthorFromVoterKey(String(body.voterKey ?? ""));
+
   const issue = await prisma.issue.create({
     data: {
       slug,
@@ -82,6 +91,8 @@ export async function POST(req: Request) {
       relatedSlugs: JSON.stringify(
         Array.isArray(body.relatedSlugs) ? body.relatedSlugs : [],
       ),
+      mediaUrl: media.mediaUrl,
+      mediaType: media.mediaType,
       voteCount: 0,
       rating: 0,
     },
@@ -98,8 +109,11 @@ export async function POST(req: Request) {
     hot: true,
     tags: [category],
     refId: slug,
-    author: String(body.author ?? "Citizen"),
+    author: author?.authorLabel ?? "Citizen",
+    authorAnonId: author?.authorAnonId,
     body: summary,
+    mediaUrl: media.mediaUrl ?? undefined,
+    mediaType: media.mediaType ?? undefined,
   });
   await bumpTrend(category, 3);
   await recordActivity({

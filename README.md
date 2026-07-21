@@ -4,7 +4,7 @@
 
 **Janark** is a **non-profit**, independent civic platform — not a government portal, not a party channel. Citizens browse freely; phone OTP is required only to post or react. Public identity is an **anonymity ID**, never a phone number.
 
-**License:** [Apache License 2.0](LICENSE) · [NOTICE](NOTICE) · [Contributing](CONTRIBUTING.md)
+**License:** [Business Source License 1.1](LICENSE) · [NOTICE](NOTICE) · [Trademark](TRADEMARK.md) · [Contributing](CONTRIBUTING.md)
 
 Stack: **Next.js** (App Router) · **SQLite / Prisma** · **MongoDB / Mongoose** · **Tailwind**.
 
@@ -146,7 +146,11 @@ Optional social posting keys (X / Meta / WhatsApp) are documented in `.env.examp
 
 ## Contributing
 
-Janark is open source under the **Apache License 2.0**. Please read:
+Janark’s source is **public on GitHub** under the **Business Source License 1.1**.
+Anyone can submit PRs. **Commercial use** and **public hosting** need written
+permission. The **JANARK** name and logo are reserved — see [TRADEMARK.md](TRADEMARK.md).
+
+Please read:
 
 | Doc | Purpose |
 | --- | ------- |
@@ -154,7 +158,8 @@ Janark is open source under the **Apache License 2.0**. Please read:
 | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Community standards |
 | [SECURITY.md](SECURITY.md) | Private vulnerability reporting |
 | [SUPPORT.md](SUPPORT.md) | Where to ask for help |
-| [LICENSE](LICENSE) · [NOTICE](NOTICE) | Apache 2.0 terms and attribution |
+| [LICENSE](LICENSE) · [NOTICE](NOTICE) | BSL 1.1 terms |
+| [TRADEMARK.md](TRADEMARK.md) | JANARK name and logo |
 
 Prefer changes that:
 
@@ -168,10 +173,10 @@ Questions about anonymity: in-app `/about`. Legal text: in-app `/terms`.
 
 Copyright 2026 JANARK - The People's Light and contributors.
 
-Licensed under the Apache License, Version 2.0. You may not use this project except in compliance with the License. You may obtain a copy of the License at:
+Licensed under the **Business Source License 1.1**. You may use the source for
+non-production purposes (including local development and contributions).
+Commercial use and hosting require a separate license from the Licensor.
+On the Change Date specified in [LICENSE](LICENSE), the Change License
+(Apache License 2.0) applies to that version.
 
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an **"AS IS" BASIS**, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
-
-Attribution notices for redistributors are in [NOTICE](NOTICE).
+See [LICENSE](LICENSE), [NOTICE](NOTICE), and [TRADEMARK.md](TRADEMARK.md).

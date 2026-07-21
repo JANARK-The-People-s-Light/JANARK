@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/components/AuthModal";
+import { MediaAttach } from "@/components/MediaAttach";
 import { PostTermsAccept } from "@/components/PostTermsAccept";
 import { termsPayload } from "@/lib/civic-post-terms";
 
@@ -30,6 +31,7 @@ export default function NewIssuePage() {
   const [whyItMatters, setWhy] = useState("");
   const [pros, setPros] = useState("");
   const [cons, setCons] = useState("");
+  const [mediaUrl, setMediaUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -61,6 +63,7 @@ export default function NewIssuePage() {
             .split("\n")
             .map((s) => s.trim())
             .filter(Boolean),
+          mediaUrl: mediaUrl.trim() || undefined,
           voterKey,
           website: "",
           ...termsPayload(acceptedTerms),
@@ -139,6 +142,7 @@ export default function NewIssuePage() {
           placeholder="Cons (one per line)"
           className="w-full border border-line bg-white px-3 py-2 outline-none focus:border-amber"
         />
+        <MediaAttach value={mediaUrl} onChange={setMediaUrl} />
         <PostTermsAccept
           accepted={acceptedTerms}
           onAcceptedChange={setAcceptedTerms}

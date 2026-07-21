@@ -2,7 +2,14 @@
 
 Thank you for helping build a non-profit, non-partisan civic platform.
 
-Janark is licensed under the [Apache License 2.0](LICENSE). By submitting a pull request or other contribution, you agree that your contribution is licensed under the same terms (see Apache 2.0 §5).
+Janark’s source is public on GitHub under the [Business Source License 1.1](LICENSE).
+Anyone may submit pull requests. By opening a PR or otherwise contributing, you
+agree that your contribution is licensed to JANARK - The People's Light under
+the same BSL 1.1 terms (and the Change License when it applies).
+
+**Commercial use** and **public hosting** of Janark require separate written
+permission — see [LICENSE](LICENSE) and [TRADEMARK.md](TRADEMARK.md). The
+“JANARK” name and logo are reserved.
 
 ## Ways to contribute
 
@@ -32,6 +39,8 @@ npm run db:clear && npm run db:demo   # optional
 npm run dev
 ```
 
+Local `npm run dev` is non-production use under BSL 1.1.
+
 Before opening a PR:
 
 ```bash
@@ -54,9 +63,9 @@ npm run validate:mobile
 
 Short, imperative messages focused on intent, for example:
 
-- `fix mobile nav id for hamburger drawer`
+- `Fix mobile nav id for hamburger drawer`
 - `Add Civic Trend Score ranking`
-- `Document Apache 2.0 contributing process`
+- `Document BSL 1.1 contributing process`
 
 ## Code of conduct
 
@@ -69,16 +78,15 @@ See [SECURITY.md](SECURITY.md).
 
 ## License header (optional)
 
-When adding substantial new source files, you may include the Apache 2.0 SPDX identifier:
+When adding substantial new source files, you may include:
 
 ```text
-SPDX-License-Identifier: Apache-2.0
+SPDX-License-Identifier: BUSL-1.1
 ```
-
-Or the short Apache boilerplate from the [LICENSE](LICENSE) appendix.
 
 ## Questions
 
 - Product & anonymity: [`/about`](https://github.com/JANARK-The-People-s-Light) · in-app `/about`
 - Publishing rules: in-app `/terms`
+- Licensing / hosting permission: org profile · [LICENSE](LICENSE) · [TRADEMARK.md](TRADEMARK.md)
 - Org: [JANARK - The People's Light](https://github.com/JANARK-The-People-s-Light)

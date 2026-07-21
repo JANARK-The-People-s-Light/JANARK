@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthModal";
+import { MediaAttach } from "@/components/MediaAttach";
 import { PostTermsAccept } from "@/components/PostTermsAccept";
 import { termsPayload } from "@/lib/civic-post-terms";
 
@@ -10,6 +11,7 @@ export function DiscussionForm({ issueSlug }: { issueSlug: string }) {
   const router = useRouter();
   const { ensureAuth } = useAuth();
   const [body, setBody] = useState("");
+  const [mediaUrl, setMediaUrl] = useState("");
   const [kind, setKind] = useState("opinion");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -17,7 +19,7 @@ export function DiscussionForm({ issueSlug }: { issueSlug: string }) {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!body.trim()) return;
+    if (!body.trim() && !mediaUrl.trim()) return;
     if (!acceptedTerms) {
       setError("Accept the Civic Posting Terms & Conditions to publish.");
       return;
@@ -29,10 +31,12 @@ export function DiscussionForm({ issueSlug }: { issueSlug: string }) {
     try {
       const res = await fetch("/api/discussions", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           issueSlug,
           body: body.trim(),
+          mediaUrl: mediaUrl.trim() || undefined,
           author: "Anonymous citizen",
           kind,
           voterKey,
@@ -46,6 +50,7 @@ export function DiscussionForm({ issueSlug }: { issueSlug: string }) {
         return;
       }
       setBody("");
+      setMediaUrl("");
       setAcceptedTerms(false);
       router.refresh();
     } catch {
@@ -62,13 +67,14 @@ export function DiscussionForm({ issueSlug }: { issueSlug: string }) {
     >
       {error && <p className="text-sm text-danger">{error}</p>}
       <textarea
-        required
+        required={!mediaUrl.trim()}
         rows={3}
         value={body}
         onChange={(e) => setBody(e.target.value)}
         placeholder="Add your voice… (login pops up only when you post)"
         className="w-full border border-line bg-white px-3 py-2 text-sm text-navy outline-none focus:border-amber"
       />
+      <MediaAttach value={mediaUrl} onChange={setMediaUrl} />
       <PostTermsAccept
         accepted={acceptedTerms}
         onAcceptedChange={setAcceptedTerms}

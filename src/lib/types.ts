@@ -37,6 +37,8 @@ export interface Issue {
   voteCount: number;
   rating: number;
   trendingRank?: number;
+  mediaUrl?: string;
+  mediaType?: "image" | "gif" | "video";
 }
 
 export interface Comment {
@@ -61,6 +63,8 @@ export interface Proposal {
   options?: string[];
   results?: Record<string, number>;
   totalVotes: number;
+  mediaUrl?: string;
+  mediaType?: "image" | "gif" | "video";
 }
 
 export interface Notice {

@@ -5,6 +5,7 @@ import { prisma } from "@/lib/db";
 import { computeIssueLiveMetrics, mapIssue, mapProposal } from "@/lib/services";
 import { Stars } from "@/components/Ui";
 import { EngageBar } from "@/components/EngageBar";
+import { MediaViewer } from "@/components/MediaViewer";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -92,6 +93,15 @@ export default async function IssueDetailPage({ params }: Props) {
         <p className="mt-3 text-lg leading-relaxed text-navy/90">
           {issue.summary}
         </p>
+        {issue.mediaUrl ? (
+          <div className="mt-5 overflow-hidden">
+            <MediaViewer
+              url={issue.mediaUrl}
+              mediaType={issue.mediaType}
+              alt={issue.title}
+            />
+          </div>
+        ) : null}
       </section>
 
       <section className="mt-10 border-l-2 border-fact pl-4">

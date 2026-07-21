@@ -25,4 +25,5 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.
 
 ## License
 
-Apache License 2.0 — see [LICENSE](LICENSE) and [NOTICE](NOTICE).
+Business Source License 1.1 — see [LICENSE](LICENSE), [NOTICE](NOTICE), and
+[TRADEMARK.md](TRADEMARK.md). Commercial use and hosting require permission.

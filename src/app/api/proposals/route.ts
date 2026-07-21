@@ -11,6 +11,8 @@ import {
 import { guardAnonymousWrite } from "@/lib/anti-bot";
 import { guardFail } from "@/lib/http";
 import { requireCivicPostTerms } from "@/lib/civic-post-terms";
+import { parseOptionalMedia } from "@/lib/media";
+import { publicAuthorFromVoterKey } from "@/lib/identity";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -68,6 +70,13 @@ export async function POST(req: Request) {
     ? (voteTypeRaw as "likert" | "checklist" | "preference")
     : "likert";
 
+  const media = parseOptionalMedia(body);
+  if (media.error) {
+    return NextResponse.json({ error: media.error }, { status: 400 });
+  }
+
+  const author = await publicAuthorFromVoterKey(String(body.voterKey ?? ""));
+
   const proposal = await prisma.proposal.create({
     data: {
       id,
@@ -102,6 +111,8 @@ export async function POST(req: Request) {
       district: body.district ? String(body.district).trim() : null,
       state: body.state ? String(body.state).trim() : null,
       country: String(body.country ?? "India").trim() || "India",
+      mediaUrl: media.mediaUrl,
+      mediaType: media.mediaType,
     },
   });
 
@@ -116,7 +127,10 @@ export async function POST(req: Request) {
     hot: true,
     tags: ["vote"],
     refId: id,
-    author: String(body.author ?? "Citizen"),
+    author: author?.authorLabel ?? "Citizen",
+    authorAnonId: author?.authorAnonId,
+    mediaUrl: media.mediaUrl ?? undefined,
+    mediaType: media.mediaType ?? undefined,
   });
   await bumpTrend("Open vote", 2);
   await recordActivity({

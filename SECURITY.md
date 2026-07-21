@@ -80,5 +80,6 @@ Before exposing Janark on the public internet:
 
 ## License
 
-This project is licensed under the [Apache License 2.0](LICENSE). Security fixes
-are contributions under the same license.
+This project is licensed under the [Business Source License 1.1](LICENSE).
+Security fixes are contributions under the same license. See also
+[TRADEMARK.md](TRADEMARK.md).

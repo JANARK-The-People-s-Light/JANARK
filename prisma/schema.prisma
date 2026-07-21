@@ -20,6 +20,9 @@ model Issue {
   cons             String // JSON array
   sources          String // JSON array of {label,url}
   relatedSlugs     String // JSON array
+  /// Optional cover / evidence media (https or /uploads/…)
+  mediaUrl         String?
+  mediaType        String? // image | gif | video
   voteCount        Int       @default(0)
   rating           Float     @default(0)
   trendingRank     Int?
@@ -49,6 +52,9 @@ model Proposal {
   district          String?
   state             String?
   country           String?  @default("India")
+  /// Optional cover / evidence media
+  mediaUrl          String?
+  mediaType         String? // image | gif | video
   votes             Vote[]
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt

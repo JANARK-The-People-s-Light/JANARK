@@ -33,6 +33,16 @@ export function parseHashtags(input: unknown): string[] {
 
 export function isValidMediaUrl(url: string): boolean {
   try {
+    // Same-origin citizen uploads
+    if (
+      url.startsWith("/uploads/") &&
+      url.length <= 200 &&
+      !url.includes("..") &&
+      !url.includes("//")
+    ) {
+      return /\.(jpe?g|png|webp|gif|mp4|webm)(\?|$)/i.test(url);
+    }
+
     const u = new URL(url);
     if (u.protocol !== "http:" && u.protocol !== "https:") return false;
     if (url.length > 2000) return false;

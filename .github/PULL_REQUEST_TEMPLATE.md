@@ -4,7 +4,7 @@
 
 ## Checklist
 
-- [ ] I agree my contribution is under the [Apache License 2.0](../LICENSE)
+- [ ] I agree my contribution is under the [Business Source License 1.1](../LICENSE)
 - [ ] I followed [CONTRIBUTING.md](../CONTRIBUTING.md)
 - [ ] No secrets / `.env` / real phone data committed
 - [ ] `npx tsc --noEmit` and `npm run lint` look good (or note why not)
