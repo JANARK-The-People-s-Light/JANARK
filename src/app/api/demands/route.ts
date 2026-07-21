@@ -12,6 +12,7 @@ import { guardFail } from "@/lib/http";
 import { publicAuthorFromVoterKey } from "@/lib/identity";
 import { parseOptionalMedia } from "@/lib/media";
 import { requireCivicPostTerms } from "@/lib/civic-post-terms";
+import { allocatePublicPostId } from "@/lib/public-id";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -150,8 +151,10 @@ export async function POST(req: Request) {
     );
   }
 
+  const publicId = await allocatePublicPostId();
   const demand = await prisma.publicDemand.create({
     data: {
+      publicId,
       title,
       body: text,
       ask,
@@ -186,6 +189,7 @@ export async function POST(req: Request) {
     title: `[demand] ${title}`,
     excerpt: ask.slice(0, 220),
     body: text,
+    publicId,
     href: `/petitions/${demand.id}`,
     meta: `${label} · petition`,
     votes: demand.supportCount,

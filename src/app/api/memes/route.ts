@@ -18,6 +18,7 @@ import {
 import { detectMediaType } from "@/lib/media";
 import { publicAuthorFromVoterKey } from "@/lib/identity";
 import { requireCivicPostTerms } from "@/lib/civic-post-terms";
+import { allocatePublicPostId } from "@/lib/public-id";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -154,10 +155,12 @@ export async function POST(req: Request) {
   }
 
   const mediaType = detectMediaType(imageUrl);
+  const publicId = await allocatePublicPostId();
 
   const meme = await prisma.$transaction(async (tx) => {
     const created = await tx.meme.create({
       data: {
+        publicId,
         title,
         caption,
         imageUrl,
@@ -194,6 +197,7 @@ export async function POST(req: Request) {
     title,
     excerpt: caption?.slice(0, 220) || `#${tagList.slice(0, 3).join(" #")}`,
     body: caption ?? undefined,
+    publicId,
     href: `/memes/${meme.id}`,
     meta: tagList.map((t) => `#${t}`).join(" "),
     votes: 0,

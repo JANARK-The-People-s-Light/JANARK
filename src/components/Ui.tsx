@@ -68,29 +68,42 @@ export function Stars({ rating }: { rating: number }) {
 }
 
 export function FeedCard({
+  id,
   type,
   title,
   excerpt,
   meta,
   href,
+  publicId,
   votes,
   hot,
   mediaUrl,
   mediaType,
 }: {
+  id?: string;
   type: string;
   title: string;
   excerpt: string;
   meta: string;
   href: string;
+  publicId?: string | null;
   votes?: number;
   hot?: boolean;
   mediaUrl?: string | null;
   mediaType?: "image" | "gif" | "video" | string | null;
 }) {
+  const cardHref = (() => {
+    if (publicId) return `/p/${publicId}`;
+    const h = (href || "").trim();
+    // Legacy discussion cards pointed at the feed list — open the post itself.
+    if (!h || h === "/feed" || h.startsWith("/feed?")) {
+      return id ? `/p/${id}` : "/feed";
+    }
+    return h;
+  })();
   return (
     <Link
-      href={portalHref(href)}
+      href={portalHref(cardHref)}
       className="group block border-b border-line py-5 transition hover:bg-sand/40"
     >
       <div className="flex items-start justify-between gap-3 sm:gap-4">
@@ -101,6 +114,11 @@ export function FeedCard({
             )}
             <span>{type}</span>
             {mediaType ? <span>· {mediaType}</span> : null}
+            {publicId ? (
+              <span className="font-mono normal-case tracking-normal text-muted">
+                {publicId}
+              </span>
+            ) : null}
           </div>
           <h3 className="font-display break-words text-lg text-navy transition group-hover:text-amber sm:text-2xl">
             {title}

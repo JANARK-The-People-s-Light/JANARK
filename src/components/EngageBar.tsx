@@ -70,22 +70,35 @@ export function EngageBar({
   }, [sharePath]);
 
   const load = useCallback(async () => {
-    const qs = new URLSearchParams({ targetType, targetId });
-    const res = await fetch(`/api/engage?${qs}`, {
-      cache: "no-store",
-      credentials: "same-origin",
-    });
-    const data = await res.json();
-    if (!res.ok) return;
-    const next: EngageCounts = {
-      upvotes: data.upvotes ?? 0,
-      downvotes: data.downvotes ?? 0,
-      commentCount: data.commentCount ?? 0,
-      score: data.score ?? 0,
-      myVote: data.myVote ?? null,
-    };
-    setCounts(next);
-    onChange?.(next);
+    try {
+      const qs = new URLSearchParams({ targetType, targetId });
+      const res = await fetch(`/api/engage?${qs}`, {
+        cache: "no-store",
+        credentials: "same-origin",
+      });
+      const text = await res.text();
+      if (!res.ok || !text) return;
+      let data: Record<string, unknown>;
+      try {
+        data = JSON.parse(text) as Record<string, unknown>;
+      } catch {
+        return;
+      }
+      const next: EngageCounts = {
+        upvotes: Number(data.upvotes ?? 0),
+        downvotes: Number(data.downvotes ?? 0),
+        commentCount: Number(data.commentCount ?? 0),
+        score: Number(data.score ?? 0),
+        myVote:
+          data.myVote === null || data.myVote === undefined
+            ? null
+            : Number(data.myVote),
+      };
+      setCounts(next);
+      onChange?.(next);
+    } catch {
+      // Network / parse errors — keep default counts
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- avoid reloading when parent recreates onChange
   }, [targetType, targetId]);
 
@@ -112,7 +125,14 @@ export function EngageBar({
           website: "",
         }),
       });
-      const data = await res.json();
+      const data = (await res.json().catch(() => ({}))) as {
+        error?: string;
+        upvotes?: number;
+        downvotes?: number;
+        commentCount?: number;
+        score?: number;
+        myVote?: number | null;
+      };
       if (!res.ok) {
         setError(data.error ?? "Vote failed");
         return;

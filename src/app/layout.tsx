@@ -24,17 +24,17 @@ const site =
 export const metadata: Metadata = {
   metadataBase: new URL(site),
   title: {
-    default: "Janark — The light of the people, for the people, by the people",
+    default: "Janark — The light for us, by us",
     template: "%s · Janark",
   },
   description:
-    "The light of the people, for the people, by the people. A non-profit civic organisation — independent of government and parties. Just a unified voice.",
+    "The light for us, by us. A non-profit civic organisation — independent of government and parties. Just a unified voice.",
   icons: {
     icon: [{ url: "/logo/janark.png", type: "image/png" }],
     apple: [{ url: "/logo/janark.png" }],
   },
   openGraph: {
-    title: "Janark — The light of the people, for the people, by the people",
+    title: "Janark — The light for us, by us",
     description:
       "A non-profit civic organisation — independent of government and parties. Just a unified voice.",
     url: site,
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Janark — The light of the people, for the people, by the people",
+    title: "Janark — The light for us, by us",
     description:
       "A non-profit civic organisation — independent of government and parties. Just a unified voice.",
     images: ["/logo/janark-solid.png"],

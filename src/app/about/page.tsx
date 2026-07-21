@@ -15,7 +15,7 @@ export default function AboutPage() {
     <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
       <h1 className="font-display text-3xl text-navy sm:text-4xl">About Janark</h1>
       <p className="font-display mt-3 text-xl text-amber sm:text-2xl">
-        The light of the people, for the people, by the people
+        The light for us, by us
       </p>
       <p className="mt-4 text-lg leading-relaxed text-navy/90">
         A non-profit civic organisation — an independent platform, not a
@@ -162,7 +162,7 @@ export default function AboutPage() {
           </li>
           <li>
             · Contributions help keep this non-profit platform independent,
-            transparent, and owned by the people who use it.
+            transparent, and owned by us who use it.
           </li>
         </ul>
       </section>

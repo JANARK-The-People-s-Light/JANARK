@@ -39,6 +39,7 @@ export function engageTargetForFeedPost(post: {
 type Props = {
   post: {
     id: string;
+    publicId?: string | null;
     type?: string;
     refId?: string | null;
     title?: string;
@@ -52,7 +53,12 @@ type Props = {
 export function FeedEngage({ post, compact = true }: Props) {
   const { targetType, targetId } = engageTargetForFeedPost(post);
   const sharePath = portalHref(
-    post.href?.trim() ||
+    (post.publicId ? `/p/${post.publicId}` : null) ||
+      (post.href?.trim() &&
+      !post.href.startsWith("/feed")
+        ? post.href.trim()
+        : null) ||
+      (post.id ? `/p/${post.id}` : null) ||
       (targetType === "meme" && post.refId
         ? `/memes/${post.refId}`
         : targetType === "report" && post.refId
@@ -63,7 +69,7 @@ export function FeedEngage({ post, compact = true }: Props) {
               ? `/notice/${post.refId}`
               : targetType === "issue" && post.refId
                 ? `/issues/${post.refId}`
-                : `/feed?post=${post.id}`),
+                : `/feed`),
   );
 
   if (targetType === "demand") {

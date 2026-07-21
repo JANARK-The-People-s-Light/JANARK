@@ -11,6 +11,7 @@ import { portalHref } from "@/lib/paths";
 
 type Post = {
   id: string;
+  publicId?: string | null;
   type: string;
   title: string;
   excerpt: string;

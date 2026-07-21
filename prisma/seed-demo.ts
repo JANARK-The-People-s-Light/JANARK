@@ -41,6 +41,33 @@ function daysAgo(n: number) {
   return new Date(Date.now() - n * 24 * 60 * 60 * 1000);
 }
 
+function yymmdd(d = new Date()): string {
+  const yy = String(d.getFullYear()).slice(-2);
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yy}${mm}${dd}`;
+}
+
+function randomLetters(n = 3): string {
+  const alphabet = "abcdefghijklmnopqrstuvwxyz";
+  let out = "";
+  for (let i = 0; i < n; i++) {
+    out += alphabet[Math.floor(Math.random() * alphabet.length)]!;
+  }
+  return out;
+}
+
+/** Demo public ids: jnk-yymmdd-abc-0001 */
+async function nextPublicId(): Promise<string> {
+  const day = yymmdd();
+  const row = await prisma.publicIdCounter.upsert({
+    where: { day },
+    create: { day, count: 1 },
+    update: { count: { increment: 1 } },
+  });
+  return `jnk-${day}-${randomLetters(3)}-${String(row.count).padStart(4, "0")}`;
+}
+
 /** Topic-matched Unsplash covers (civic / India-relevant themes). */
 function u(id: string, w = 900) {
   return `https://images.unsplash.com/${id}?auto=format&fit=crop&w=${w}&h=600&q=80`;
@@ -502,6 +529,7 @@ const ISSUE_DEFS = [
 
 async function main() {
   console.log("Seeding top-20 India civic issues + demo engagement…");
+  await prisma.publicIdCounter.deleteMany();
 
   const citizens: Citizen[] = [];
   for (let i = 0; i < 12; i++) {
@@ -532,9 +560,11 @@ async function main() {
 
   for (const [idx, iss] of ISSUE_DEFS.entries()) {
     const cover = mediaFor(iss.slug);
+    const publicId = await nextPublicId();
     await prisma.issue.upsert({
       where: { slug: iss.slug },
       update: {
+        publicId,
         title: asDummy(iss.title),
         summary: iss.summary,
         whyItMatters: iss.why,
@@ -549,6 +579,7 @@ async function main() {
         trendingRank: idx + 1,
       },
       create: {
+        publicId,
         slug: iss.slug,
         title: asDummy(iss.title),
         category: iss.category,
@@ -586,9 +617,11 @@ async function main() {
 
   for (const p of proposalSpecs) {
     const cover = mediaFor(p.issueSlug);
+    const publicId = await nextPublicId();
     await prisma.proposal.upsert({
       where: { id: p.id },
       update: {
+        publicId,
         title: p.title,
         description: p.description,
         mediaUrl: cover.url,
@@ -598,6 +631,7 @@ async function main() {
       },
       create: {
         id: p.id,
+        publicId,
         title: p.title,
         description: p.description,
         benefits: JSON.stringify([
@@ -733,6 +767,7 @@ async function main() {
     const media = mediaFor(r.issueSlug);
     const created = await prisma.citizenReport.create({
       data: {
+        publicId: await nextPublicId(),
         type: r.type,
         title: asDummy(r.title),
         body: r.body,
@@ -906,6 +941,7 @@ async function main() {
     const media = mediaFor(d.issueSlug);
     const created = await prisma.publicDemand.create({
       data: {
+        publicId: await nextPublicId(),
         title: asDummy(d.title),
         body: d.body,
         ask: d.ask,
@@ -979,6 +1015,7 @@ async function main() {
     const imageUrl = mediaFor(m.issueSlug).url;
     const created = await prisma.meme.create({
       data: {
+        publicId: await nextPublicId(),
         title: asDummy(m.title),
         caption: m.caption,
         imageUrl,
@@ -1036,6 +1073,7 @@ async function main() {
     const author = pick(citizens);
     const notice = await prisma.notice.create({
       data: {
+        publicId: await nextPublicId(),
         title: asDummy(n.title),
         description: n.description,
         target: n.target,
@@ -1077,6 +1115,7 @@ async function main() {
     type: string;
     title: string;
     excerpt: string;
+    publicId: string;
     href: string;
     meta: string;
     votes: number;
@@ -1097,6 +1136,41 @@ async function main() {
 
   const feedItems: FeedItem[] = [];
 
+  const issuePid = new Map(
+    (
+      await prisma.issue.findMany({ select: { slug: true, publicId: true } })
+    ).map((r) => [r.slug, r.publicId!]),
+  );
+  const proposalPid = new Map(
+    (
+      await prisma.proposal.findMany({ select: { id: true, publicId: true } })
+    ).map((r) => [r.id, r.publicId!]),
+  );
+  const reportPid = new Map(
+    (
+      await prisma.citizenReport.findMany({
+        select: { id: true, publicId: true },
+      })
+    ).map((r) => [r.id, r.publicId!]),
+  );
+  const demandPid = new Map(
+    (
+      await prisma.publicDemand.findMany({
+        select: { id: true, publicId: true },
+      })
+    ).map((r) => [r.id, r.publicId!]),
+  );
+  const memePid = new Map(
+    (
+      await prisma.meme.findMany({ select: { id: true, publicId: true } })
+    ).map((r) => [r.id, r.publicId!]),
+  );
+  const noticePid = new Map(
+    (
+      await prisma.notice.findMany({ select: { id: true, publicId: true } })
+    ).map((r) => [r.id, r.publicId!]),
+  );
+
   for (const [idx, iss] of ISSUE_DEFS.entries()) {
     const a = pick(citizens);
     const cover = mediaFor(iss.slug);
@@ -1104,6 +1178,7 @@ async function main() {
       type: "issue",
       title: asDummy(`#${idx + 1} ${iss.title}`),
       excerpt: iss.summary,
+      publicId: issuePid.get(iss.slug)!,
       href: `/issues/${iss.slug}`,
       meta: `Trending #${idx + 1} · ${iss.category} · India`,
       votes: 0,
@@ -1126,6 +1201,7 @@ async function main() {
       type: "proposal",
       title: p.title,
       excerpt: p.description.slice(0, 280),
+      publicId: proposalPid.get(p.id)!,
       href: `/vote/${p.id}`,
       meta: "Open vote · 0 ballots",
       votes: 0,
@@ -1150,6 +1226,7 @@ async function main() {
       type: "discussion",
       title: asDummy(`[${r.type}] ${r.title}`),
       excerpt: r.body,
+      publicId: reportPid.get(id)!,
       href: `/reports/${id}`,
       meta: `${r.locationLevel} · ${r.state}`,
       votes: 0,
@@ -1178,6 +1255,7 @@ async function main() {
       type: "discussion",
       title: asDummy(`[petition] ${d.title}`),
       excerpt: d.ask,
+      publicId: demandPid.get(id)!,
       href: `/petitions/${id}`,
       meta: `${d.locationLevel} · petition`,
       votes: 0,
@@ -1206,6 +1284,7 @@ async function main() {
       type: "meme",
       title: asDummy(m.title),
       excerpt: m.caption,
+      publicId: memePid.get(id)!,
       href: `/memes/${id}`,
       meta: m.tags.map((t) => `#${t}`).join(" "),
       votes: 0,
@@ -1228,6 +1307,7 @@ async function main() {
       type: "notice",
       title: asDummy(n.title),
       excerpt: n.description.slice(0, 200),
+      publicId: noticePid.get(noticeId)!,
       href: `/notice/${noticeId}`,
       meta: "Notice · 0 signatures",
       votes: 0,
@@ -1281,12 +1361,14 @@ async function main() {
   for (const [fi, f] of freeTalk.entries()) {
     const a = pick(citizens);
     const media = mediaFor(f.issueSlug);
+    const publicId = await nextPublicId();
     const post = await FeedPost.create({
       type: "discussion",
       title: asDummy(f.title),
       excerpt: f.body.slice(0, 220),
       body: f.body,
-      href: "/feed",
+      publicId,
+      href: `/p/${publicId}`,
       meta: "Open discussion · India",
       votes: 0,
       hot: fi === 0,
@@ -1303,8 +1385,6 @@ async function main() {
       createdAt: daysAgo(fi + 1),
     });
     const postId = String(post._id);
-    post.href = `/feed?post=${postId}`;
-    await post.save();
     freeTalkPostIds.push(postId);
     await Discussion.create({
       feedPostId: postId,

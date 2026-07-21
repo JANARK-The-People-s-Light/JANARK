@@ -248,7 +248,7 @@ export function SiteHeader() {
             <time dateTime="2026-08-15">15 August 2026</time>
             <span className="font-normal">
               {" "}
-              · for the people, by the people · so feel free to contribute here
+              · for us, by us · so feel free to contribute here
               —{" "}
               <a
                 href="https://github.com/JANARK-The-People-s-Light/JANARK"
@@ -286,7 +286,7 @@ export function SiteFooter() {
         <div className="min-w-0">
           <BrandLogo size="md" withWordmark onDark />
           <p className="mt-2 font-display text-sm leading-snug text-amber-bright/90">
-            for the people, by the people
+            for us, by us
           </p>
           <p className="mt-2 max-w-md text-sm leading-relaxed text-sand/70">
             A non-profit civic organisation — independent of government and

@@ -1,6 +1,6 @@
 # Janark (जनार्क)
 
-> The light of the people, for the people, by the people.
+> The light for us, by us.
 
 **Janark** is a **non-profit**, independent civic platform — not a government portal, not a party channel. Citizens browse freely; phone OTP is required only to post or react. Public identity is an **anonymity ID**, never a phone number.
 

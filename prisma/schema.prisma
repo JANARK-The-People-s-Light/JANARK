@@ -10,6 +10,8 @@ datasource db {
 
 model Issue {
   id               String    @id @default(cuid())
+  /// Public human id e.g. jnk-250721-kqm-0001 (not the row id)
+  publicId         String?   @unique
   slug             String    @unique
   title            String
   category         String
@@ -34,6 +36,7 @@ model Issue {
 
 model Proposal {
   id                String   @id // slug-like id e.g. asset-disclosure
+  publicId          String?  @unique
   title             String
   description       String
   benefits          String // JSON
@@ -74,6 +77,7 @@ model Vote {
 
 model Notice {
   id           String   @id @default(cuid())
+  publicId     String?  @unique
   title        String
   description  String
   target       String
@@ -135,6 +139,7 @@ model SocialShareEvent {
 /// Location-scoped citizen reports: issues, crimes, problems (village → country)
 model CitizenReport {
   id            String   @id @default(cuid())
+  publicId      String?  @unique
   type          String   // issue | crime | problem | other
   title         String
   body          String
@@ -241,6 +246,7 @@ model AuthSession {
 /// Collective public demands citizens rally behind
 model PublicDemand {
   id            String   @id @default(cuid())
+  publicId      String?  @unique
   title         String
   body          String
   /// What citizens are demanding (clear ask)
@@ -304,6 +310,7 @@ model DemandSupport {
 /// Civic memes — image/GIF via link, hashtags, up/down votes, shareable permalink
 model Meme {
   id          String     @id @default(cuid())
+  publicId    String?    @unique
   title       String
   caption     String?
   /// Direct image, GIF, or video URL (https)
@@ -430,6 +437,12 @@ model RateLimitBucket {
   count       Int      @default(0)
   windowStart DateTime
   updatedAt   DateTime @updatedAt
+}
+
+/// Daily counter for public post ids (jnk-yymmdd-xxx-0001)
+model PublicIdCounter {
+  day   String @id // yymmdd
+  count Int    @default(0)
 }
 
 /// Opaque browser visitor (localStorage) — not a public identity

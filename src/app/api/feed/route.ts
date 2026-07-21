@@ -16,6 +16,7 @@ import {
 import { requireCivicPostTerms } from "@/lib/civic-post-terms";
 import { parseOptionalMedia } from "@/lib/media";
 import { publicAuthorFromVoterKey } from "@/lib/identity";
+import { allocatePublicPostId, publicPostHref } from "@/lib/public-id";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -327,6 +328,7 @@ export async function GET(req: Request) {
     meta?: string;
     author?: string;
     authorAnonId?: string | null;
+    publicId?: string | null;
     mediaUrl?: string | null;
     mediaType?: string | null;
     locationLevel?: string | null;
@@ -435,6 +437,7 @@ export async function GET(req: Request) {
   return liveJson({
     posts: rankedPosts.map((p) => ({
       id: String(p._id),
+      publicId: p.publicId ?? null,
       type: p.type,
       title: p.title,
       excerpt: p.excerpt,
@@ -522,17 +525,20 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const publicId = await allocatePublicPostId();
   const post = await FeedPost.create({
     type: body.type ?? "discussion",
     title,
     excerpt: excerpt.slice(0, 280),
     body: body.body,
-    href: body.href ?? "/feed",
+    publicId,
+    href: publicPostHref(publicId),
     meta: body.meta ?? "Citizen post",
     votes: 0,
     hot: true,
     tags: Array.isArray(body.tags) ? body.tags : ["citizen"],
     author: author.authorLabel,
+    authorAnonId: author.authorAnonId,
     refId: body.refId,
     mediaUrl: media.mediaUrl ?? undefined,
     mediaType: media.mediaType ?? undefined,
@@ -545,9 +551,6 @@ export async function POST(req: Request) {
     country: str(body.country) ?? "India",
   });
 
-  post.href = `/feed?post=${post._id}`;
-  await post.save();
-
   await bumpTrend(title.split(" ")[0] || "Feed", 2);
   await recordActivity({
     kind: "discussion",
@@ -556,7 +559,14 @@ export async function POST(req: Request) {
   });
 
   return NextResponse.json(
-    { post: { id: String(post._id), title: post.title, href: post.href } },
+    {
+      post: {
+        id: String(post._id),
+        publicId: post.publicId,
+        title: post.title,
+        href: post.href,
+      },
+    },
     { status: 201 },
   );
 }

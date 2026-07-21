@@ -16,26 +16,34 @@ export const fetchCache = "force-no-store";
 
 /** GET ?targetType=&targetId= → counts + myVote (from session cookie) */
 export async function GET(req: Request) {
-  const url = new URL(req.url);
-  const targetType = url.searchParams.get("targetType") ?? "";
-  const targetId = url.searchParams.get("targetId") ?? "";
-  const session = await resolveSessionFromRequest(req);
-  const voterKey = session?.phoneHash ?? null;
+  try {
+    const url = new URL(req.url);
+    const targetType = url.searchParams.get("targetType") ?? "";
+    const targetId = url.searchParams.get("targetId") ?? "";
+    const session = await resolveSessionFromRequest(req);
+    const voterKey = session?.phoneHash ?? null;
 
-  if (!isEngageTarget(targetType) || !targetId) {
+    if (!isEngageTarget(targetType) || !targetId) {
+      return NextResponse.json(
+        { error: "targetType and targetId required" },
+        { status: 400 },
+      );
+    }
+
+    const exists = await assertTargetExists(targetType, targetId);
+    if (!exists) {
+      return NextResponse.json({ error: "Not found" }, { status: 404 });
+    }
+
+    const counts = await getEngageCounts(targetType, targetId, voterKey);
+    return liveJson({ ok: true, ...counts, targetType, targetId });
+  } catch (err) {
+    console.error("[engage GET]", err);
     return NextResponse.json(
-      { error: "targetType and targetId required" },
-      { status: 400 },
+      { error: "Could not load engagement" },
+      { status: 500 },
     );
   }
-
-  const exists = await assertTargetExists(targetType, targetId);
-  if (!exists) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
-  }
-
-  const counts = await getEngageCounts(targetType, targetId, voterKey);
-  return liveJson({ ok: true, ...counts, targetType, targetId });
 }
 
 /** POST { targetType, targetId, choice: upvote|downvote } */

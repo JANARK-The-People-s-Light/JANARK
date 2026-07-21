@@ -12,6 +12,7 @@ import { guardFail } from "@/lib/http";
 import { publicAuthorFromVoterKey } from "@/lib/identity";
 import { parseOptionalMedia } from "@/lib/media";
 import { requireCivicPostTerms } from "@/lib/civic-post-terms";
+import { allocatePublicPostId } from "@/lib/public-id";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -68,8 +69,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: media.error }, { status: 400 });
   }
 
+  const publicId = await allocatePublicPostId();
   const notice = await prisma.notice.create({
     data: {
+      publicId,
       title,
       description,
       target,
@@ -90,6 +93,7 @@ export async function POST(req: Request) {
     type: "notice",
     title,
     excerpt: description.slice(0, 220),
+    publicId,
     href: `/notice/${notice.id}`,
     meta: `${target} · new notice`,
     votes: 1,

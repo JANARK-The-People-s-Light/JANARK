@@ -8,6 +8,7 @@ import { bumpTrend, recordActivity } from "@/lib/services";
 import { publicAuthorFromVoterKey } from "@/lib/identity";
 import { parseOptionalMedia } from "@/lib/media";
 import { requireCivicPostTerms } from "@/lib/civic-post-terms";
+import { allocatePublicPostId, publicPostHref } from "@/lib/public-id";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -92,14 +93,18 @@ export async function POST(req: Request) {
   }
 
   let linkedFeedId = feedPostId;
+  let createdPublicId: string | null = null;
+  let createdHref: string | null = null;
 
   if (!issueSlug && !feedPostId && title) {
+    const publicId = await allocatePublicPostId();
     const post = await FeedPost.create({
       type: "discussion",
       title,
       excerpt: text.slice(0, 220),
       body: text,
-      href: "/feed",
+      publicId,
+      href: publicPostHref(publicId),
       meta: "Open discussion · new",
       votes: 0,
       hot: true,
@@ -110,8 +115,8 @@ export async function POST(req: Request) {
       mediaType: media.mediaType ?? undefined,
     });
     linkedFeedId = String(post._id);
-    post.href = `/feed?post=${linkedFeedId}`;
-    await post.save();
+    createdPublicId = publicId;
+    createdHref = publicPostHref(publicId);
   }
 
   const discussion = await Discussion.create({
@@ -151,7 +156,9 @@ export async function POST(req: Request) {
   await recordActivity({
     kind: "discussion",
     summary: `${author}: ${text.slice(0, 80)}`,
-    href: issueSlug ? `/issues/${issueSlug}` : "/feed",
+    href:
+      createdHref ||
+      (issueSlug ? `/issues/${issueSlug}` : "/feed"),
   });
 
   return NextResponse.json(
@@ -160,6 +167,8 @@ export async function POST(req: Request) {
         id: String(discussion._id),
         issueSlug: discussion.issueSlug,
         feedPostId: discussion.feedPostId,
+        publicId: createdPublicId,
+        href: createdHref,
         author: discussion.author,
         authorAnonId: discussion.authorAnonId,
         body: discussion.body,

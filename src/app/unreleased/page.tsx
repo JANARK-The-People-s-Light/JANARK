@@ -20,12 +20,8 @@ export default function PortalHomePage() {
               Unreleased preview
             </p>
             <h1 className="font-display text-lg leading-snug text-amber-bright sm:text-xl">
-              for the people, by the people
+              for us, by us
             </h1>
-            <p className="mt-1.5 text-sm text-sand/75">
-              Independent civic square — a non-profit for the people, not a
-              party or portal.
-            </p>
           </div>
         </div>
       </section>

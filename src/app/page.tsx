@@ -5,7 +5,7 @@ import { PORTAL_BASE, portalHref } from "@/lib/paths";
 export const metadata = {
   title: "Coming soon · Janark",
   description:
-    "Janark launches 15 August 2026 — for the people, by the people.",
+    "Janark launches 15 August 2026 — for us, by us.",
 };
 
 export default function ComingSoonPage() {
@@ -53,7 +53,7 @@ export default function ComingSoonPage() {
           Coming soon
         </h1>
         <p className="animate-rise font-display mt-4 text-2xl leading-snug text-cream sm:text-3xl">
-          for the people, by the people
+          for us, by us
         </p>
         <p className="animate-rise-delay mt-4 max-w-xl text-base leading-relaxed text-sand/75 sm:text-lg">
           Janark opens on{" "}

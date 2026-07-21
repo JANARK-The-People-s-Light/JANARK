@@ -366,9 +366,6 @@ function DashboardInner() {
       <h1 className="font-display mt-1 text-3xl text-navy sm:text-4xl">
         National signal
       </h1>
-      <p className="mt-3 max-w-2xl text-muted">
-        What citizens are elevating right now. Filter by place, topic, or type.
-      </p>
 
       <div className="mt-6 flex flex-wrap items-center gap-2 border-b border-line pb-4">
         <button
@@ -389,6 +386,10 @@ function DashboardInner() {
             </span>
           ) : null}
         </button>
+        <p className="min-w-0 flex-1 text-sm text-muted sm:max-w-xl">
+          What citizens are elevating right now. Filter by place, topic, or
+          type.
+        </p>
         {filterSummary.slice(0, 4).map((s) => (
           <button
             key={s}

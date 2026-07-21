@@ -13,6 +13,7 @@ import { guardFail } from "@/lib/http";
 import { requireCivicPostTerms } from "@/lib/civic-post-terms";
 import { parseOptionalMedia } from "@/lib/media";
 import { publicAuthorFromVoterKey } from "@/lib/identity";
+import { allocatePublicPostId } from "@/lib/public-id";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -76,10 +77,12 @@ export async function POST(req: Request) {
   }
 
   const author = await publicAuthorFromVoterKey(String(body.voterKey ?? ""));
+  const publicId = await allocatePublicPostId();
 
   const proposal = await prisma.proposal.create({
     data: {
       id,
+      publicId,
       title,
       description,
       benefits: JSON.stringify(
@@ -121,6 +124,7 @@ export async function POST(req: Request) {
     type: "proposal",
     title,
     excerpt: description.slice(0, 200),
+    publicId,
     href: `/vote/${id}`,
     meta: "Open vote · new",
     votes: 0,

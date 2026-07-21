@@ -9,6 +9,8 @@ const FeedPostSchema = new Schema(
     },
     title: { type: String, required: true },
     excerpt: { type: String, required: true },
+    /// Public human id e.g. jnk-250721-kqm-0001 (not Mongo _id)
+    publicId: { type: String, unique: true, sparse: true },
     author: { type: String, default: "Citizen" },
     authorAnonId: { type: String },
     href: { type: String, required: true },
@@ -41,6 +43,7 @@ FeedPostSchema.index({ tags: 1 });
 FeedPostSchema.index({ authorAnonId: 1, createdAt: -1 });
 FeedPostSchema.index({ state: 1, district: 1, city: 1 });
 FeedPostSchema.index({ country: 1, state: 1 });
+FeedPostSchema.index({ publicId: 1 }, { unique: true, sparse: true });
 
 const DiscussionSchema = new Schema(
   {

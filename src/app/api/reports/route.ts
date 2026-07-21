@@ -13,6 +13,7 @@ import { publicReport } from "@/lib/phone";
 import { publicAuthorFromVoterKey } from "@/lib/identity";
 import { parseOptionalMedia } from "@/lib/media";
 import { requireCivicPostTerms } from "@/lib/civic-post-terms";
+import { allocatePublicPostId } from "@/lib/public-id";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -168,8 +169,10 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: media.error }, { status: 400 });
   }
 
+  const publicId = await allocatePublicPostId();
   const report = await prisma.citizenReport.create({
     data: {
+      publicId,
       type,
       title,
       body: text,
@@ -197,6 +200,7 @@ export async function POST(req: Request) {
     title: `[${type}] ${title}`,
     excerpt: text.slice(0, 220),
     body: text,
+    publicId,
     href: `/reports/${report.id}`,
     meta: `${label} · ${locationLevel}`,
     votes: 0,

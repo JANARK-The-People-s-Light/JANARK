@@ -11,6 +11,7 @@ const REASONS = [
   { id: "misinformation", label: "Misinformation" },
   { id: "doxxing", label: "Personal info / doxxing" },
   { id: "illegal", label: "Illegal content" },
+  { id: "unrelated", label: "Unrelated to this platform" },
   { id: "other", label: "Other" },
 ] as const;
 

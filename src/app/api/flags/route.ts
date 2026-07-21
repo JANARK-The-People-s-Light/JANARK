@@ -15,6 +15,7 @@ const REASONS = new Set([
   "misinformation",
   "doxxing",
   "illegal",
+  "unrelated",
   "other",
 ]);
 
