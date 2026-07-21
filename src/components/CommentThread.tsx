@@ -7,6 +7,7 @@ import { MediaAttach } from "@/components/MediaAttach";
 import { MediaViewer } from "@/components/MediaViewer";
 import { ReportButton } from "@/components/ReportButton";
 import { PostTermsAccept } from "@/components/PostTermsAccept";
+import { useCivicPostTermsAccept } from "@/components/useCivicPostTermsAccept";
 import type { EngageTarget } from "@/lib/engage";
 import type { MediaType } from "@/lib/media";
 import { termsPayload } from "@/lib/civic-post-terms";
@@ -58,7 +59,7 @@ export function CommentThread({
   const [replyMedia, setReplyMedia] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useCivicPostTermsAccept();
 
   const load = useCallback(async () => {
     const qs = new URLSearchParams({ targetType, targetId });

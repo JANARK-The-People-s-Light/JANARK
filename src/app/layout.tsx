@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { Fraunces, Source_Sans_3 } from "next/font/google";
 import { AuthProvider } from "@/components/AuthModal";
+import { CreateActionMenu } from "@/components/CreateActionMenu";
 import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
 import { VisitTelemetry } from "@/components/VisitTelemetry";
 import "./globals.css";
@@ -80,6 +81,7 @@ export default function RootLayout({
           <SiteHeader />
           <main className="min-w-0 flex-1">{children}</main>
           <SiteFooter />
+          <CreateActionMenu />
         </AuthProvider>
       </body>
     </html>

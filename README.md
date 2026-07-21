@@ -67,6 +67,34 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ---
 
+## Docker hosting
+
+The repo ships a production **Dockerfile** and **docker-compose.yml** (app + MongoDB).
+
+```bash
+# Build & run (app on http://localhost:3000, Mongo internal)
+docker compose up -d --build
+
+# Logs
+docker compose logs -f app
+
+# Stop
+docker compose down
+```
+
+Compose sets production secrets defaults suitable for **local verification only**. For a real deploy, override at least:
+
+- `PHONE_HASH_SALT`, `HUMAN_TOKEN_SECRET`, `IP_HASH_SALT` (≥24 random chars)
+- `NEXT_PUBLIC_SITE_URL` (your public HTTPS origin — rebuild after changing)
+- OTP SMS (`TWILIO_*` or `MSG91_*`) and unset `ALLOW_OTP_WITHOUT_SMS`
+- Prefer Postgres instead of SQLite for multi-instance deploys
+
+Persistent volumes: SQLite (`janark_sqlite`), uploads (`janark_uploads`), Mongo (`janark_mongo`).
+
+Verified locally: image builds, Prisma syncs on boot, `/`, `/unreleased`, and `/api/feed` return HTTP 200.
+
+---
+
 ## Product surface
 
 | Path | What it does |

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthModal";
 import { MediaAttach } from "@/components/MediaAttach";
 import { PostTermsAccept } from "@/components/PostTermsAccept";
+import { useCivicPostTermsAccept } from "@/components/useCivicPostTermsAccept";
 import { termsPayload } from "@/lib/civic-post-terms";
 
 export function DiscussionForm({ issueSlug }: { issueSlug: string }) {
@@ -15,7 +16,7 @@ export function DiscussionForm({ issueSlug }: { issueSlug: string }) {
   const [kind, setKind] = useState("opinion");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useCivicPostTermsAccept();
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();

@@ -1,0 +1,24 @@
+# Dependencies and build artifacts that should not bloat the image
+node_modules
+.next
+.git
+.gitignore
+*.md
+!README.md
+.env
+.env.*
+!.env.example
+prisma/dev.db
+prisma/dev.db-journal
+public/uploads/*
+!public/uploads/.gitkeep
+coverage
+.playwright
+playwright-report
+test-results
+.DS_Store
+*.log
+.vscode
+.cursor
+agent-transcripts
+janark-tmp

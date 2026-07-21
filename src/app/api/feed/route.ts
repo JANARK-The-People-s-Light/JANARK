@@ -28,12 +28,47 @@ const TYPES = new Set([
   "proposal",
   "issue",
   "vote",
+  "petition",
+  "report",
 ]);
 
 const CIVIC_SORTS = new Set<CivicSortMode>(["trending", "momentum", "hot"]);
 
 function escapeRegex(s: string) {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+/** Build Mongo filter fragment for feed type / tab (incl. petition & report). */
+function typeFilterClause(typeRaw: string): Record<string, unknown> | null {
+  if (!typeRaw || typeRaw === "all" || !TYPES.has(typeRaw)) return null;
+
+  if (typeRaw === "petition") {
+    return {
+      $or: [
+        { tags: { $in: ["petition", "demand"] } },
+        { href: { $regex: /\/petitions\//i } },
+        { title: { $regex: /^\[demand\]/i } },
+      ],
+    };
+  }
+  if (typeRaw === "report") {
+    return {
+      $or: [
+        { href: { $regex: /\/reports\//i } },
+        { title: { $regex: /^\[(issue|crime|problem|other)\]/i } },
+      ],
+    };
+  }
+  if (typeRaw === "vote" || typeRaw === "proposal") {
+    return { type: "proposal" };
+  }
+  if (typeRaw === "discussion") {
+    return {
+      type: "discussion",
+      href: { $not: { $regex: /\/(petitions|reports)\//i } },
+    };
+  }
+  return { type: typeRaw };
 }
 
 function uniqSorted(values: (string | null | undefined)[]) {
@@ -144,51 +179,64 @@ export async function GET(req: Request) {
   const town = searchParams.get("town")?.trim() ?? "";
   const limit = Math.min(Number(searchParams.get("limit") ?? 40) || 40, 80);
 
-  const filter: Record<string, unknown> = {};
-  if (hotFlag === "1") filter.hot = true;
-  if (typeRaw !== "all" && TYPES.has(typeRaw)) filter.type = typeRaw;
+  const andParts: Record<string, unknown>[] = [];
+  if (hotFlag === "1") andParts.push({ hot: true });
+  const typeClause = typeFilterClause(typeRaw);
+  if (typeClause) andParts.push(typeClause);
   if (tag) {
-    filter.tags = {
-      $regex: new RegExp(`^#?${escapeRegex(tag)}$`, "i"),
-    };
+    andParts.push({
+      tags: { $regex: new RegExp(`^#?${escapeRegex(tag)}$`, "i") },
+    });
   }
   if (country) {
-    filter.country = { $regex: new RegExp(`^${escapeRegex(country)}$`, "i") };
+    andParts.push({
+      country: { $regex: new RegExp(`^${escapeRegex(country)}$`, "i") },
+    });
   }
   if (state) {
-    filter.state = { $regex: new RegExp(`^${escapeRegex(state)}$`, "i") };
+    andParts.push({
+      state: { $regex: new RegExp(`^${escapeRegex(state)}$`, "i") },
+    });
   }
   if (district) {
-    filter.district = {
-      $regex: new RegExp(`^${escapeRegex(district)}$`, "i"),
-    };
+    andParts.push({
+      district: { $regex: new RegExp(`^${escapeRegex(district)}$`, "i") },
+    });
   }
   if (city) {
-    filter.$and = [
-      ...(Array.isArray(filter.$and) ? filter.$and : []),
-      {
-        $or: [
-          { city: { $regex: new RegExp(`^${escapeRegex(city)}$`, "i") } },
-          { town: { $regex: new RegExp(`^${escapeRegex(city)}$`, "i") } },
-        ],
-      },
-    ];
+    andParts.push({
+      $or: [
+        { city: { $regex: new RegExp(`^${escapeRegex(city)}$`, "i") } },
+        { town: { $regex: new RegExp(`^${escapeRegex(city)}$`, "i") } },
+      ],
+    });
   }
   if (town) {
-    filter.town = { $regex: new RegExp(`^${escapeRegex(town)}$`, "i") };
+    andParts.push({
+      town: { $regex: new RegExp(`^${escapeRegex(town)}$`, "i") },
+    });
   }
   if (q) {
     const safeQ = escapeRegex(q.slice(0, 80));
-    filter.$or = [
-      { title: { $regex: safeQ, $options: "i" } },
-      { excerpt: { $regex: safeQ, $options: "i" } },
-      { tags: { $regex: safeQ, $options: "i" } },
-      { meta: { $regex: safeQ, $options: "i" } },
-      { state: { $regex: safeQ, $options: "i" } },
-      { city: { $regex: safeQ, $options: "i" } },
-      { district: { $regex: safeQ, $options: "i" } },
-    ];
+    andParts.push({
+      $or: [
+        { title: { $regex: safeQ, $options: "i" } },
+        { excerpt: { $regex: safeQ, $options: "i" } },
+        { tags: { $regex: safeQ, $options: "i" } },
+        { meta: { $regex: safeQ, $options: "i" } },
+        { state: { $regex: safeQ, $options: "i" } },
+        { city: { $regex: safeQ, $options: "i" } },
+        { district: { $regex: safeQ, $options: "i" } },
+      ],
+    });
   }
+
+  const filter: Record<string, unknown> =
+    andParts.length === 0
+      ? {}
+      : andParts.length === 1
+        ? andParts[0]!
+        : { $and: andParts };
 
   const useCivic = CIVIC_SORTS.has(sort as CivicSortMode);
   const candidateLimit = useCivic
@@ -318,6 +366,15 @@ export async function GET(req: Request) {
     typeCounts[key] = b.count;
     typeCounts.all += b.count;
   }
+  const [petitionCount, reportCount, discussionPlain] = await Promise.all([
+    FeedPost.countDocuments(typeFilterClause("petition") ?? {}),
+    FeedPost.countDocuments(typeFilterClause("report") ?? {}),
+    FeedPost.countDocuments(typeFilterClause("discussion") ?? {}),
+  ]);
+  typeCounts.petition = petitionCount;
+  typeCounts.report = reportCount;
+  typeCounts.discussion = discussionPlain;
+  typeCounts.votes = typeCounts.proposal ?? 0;
 
   const hashtagMap = new Map<string, number>();
   for (const t of prismaTags) {

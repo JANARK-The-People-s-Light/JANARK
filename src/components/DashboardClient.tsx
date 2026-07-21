@@ -477,7 +477,7 @@ function DashboardInner() {
                 ["Feed", stats.feedPosts ?? 0],
               ]
             : [
-                ["Citizens", stats.citizens],
+                ["Current users", stats.citizens],
                 ["Proposals", stats.activeProposals],
                 ["Votes", stats.votes],
                 ["Notices", stats.notices],

@@ -7,6 +7,7 @@ import { useAuth } from "@/components/AuthModal";
 import { FeedEngage } from "@/components/FeedEngage";
 import { MediaAttach } from "@/components/MediaAttach";
 import { PostTermsAccept } from "@/components/PostTermsAccept";
+import { useCivicPostTermsAccept } from "@/components/useCivicPostTermsAccept";
 import { termsPayload } from "@/lib/civic-post-terms";
 import { portalHref } from "@/lib/paths";
 
@@ -34,7 +35,7 @@ export default function FeedPage() {
   const [loading, setLoading] = useState(true);
   const [posting, setPosting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useCivicPostTermsAccept();
 
   const load = useCallback(async () => {
     setLoading(true);

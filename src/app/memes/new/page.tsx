@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useAuth } from "@/components/AuthModal";
 import { MediaAttach } from "@/components/MediaAttach";
 import { PostTermsAccept } from "@/components/PostTermsAccept";
+import { useCivicPostTermsAccept } from "@/components/useCivicPostTermsAccept";
 import { termsPayload } from "@/lib/civic-post-terms";
 import { portalHref } from "@/lib/paths";
 
@@ -19,7 +20,7 @@ export default function NewMemePage() {
   const [hashtags, setHashtags] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useCivicPostTermsAccept();
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();

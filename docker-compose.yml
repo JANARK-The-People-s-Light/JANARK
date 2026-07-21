@@ -1,0 +1,43 @@
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    volumes:
+      - janark_mongo:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0
+      PORT: 3000
+      DATABASE_URL: file:/data/janark.db
+      MONGODB_URI: mongodb://mongo:27017/janark
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+      PHONE_HASH_SALT: ${PHONE_HASH_SALT:-docker-local-phone-hash-salt-min-24}
+      HUMAN_TOKEN_SECRET: ${HUMAN_TOKEN_SECRET:-docker-local-human-token-secret-24}
+      IP_HASH_SALT: ${IP_HASH_SALT:-docker-local-ip-hash-salt-min-24xx}
+      # Demo/compose only — configure Twilio/MSG91 for real OTP delivery
+      ALLOW_OTP_WITHOUT_SMS: ${ALLOW_OTP_WITHOUT_SMS:-1}
+    volumes:
+      - janark_sqlite:/data
+      - janark_uploads:/app/public/uploads
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+volumes:
+  janark_mongo:
+  janark_sqlite:
+  janark_uploads:

@@ -85,29 +85,18 @@ export function PostTermsAccept({
           required
           checked={accepted}
           onChange={(e) => onAcceptedChange(e.target.checked)}
-          className="mt-0.5 accent-amber"
+          className="mt-0.5 size-4 shrink-0 accent-amber"
         />
         <span>
           I agree to the{" "}
-          <button
-            type="button"
-            onClick={() => setOpen(true)}
-            className="font-medium text-amber underline-offset-2 hover:underline"
-          >
-            Civic Posting Terms
-          </button>{" "}
-          (
           <a
             href={portalHref("/terms")}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-muted underline-offset-2 hover:text-amber hover:underline"
+            className="font-medium text-amber underline-offset-2 hover:underline"
           >
-            full page
+            Civic Posting Terms (full page)
           </a>
-          ). Janark is a non-profit civic organisation. No party promotion —
-          civic betterment only. Janark is not responsible for user-generated
-          content.
         </span>
       </label>
     </div>

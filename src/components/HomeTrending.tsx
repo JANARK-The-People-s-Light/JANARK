@@ -39,14 +39,19 @@ type Locations = {
   cities: string[];
 };
 
-const TYPES = [
+const TABS = [
   { value: "all", label: "All" },
   { value: "discussion", label: "Discussions" },
+  { value: "petition", label: "Petitions" },
+  { value: "proposal", label: "Votes" },
+  { value: "issue", label: "Issues" },
+  { value: "report", label: "Reports" },
   { value: "meme", label: "Memes" },
   { value: "notice", label: "Notices" },
-  { value: "issue", label: "Issues" },
-  { value: "proposal", label: "Votes" },
 ] as const;
+
+/** Type chips inside Filter — only when All tab is active */
+const FILTER_TYPES = TABS;
 
 const SORTS = [
   { value: "trending", label: "Trending" },
@@ -181,6 +186,16 @@ function HomeTrendingInner() {
     setParam("tag", tag === t ? null : t);
   }
 
+  function clearFilters() {
+    if (type !== "all") {
+      const p = new URLSearchParams();
+      p.set("type", type);
+      router.replace(`${pathname}?${p.toString()}`, { scroll: false });
+      return;
+    }
+    router.replace(pathname, { scroll: false });
+  }
+
   useEffect(() => {
     if (!filterOpen) return;
     function onKey(e: KeyboardEvent) {
@@ -202,7 +217,7 @@ function HomeTrendingInner() {
     else if (state) parts.push(state);
     else if (country) parts.push(country);
     if (type !== "all") {
-      parts.push(TYPES.find((t) => t.value === type)?.label ?? type);
+      parts.push(TABS.find((t) => t.value === type)?.label ?? type);
     }
     if (tag) parts.push(`#${tag}`);
     if (qParam.trim()) parts.push(`“${qParam.trim()}”`);
@@ -325,35 +340,50 @@ function HomeTrendingInner() {
       </form>
 
       <div>
-        <p className="mb-2 text-xs font-medium text-navy">Type</p>
-        <div className="flex flex-wrap gap-2">
-          {TYPES.map((t) => {
-            const count =
-              t.value === "all"
-                ? typeCounts.all
-                : typeCounts[t.value === "proposal" ? "proposal" : t.value];
-            const active = type === t.value;
-            return (
-              <button
-                key={t.value}
-                type="button"
-                onClick={() => setParam("type", t.value)}
-                className={`min-h-10 px-1.5 py-2 text-sm transition ${
-                  active
-                    ? "font-medium text-amber"
-                    : "text-muted hover:text-navy"
-                }`}
-              >
-                {t.label}
-                {typeof count === "number" && count > 0 ? (
-                  <span className="ml-1.5 text-[11px] tabular-nums opacity-50">
-                    {count}
-                  </span>
-                ) : null}
-              </button>
-            );
-          })}
-        </div>
+        {type === "all" ? (
+          <>
+            <p className="mb-2 text-xs font-medium text-navy">Type</p>
+            <div className="flex flex-wrap gap-2">
+              {FILTER_TYPES.map((t) => {
+                const count =
+                  t.value === "all"
+                    ? typeCounts.all
+                    : t.value === "proposal"
+                      ? (typeCounts.votes ?? typeCounts.proposal)
+                      : typeCounts[t.value];
+                const active = type === t.value;
+                return (
+                  <button
+                    key={t.value}
+                    type="button"
+                    onClick={() => setParam("type", t.value)}
+                    className={`min-h-10 px-1.5 py-2 text-sm transition ${
+                      active
+                        ? "font-medium text-amber"
+                        : "text-muted hover:text-navy"
+                    }`}
+                  >
+                    {t.label}
+                    {typeof count === "number" && count > 0 ? (
+                      <span className="ml-1.5 text-[11px] tabular-nums opacity-50">
+                        {count}
+                      </span>
+                    ) : null}
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        ) : (
+          <p className="text-sm text-muted">
+            Showing{" "}
+            <span className="font-medium text-navy">
+              {TABS.find((t) => t.value === type)?.label ?? type}
+            </span>{" "}
+            — switch tabs above to change type. Place and hashtag filters still
+            apply.
+          </p>
+        )}
       </div>
 
       <div>
@@ -385,10 +415,6 @@ function HomeTrendingInner() {
           <h2 className="font-display mt-1 text-2xl text-navy sm:text-3xl">
             Trending now
           </h2>
-          <p className="mt-1 max-w-xl text-sm text-muted">
-            Ranked by civic momentum — open Filter for place, type, and
-            hashtags.
-          </p>
         </div>
         <Link
           href={portalHref("/feed")}
@@ -409,8 +435,8 @@ function HomeTrendingInner() {
           }`}
           aria-haspopup="dialog"
           aria-expanded={filterOpen}
-          aria-label="Open filters"
-          title="Filter"
+          aria-label="Open filters and sort"
+          title="Filter & sort"
         >
           <IconFilter className="h-5 w-5" />
           {hasFilters ? (
@@ -419,6 +445,10 @@ function HomeTrendingInner() {
             </span>
           ) : null}
         </button>
+        <p className="min-w-0 flex-1 text-sm text-muted sm:max-w-xl">
+          Ranked by civic momentum — use Filter to sort and narrow by place or
+          hashtag.
+        </p>
         {filterSummary.slice(0, 3).map((s) => (
           <button
             key={s}
@@ -432,7 +462,7 @@ function HomeTrendingInner() {
         {hasFilters && (
           <button
             type="button"
-            onClick={() => router.replace(pathname, { scroll: false })}
+            onClick={() => clearFilters()}
             className="inline-flex items-center justify-center rounded-sm p-1.5 text-navy/60 hover:text-navy"
             aria-label="Clear filters"
             title="Clear filters"
@@ -462,16 +492,16 @@ function HomeTrendingInner() {
                   Filter
                 </p>
                 <p className="mt-0.5 text-sm text-muted">
-                  Location, type, and hashtags
+                  {type === "all"
+                    ? "Sort, location, type, and hashtags"
+                    : "Sort, location, and hashtags"}
                 </p>
               </div>
               <div className="flex items-center gap-2">
                 {hasFilters && (
                   <button
                     type="button"
-                    onClick={() =>
-                      router.replace(pathname, { scroll: false })
-                    }
+                    onClick={() => clearFilters()}
                     className="text-xs text-amber hover:underline"
                   >
                     Clear all
@@ -503,7 +533,53 @@ function HomeTrendingInner() {
 
       {error && <p className="mt-6 text-sm text-danger">{error}</p>}
 
-      <div className="mt-8 border-t border-line">
+      <div className="mt-8 border-t border-line pt-6">
+        <div className="mb-4">
+          <p className="text-xs uppercase tracking-wider text-muted">
+            Browse by type
+          </p>
+          <p className="mt-1 text-sm text-muted">
+            Choose what to follow — All, or lock to petitions, votes, reports,
+            and more.
+          </p>
+          <div
+            className="-mx-4 mt-3 flex gap-1 overflow-x-auto border-b border-line px-4 pb-px sm:mx-0 sm:px-0"
+            role="tablist"
+            aria-label="Browse by type"
+          >
+            {TABS.map((t) => {
+              const active = type === t.value;
+              const count =
+                t.value === "all"
+                  ? typeCounts.all
+                  : t.value === "proposal"
+                    ? (typeCounts.votes ?? typeCounts.proposal)
+                    : typeCounts[t.value];
+              return (
+                <button
+                  key={t.value}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setParam("type", t.value)}
+                  className={`shrink-0 border-b-2 px-3 py-2.5 text-sm transition ${
+                    active
+                      ? "border-amber font-medium text-navy"
+                      : "border-transparent text-muted hover:text-navy"
+                  }`}
+                >
+                  {t.label}
+                  {typeof count === "number" && count > 0 ? (
+                    <span className="ml-1.5 text-[11px] tabular-nums opacity-50">
+                      {count}
+                    </span>
+                  ) : null}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {loading && posts.length === 0 && (
           <p className="py-10 text-sm text-muted">Loading trending…</p>
         )}

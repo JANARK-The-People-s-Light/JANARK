@@ -143,6 +143,12 @@ export async function POST(req: Request) {
   if (media.error) {
     return NextResponse.json({ error: media.error }, { status: 400 });
   }
+  if (!media.mediaUrl) {
+    return NextResponse.json(
+      { error: "Attachment required (image, GIF, or video)" },
+      { status: 400 },
+    );
+  }
 
   const demand = await prisma.publicDemand.create({
     data: {
