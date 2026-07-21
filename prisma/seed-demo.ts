@@ -1,8 +1,8 @@
 /**
- * Demo fixtures for UI validation — phone identities, issues, votes,
- * reports, demands, memes, notices, discussions, feed, trends.
+ * Demo fixtures for UI validation — current India civic topics only.
+ * All posts start with zero likes, dislikes, comments, supports, and poll votes.
  *
- *   npm run db:demo
+ *   npm run db:clear && npm run db:demo
  */
 import "dotenv/config";
 import { createHash, randomBytes } from "node:crypto";
@@ -33,14 +33,6 @@ function hashPhone(digits: string) {
   return createHash("sha256").update(`${SALT}:${digits}`).digest("hex");
 }
 
-function anonId() {
-  const alphabet = "abcdefghijklmnopqrstuvwxyz0123456789";
-  const bytes = randomBytes(8);
-  let out = "";
-  for (let i = 0; i < 8; i++) out += alphabet[bytes[i]! % alphabet.length];
-  return `jn-${out}`;
-}
-
 function pick<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)]!;
 }
@@ -49,38 +41,37 @@ function daysAgo(n: number) {
   return new Date(Date.now() - n * 24 * 60 * 60 * 1000);
 }
 
-const MEME_IMAGES = [
-  "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbWdqeGhxZ3Z0Z2Z0/3o7aCTPPm4OHfRLSH6/giphy.gif",
-  "https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif",
-  "https://media.giphy.com/media/26BRrSvJUa0crqw4E/giphy.gif",
-  "https://picsum.photos/seed/janark1/800/600",
-  "https://picsum.photos/seed/janark2/800/600",
-  "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-];
-
 const SAMPLE_MEDIA = [
   {
-    url: "https://picsum.photos/seed/report1/900/600",
+    url: "https://picsum.photos/seed/janark-air/900/600",
     type: "image" as const,
   },
   {
-    url: "https://media.giphy.com/media/3o7aCTPPm4OHfRLSH6/giphy.gif",
-    type: "gif" as const,
-  },
-  {
-    url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-    type: "video" as const,
-  },
-  {
-    url: "https://picsum.photos/seed/demand1/900/600",
+    url: "https://picsum.photos/seed/janark-water/900/600",
     type: "image" as const,
   },
+  {
+    url: "https://picsum.photos/seed/janark-health/900/600",
+    type: "image" as const,
+  },
+  {
+    url: "https://picsum.photos/seed/janark-waste/900/600",
+    type: "image" as const,
+  },
+];
+
+const MEME_IMAGES = [
+  "https://picsum.photos/seed/janark-meme1/800/600",
+  "https://picsum.photos/seed/janark-meme2/800/600",
+  "https://picsum.photos/seed/janark-meme3/800/600",
+  "https://picsum.photos/seed/janark-meme4/800/600",
+  "https://picsum.photos/seed/janark-meme5/800/600",
 ];
 
 async function main() {
-  console.log("Seeding demo data…");
+  console.log("Seeding demo data (India civic topics · zero engagement)…");
 
-  // --- Anonymous citizens ---
+  // --- Anonymous citizens (for OTP demo only — no reactions seeded) ---
   const citizens: {
     phoneHash: string;
     anonId: string;
@@ -113,47 +104,109 @@ async function main() {
   }
   console.log(`  ${citizens.length} phone identities`);
 
-  // --- Issues ---
+  // --- Issues (ongoing national civic debates, non-partisan) ---
   const issueDefs = [
     {
-      slug: "school-midday-meals",
-      title: "Strengthen midday meals in government schools",
+      slug: "exam-system-credibility",
+      title: "Credible national entrance exams and NTA accountability",
       category: "Education",
       summary:
-        "Parents report irregular quality and delayed supply of midday meals across several districts.",
-      why: "Nutrition affects attendance and learning outcomes for millions of children.",
-      pros: ["Better attendance", "Local kitchen employment", "Health outcomes"],
-      cons: ["Budget pressure", "Supply chain complexity"],
+        "Students and families continue to demand leak-proof exams, faster grievance redress, and transparent audits after repeated entrance-test controversies.",
+      why: "Exam credibility decides careers for millions of aspirants every year.",
+      pros: [
+        "Restores trust in merit",
+        "Clear timelines reduce anxiety",
+        "Independent audits deter malpractice",
+      ],
+      cons: [
+        "Logistics at national scale are hard",
+        "Re-exams disrupt academic calendars",
+      ],
     },
     {
-      slug: "local-job-portals",
-      title: "District-level transparent job portals",
-      category: "Employment",
+      slug: "primary-healthcare-access",
+      title: "Strengthen public primary healthcare quality",
+      category: "Healthcare",
       summary:
-        "Citizens want a single public board for local vacancies with skill filters — not only metro apps.",
-      why: "Youth migration and under-employment remain high outside metros.",
-      pros: ["Local matching", "Less broker dependence"],
-      cons: ["Needs verification", "Employer adoption"],
+        "Access has expanded, but citizens still face uneven care quality, medicine stock-outs, and heavy out-of-pocket spend when primary clinics fail.",
+      why: "Primary care is the front door of universal health coverage.",
+      pros: [
+        "Lower household medical debt",
+        "Earlier detection of illness",
+        "Less pressure on tertiary hospitals",
+      ],
+      cons: [
+        "Needs sustained public finance",
+        "Staffing and governance reforms take time",
+      ],
     },
     {
-      slug: "water-tankers-accountability",
-      title: "Public tracking for water tankers",
+      slug: "urban-air-and-waste",
+      title: "Cleaner air and scientific solid-waste processing in cities",
+      category: "Environment",
+      summary:
+        "Indian cities still struggle with toxic air, legacy dump sites, and incomplete waste segregation even as collection coverage improves.",
+      why: "Air and waste determine daily health for urban households.",
+      pros: [
+        "Measurable public-health gains",
+        "Aligns with updated waste rules",
+        "Creates green jobs in processing",
+      ],
+      cons: [
+        "Requires multi-agency coordination",
+        "Capex and behaviour change are slow",
+      ],
+    },
+    {
+      slug: "urban-water-24x7",
+      title: "Reliable urban drinking water — toward 24×7 supply",
       category: "Infrastructure",
       summary:
-        "Summer shortages lead to opaque tanker pricing. Citizens demand GPS + rate boards.",
-      why: "Water access is a daily dignity issue in growing towns.",
-      pros: ["Price transparency", "Fewer queues"],
-      cons: ["Enforcement cost"],
+        "Tap connections have spread, yet few cities deliver continuous water; households pay a private tax on tanks, pumps, and purifiers.",
+      why: "Water security is basic dignity in rapidly urbanising India.",
+      pros: [
+        "Cuts tanker dependence",
+        "Improves hygiene and school attendance",
+        "Transparent metering builds trust",
+      ],
+      cons: [
+        "Network rehab is capital-intensive",
+        "Non-revenue water must be fixed first",
+      ],
     },
     {
-      slug: "women-night-transport",
-      title: "Safe night transport corridors for women",
-      category: "Women",
+      slug: "teacher-shortage-learning",
+      title: "Fill teacher vacancies and reverse learning loss",
+      category: "Education",
       summary:
-        "Workers and students ask for well-lit routes, tracked buses, and emergency response.",
-      why: "Mobility after dark still limits opportunity.",
-      pros: ["Workforce participation", "Safety perception"],
-      cons: ["Fleet cost", "Coordination across agencies"],
+        "Recruitment delays, uneven training, and commercialised schooling leave many classrooms without skilled teachers — smart boards cannot replace them.",
+      why: "Learning outcomes decide India’s demographic dividend.",
+      pros: [
+        "Better foundational literacy",
+        "Rural retention of educators",
+        "Less coaching-market pressure",
+      ],
+      cons: [
+        "State capacity for hiring varies",
+        "Quality training pipelines take years",
+      ],
+    },
+    {
+      slug: "walkable-cities-jobs",
+      title: "Walkable streets and local livelihood access",
+      category: "Infrastructure",
+      summary:
+        "Cities prioritise vehicles over footpaths while youth outside metros still lack transparent local job matching beyond big-city apps.",
+      why: "Daily mobility and nearby work shape who can participate in the economy.",
+      pros: [
+        "Safer last-mile trips",
+        "Less broker dependence for jobs",
+        "Supports women workers after dark",
+      ],
+      cons: [
+        "Road redesign faces political pushback",
+        "Employer verification needs systems",
+      ],
     },
   ];
 
@@ -162,8 +215,14 @@ async function main() {
       where: { slug: iss.slug },
       update: {
         title: iss.title,
-        voteCount: 40 + idx * 17,
-        rating: 3.5 + (idx % 3) * 0.4,
+        summary: iss.summary,
+        whyItMatters: iss.why,
+        currentSituation: iss.summary,
+        pros: JSON.stringify(iss.pros),
+        cons: JSON.stringify(iss.cons),
+        voteCount: 0,
+        rating: 0,
+        trendingRank: idx + 1,
       },
       create: {
         slug: iss.slug,
@@ -178,135 +237,132 @@ async function main() {
           { label: "Citizen signals", url: "/feed" },
         ]),
         relatedSlugs: JSON.stringify([]),
-        voteCount: 40 + idx * 17,
-        rating: 3.5 + (idx % 3) * 0.4,
+        voteCount: 0,
+        rating: 0,
         trendingRank: idx + 1,
       },
     });
   }
   console.log(`  ${issueDefs.length} issues`);
 
-  // --- Proposals + votes ---
+  // --- Proposals (open polls — zero votes cast) ---
   const proposals = [
     {
-      id: "midday-meal-audit",
-      title: "Independent midday meal quality audits",
+      id: "exam-independent-audit",
+      title: "Independent public audit of national entrance exam security",
       description:
-        "Should every district publish monthly independent kitchen audits?",
-      issueSlug: "school-midday-meals",
-      voteType: "likert",
+        "Should an independent panel publish a time-bound audit of exam logistics, paper security, and grievance redress after each major cycle?",
+      issueSlug: "exam-system-credibility",
+      voteType: "likert" as const,
     },
     {
-      id: "night-bus-pilot",
-      title: "Night bus pilot on two city corridors",
+      id: "phc-medicine-stock-dashboard",
+      title: "Live public stock dashboard for primary health centres",
       description:
-        "Fund a 6-month tracked night bus pilot with women marshals.",
-      issueSlug: "women-night-transport",
-      voteType: "likert",
+        "Should every district publish weekly essential-medicine stock levels for public primary clinics?",
+      issueSlug: "primary-healthcare-access",
+      voteType: "likert" as const,
     },
     {
-      id: "tanker-rate-board",
-      title: "Mandatory public rate board for tankers",
+      id: "waste-four-stream-city-pilot",
+      title: "City pilot for four-stream waste segregation & processing",
       description:
-        "Display maximum tanker rates at ward offices and on a public page.",
-      issueSlug: "water-tankers-accountability",
-      voteType: "preference",
-      options: ["Ward boards only", "App + boards", "App only"],
+        "Fund a ward-scale pilot with doorstep segregation, digital tracking, and scientific processing instead of dump-and-forget.",
+      issueSlug: "urban-air-and-waste",
+      voteType: "preference" as const,
+      options: [
+        "Ward pilot first",
+        "City-wide mandate now",
+        "Incentives before penalties",
+      ],
+    },
+    {
+      id: "water-district-metering",
+      title: "District metering & public NRW (loss) reports",
+      description:
+        "Publish monthly non-revenue water and tanker dependence figures for each urban local body.",
+      issueSlug: "urban-water-24x7",
+      voteType: "likert" as const,
     },
   ];
 
   for (const p of proposals) {
     await prisma.proposal.upsert({
       where: { id: p.id },
-      update: { title: p.title, totalVotes: 0 },
+      update: {
+        title: p.title,
+        description: p.description,
+        totalVotes: 0,
+        results: null,
+      },
       create: {
         id: p.id,
         title: p.title,
         description: p.description,
-        benefits: JSON.stringify(["Citizen mandate", "Public visibility"]),
-        argumentsFor: JSON.stringify(["Open civic participation"]),
-        argumentsAgainst: JSON.stringify(["Needs verification at scale"]),
+        benefits: JSON.stringify([
+          "Public accountability",
+          "Evidence for budgets",
+        ]),
+        argumentsFor: JSON.stringify([
+          "Citizens can track delivery",
+          "Reduces rumour-driven panic",
+        ]),
+        argumentsAgainst: JSON.stringify([
+          "Needs data capacity in ULBs",
+          "Must avoid partisan misuse of dashboards",
+        ]),
         voteType: p.voteType,
         options: p.options ? JSON.stringify(p.options) : null,
         issueSlug: p.issueSlug,
-        locationLevel: "district",
-        state: "Maharashtra",
+        locationLevel: "national",
         country: "India",
         totalVotes: 0,
       },
     });
-
-    const choices =
-      p.voteType === "preference" && p.options
-        ? p.options
-        : [
-            "strongly_support",
-            "support",
-            "neutral",
-            "oppose",
-            "strongly_oppose",
-          ];
-    let votes = 0;
-    for (const c of citizens) {
-      if (Math.random() < 0.35) continue;
-      const choice = pick(choices);
-      await prisma.vote.upsert({
-        where: {
-          proposalId_voterKey: { proposalId: p.id, voterKey: c.phoneHash },
-        },
-        update: { choice: JSON.stringify(choice) },
-        create: {
-          proposalId: p.id,
-          voterKey: c.phoneHash,
-          choice: JSON.stringify(choice),
-        },
-      });
-      votes++;
-    }
-    await prisma.proposal.update({
-      where: { id: p.id },
-      data: { totalVotes: votes },
-    });
   }
-  console.log(`  ${proposals.length} proposals with votes`);
-
-  // --- Comments on issues ---
-  for (const iss of issueDefs) {
-    for (let i = 0; i < 3; i++) {
-      const c = pick(citizens);
-      await prisma.comment.create({
-        data: {
-          issueSlug: iss.slug,
-          author: c.label,
-          authorAnonId: c.anonId,
-          body: pick([
-            "We need ground verification, not only announcements.",
-            "This matches what teachers told us last month.",
-            "Support — but publish the data weekly.",
-            "Concerned about implementation capacity at ward level.",
-          ]),
-          kind: pick(["opinion", "evidence", "news"]),
-          upvotes: Math.floor(Math.random() * 12),
-        },
-      });
-    }
-  }
+  console.log(`  ${proposals.length} proposals (0 votes)`);
 
   // --- Reports ---
   const reportDefs = [
     {
       type: "problem",
-      title: "Streetlights dark for three weeks near school gate",
-      body: "Children walk home in the dark. Ward office ticket is open with no update.",
+      title: "AQI stays hazardous — construction dust unenforced at site",
+      body: "Residents near an active metro/road corridor report uncovered debris and no night watering. Request municipal enforcement under air-quality directions.",
       locationLevel: "city",
-      city: "Pune",
-      district: "Pune",
+      city: "Delhi",
+      district: "South Delhi",
+      state: "Delhi",
+    },
+    {
+      type: "problem",
+      title: "Primary health centre out of essential medicines for a week",
+      body: "Patients redirected to private chemists for basic antibiotics and ORS. Request public stock update and refill timeline.",
+      locationLevel: "district",
+      district: "Nashik",
       state: "Maharashtra",
     },
     {
-      type: "crime",
-      title: "Repeated phone snatching on evening bus stop",
-      body: "Citizens request better lighting and patrol timing between 7–9 pm.",
+      type: "issue",
+      title: "Entrance exam centre — no transparent grievance desk",
+      body: "Aspirants waited hours without a published escalation path after a technical glitch rumour. Ask for on-site grievance protocol and SMS updates.",
+      locationLevel: "city",
+      city: "Patna",
+      district: "Patna",
+      state: "Bihar",
+    },
+    {
+      type: "problem",
+      title: "Legacy dump leachate after rains near housing colony",
+      body: "Monsoon runoff from an old dump site floods lanes. Request scientific capping / processing under solid-waste rules — not temporary covering.",
+      locationLevel: "city",
+      city: "Mumbai",
+      district: "Mumbai Suburban",
+      state: "Maharashtra",
+    },
+    {
+      type: "problem",
+      title: "No continuous water — tanker rates opaque in summer",
+      body: "Ward gets 20–30 minutes supply on alternate days. Tanker rates vary by middlemen with no public board.",
       locationLevel: "city",
       city: "Bengaluru",
       district: "Bengaluru Urban",
@@ -314,28 +370,20 @@ async function main() {
     },
     {
       type: "issue",
-      title: "Clinic pharmacy closed mid-day without notice",
-      body: "Patients travel far for free medicines; staff shortage suspected.",
-      locationLevel: "district",
-      district: "Nashik",
-      state: "Maharashtra",
-    },
-    {
-      type: "problem",
-      title: "Overflowing drain after every rainfall",
-      body: "Mosquito breeding and flooding at the junction. Photos shared in local groups.",
+      title: "Government school — long-pending teacher vacancy",
+      body: "Two subject posts vacant for a full academic year. Students share teachers across grades; parents want recruitment timeline published.",
       locationLevel: "town",
-      town: "Karad",
-      district: "Satara",
-      state: "Maharashtra",
+      town: "Sitapur",
+      district: "Sitapur",
+      state: "Uttar Pradesh",
     },
     {
-      type: "other",
-      title: "School boundary wall cracked after monsoon",
-      body: "Parents fear collapse near the playground. Need engineer visit.",
-      locationLevel: "village",
-      village: "Vadgaon",
-      district: "Kolhapur",
+      type: "crime",
+      title: "Evening snatching on unlit footpath near college gate",
+      body: "Repeated phone snatching after classes. Footpath incomplete; streetlights dark. Request lighting + patrol window 7–9 pm.",
+      locationLevel: "city",
+      city: "Pune",
+      district: "Pune",
       state: "Maharashtra",
     },
   ];
@@ -350,7 +398,6 @@ async function main() {
         title: r.title,
         body: r.body,
         locationLevel: r.locationLevel,
-        village: r.village ?? null,
         town: r.town ?? null,
         city: r.city ?? null,
         district: r.district ?? null,
@@ -361,72 +408,77 @@ async function main() {
         authorHash: author.phoneHash,
         mediaUrl: media.url,
         mediaType: media.type,
-        upvotes: Math.floor(Math.random() * 40) + 3,
-        createdAt: daysAgo(Math.floor(Math.random() * 12)),
+        upvotes: 0,
+        downvotes: 0,
+        commentCount: 0,
+        createdAt: daysAgo(2 + (ri % 10)),
       },
     });
     reportIds.push(created.id);
-
-    for (const c of citizens.slice(0, 4)) {
-      if (Math.random() < 0.4) continue;
-      await prisma.reportVote.upsert({
-        where: {
-          reportId_voterKey: { reportId: created.id, voterKey: c.phoneHash },
-        },
-        update: { choice: "upvote" },
-        create: {
-          reportId: created.id,
-          voterKey: c.phoneHash,
-          choice: pick(["upvote", "endorse", "dispute"]),
-        },
-      });
-      await prisma.reportReaction.create({
-        data: {
-          reportId: created.id,
-          voterKey: c.phoneHash,
-          reaction: pick([
-            "support",
-            "concerned",
-            "angry",
-            "sad",
-            "important",
-          ]),
-        },
-      }).catch(() => {});
-    }
   }
-  console.log(`  ${reportIds.length} reports`);
+  console.log(`  ${reportIds.length} reports (0 reactions)`);
 
   // --- Demands ---
   const demandDefs = [
     {
-      title: "Publish weekly water tanker rates",
-      ask: "District office must post max tanker rates every Monday.",
-      body: "Citizens face opaque pricing each summer. A public board reduces exploitation.",
-      target: "district",
-      locationLevel: "district",
-      district: "Pune",
+      title: "Publish a national exam-security & re-exam calendar",
+      ask: "NTA / Education Ministry should publish fixed security protocols and any re-exam calendar within a stated deadline — non-partisan, public.",
+      body: "Students need certainty. Opaque delays destroy a year of preparation. This demand is about process credibility, not party politics.",
+      target: "government",
+      targetDetail: "Ministry of Education / NTA",
+      locationLevel: "national",
+      category: "education",
+      state: null as string | null,
+      city: null as string | null,
+      district: null as string | null,
+    },
+    {
+      title: "Weekly PHC medicine stock on a public dashboard",
+      ask: "Every district to post essential-medicine availability for primary clinics every Monday.",
+      body: "Primary care fails when shelves are empty. A live stock board lets citizens verify delivery without visiting multiple counters.",
+      target: "state",
+      targetDetail: "State health department",
+      locationLevel: "state",
       state: "Maharashtra",
+      category: "healthcare",
+      city: null,
+      district: null,
+    },
+    {
+      title: "Scientific processing for legacy dump sites",
+      ask: "City must publish a time-bound plan to process legacy waste — not only cover it.",
+      body: "Collection coverage rose, but mountains of legacy waste and leachate remain a health hazard. Align with updated solid-waste rules.",
+      target: "district",
+      targetDetail: "Municipal corporation",
+      locationLevel: "city",
+      city: "Delhi",
+      district: "East Delhi",
+      state: "Delhi",
+      category: "environment",
+    },
+    {
+      title: "Public tanker rate board + GPS for summer supply",
+      ask: "Display maximum tanker rates at ward offices and track authorised tankers.",
+      body: "Intermittent piped water forces households into opaque tanker markets. Rate boards cut exploitation.",
+      target: "district",
+      targetDetail: "Urban local body",
+      locationLevel: "city",
+      city: "Bengaluru",
+      district: "Bengaluru Urban",
+      state: "Karnataka",
       category: "infrastructure",
     },
     {
-      title: "Night bus on IT corridor",
-      ask: "Run tracked buses until midnight on two corridors for six months.",
-      body: "Women workers and students need reliable last-mile options after dark.",
+      title: "Fill sanctioned teacher posts before next academic year",
+      ask: "State education department to publish vacancy fill timelines school-wise.",
+      body: "Vacancies and temporary arrangements deepen learning loss. Children need teachers more than devices alone.",
       target: "state",
-      locationLevel: "city",
-      city: "Bengaluru",
-      state: "Karnataka",
-      category: "transport",
-    },
-    {
-      title: "Open job board for district skills",
-      ask: "Launch a verified local vacancy board with skill filters.",
-      body: "Metro-only apps miss factory, farm, and service openings nearby.",
-      target: "government",
+      targetDetail: "Education department",
       locationLevel: "state",
-      state: "Maharashtra",
-      category: "employment",
+      state: "Uttar Pradesh",
+      category: "education",
+      city: null,
+      district: null,
     },
   ];
 
@@ -440,11 +492,12 @@ async function main() {
         body: d.body,
         ask: d.ask,
         target: d.target,
+        targetDetail: d.targetDetail,
         category: d.category,
         status: "gathering",
         locationLevel: d.locationLevel,
-        city: d.city ?? null,
-        district: d.district ?? null,
+        city: d.city,
+        district: d.district,
         state: d.state,
         country: "India",
         authorLabel: author.label,
@@ -452,55 +505,43 @@ async function main() {
         authorHash: author.phoneHash,
         mediaUrl: media.url,
         mediaType: media.type,
-        supportCount: 1,
-        upvotes: 1,
-        supports: { create: { voterKey: author.phoneHash } },
-        createdAt: daysAgo(Math.floor(Math.random() * 10)),
+        supportCount: 0,
+        upvotes: 0,
+        downvotes: 0,
+        commentCount: 0,
+        createdAt: daysAgo(1 + (di % 8)),
       },
     });
     demandIds.push(created.id);
-    let supports = 1;
-    for (const c of citizens) {
-      if (c.phoneHash === author.phoneHash) continue;
-      if (Math.random() < 0.35) continue;
-      await prisma.demandSupport.create({
-        data: { demandId: created.id, voterKey: c.phoneHash },
-      });
-      supports++;
-    }
-    await prisma.publicDemand.update({
-      where: { id: created.id },
-      data: { supportCount: supports },
-    });
   }
-  console.log(`  ${demandIds.length} demands`);
+  console.log(`  ${demandIds.length} demands (0 supports)`);
 
-  // --- Memes + hashtags ---
+  // --- Memes + hashtags (zero votes/comments) ---
   const memeDefs = [
     {
-      title: "When the tender finally opens",
-      caption: "Citizens have entered the chat.",
-      tags: ["janark", "accountability", "humour"],
+      title: "When the AQI app turns purple again",
+      caption: "Air is a public service, not a personal problem.",
+      tags: ["airquality", "cities", "janark", "environment"],
     },
     {
-      title: "Waiting for the tanker rate board",
-      caption: "Summer starter pack.",
-      tags: ["water", "janark", "infrastructure"],
+      title: "Exam centre plot twist: no grievance desk",
+      caption: "Credibility > vibes. Publish the process.",
+      tags: ["exams", "education", "janark", "nta"],
     },
     {
-      title: "Night shift, no night bus",
-      caption: "Safety is not a luxury feature.",
-      tags: ["women", "transport", "janark"],
+      title: "PHC shelf: out of stock (again)",
+      caption: "Primary care starts with medicines on the shelf.",
+      tags: ["healthcare", "phc", "janark"],
     },
     {
-      title: "Midday meal plot twist",
-      caption: "Quality audits > vibes.",
-      tags: ["education", "schools", "janark"],
+      title: "Waiting for continuous water like…",
+      caption: "Taps connected ≠ 24×7 supply.",
+      tags: ["water", "infrastructure", "janark"],
     },
     {
-      title: "Job portal outside the metro",
-      caption: "Local skills, local openings.",
-      tags: ["jobs", "employment", "janark"],
+      title: "Smart board, empty teacher chair",
+      caption: "Devices don’t teach. Teachers do.",
+      tags: ["education", "teachers", "janark"],
     },
   ];
 
@@ -508,24 +549,20 @@ async function main() {
   for (const [i, m] of memeDefs.entries()) {
     const author = pick(citizens);
     const imageUrl = MEME_IMAGES[i % MEME_IMAGES.length]!;
-    const mediaType = imageUrl.endsWith(".mp4")
-      ? "video"
-      : imageUrl.includes("giphy")
-        ? "gif"
-        : "image";
     const created = await prisma.meme.create({
       data: {
         title: m.title,
         caption: m.caption,
         imageUrl,
-        mediaType,
+        mediaType: "image",
         authorLabel: author.label,
         authorAnonId: author.anonId,
         authorHash: author.phoneHash,
-        upvotes: Math.floor(Math.random() * 50) + 5,
-        downvotes: Math.floor(Math.random() * 8),
-        shareCount: Math.floor(Math.random() * 15),
-        createdAt: daysAgo(Math.floor(Math.random() * 8)),
+        upvotes: 0,
+        downvotes: 0,
+        commentCount: 0,
+        shareCount: 0,
+        createdAt: daysAgo(i % 6),
       },
     });
     memeIds.push(created.id);
@@ -539,41 +576,28 @@ async function main() {
         data: { memeId: created.id, hashtagId: hashtag.id },
       });
     }
-    for (const c of citizens.slice(0, 5)) {
-      if (Math.random() < 0.3) continue;
-      await prisma.memeVote.upsert({
-        where: {
-          memeId_voterKey: { memeId: created.id, voterKey: c.phoneHash },
-        },
-        update: { value: Math.random() < 0.8 ? 1 : -1 },
-        create: {
-          memeId: created.id,
-          voterKey: c.phoneHash,
-          value: Math.random() < 0.8 ? 1 : -1,
-        },
-      });
-    }
   }
-  console.log(`  ${memeIds.length} memes`);
+  console.log(`  ${memeIds.length} memes (0 votes / comments)`);
 
-  // --- Notices ---
+  // --- Notices (zero signatures / engagement) ---
   const noticeDefs = [
     {
-      title: "Call for public hearing on tanker rates",
+      title: "Public hearing ask: city waste processing plan",
       description:
-        "Citizens request an open hearing before summer. Bring rate evidence from last season.",
+        "Citizens request an open hearing on legacy dump remediation and four-stream segregation rollout. Bring local evidence; keep it non-partisan.",
       target: "district",
-      targetDetail: "District collector",
+      targetDetail: "Municipal commissioner",
     },
     {
-      title: "School meal quality: submit kitchen photos",
+      title: "Evidence window: PHC stock-outs this month",
       description:
-        "Anonymous evidence window for two weeks. Label facts vs opinions.",
+        "Anonymous window to report primary clinic medicine gaps — facts over rumour. Label date, place, and medicine name.",
       target: "state",
-      targetDetail: "Education department",
+      targetDetail: "State health department",
     },
   ];
 
+  const noticeIds: string[] = [];
   for (const n of noticeDefs) {
     const author = pick(citizens);
     const notice = await prisma.notice.create({
@@ -584,193 +608,28 @@ async function main() {
         targetDetail: n.targetDetail,
         author: author.label,
         authorAnonId: author.anonId,
-        signatures: 1,
-        signatureRecords: { create: { signerKey: author.phoneHash } },
-        createdAt: daysAgo(Math.floor(Math.random() * 6)),
+        signatures: 0,
+        upvotes: 0,
+        downvotes: 0,
+        commentCount: 0,
+        createdAt: daysAgo(3),
       },
     });
-    let sigs = 1;
-    for (const c of citizens) {
-      if (c.phoneHash === author.phoneHash) continue;
-      if (Math.random() < 0.4) continue;
-      await prisma.signature.create({
-        data: { noticeId: notice.id, signerKey: c.phoneHash },
-      });
-      sigs++;
-    }
-    await prisma.notice.update({
-      where: { id: notice.id },
-      data: { signatures: sigs },
-    });
+    noticeIds.push(notice.id);
   }
-  console.log(`  ${noticeDefs.length} notices`);
+  console.log(`  ${noticeDefs.length} notices (0 signatures)`);
 
-  // --- Unified engagement: votes + threaded comments ---
-  const commentBodies = [
-    "Agree — publish the numbers weekly.",
-    "Needs ground verification before we amplify.",
-    "Same issue in our ward.",
-    "Reply: ward office opened a ticket yesterday.",
-    "Can someone share the RTI reply?",
-    "Support from anonymity — keep pressure polite.",
-  ];
-
-  async function seedThread(
-    targetType: string,
-    targetId: string,
-    count = 3,
-  ) {
-    let top = 0;
-    for (let i = 0; i < count; i++) {
-      const author = pick(citizens);
-      const parent = await prisma.engagementComment.create({
-        data: {
-          targetType,
-          targetId,
-          body: pick(commentBodies),
-          authorLabel: author.label,
-          authorAnonId: author.anonId,
-          authorHash: author.phoneHash,
-          upvotes: Math.floor(Math.random() * 8),
-          downvotes: Math.floor(Math.random() * 2),
-        },
-      });
-      top++;
-      // one reply sometimes
-      if (Math.random() < 0.55) {
-        const replier = pick(citizens);
-        await prisma.engagementComment.create({
-          data: {
-            targetType,
-            targetId,
-            parentId: parent.id,
-            body: pick([
-              `Replying to ${author.anonId}: noted.`,
-              "Thanks — adding this to our local group.",
-              "Disagree lightly; capacity is the real bottleneck.",
-            ]),
-            authorLabel: replier.label,
-            authorAnonId: replier.anonId,
-            authorHash: replier.phoneHash,
-            upvotes: Math.floor(Math.random() * 4),
-          },
-        });
-      }
-      for (const c of citizens.slice(0, 4)) {
-        if (Math.random() < 0.35) continue;
-        await prisma.engagementVote.upsert({
-          where: {
-            targetType_targetId_voterKey: {
-              targetType: "comment",
-              targetId: parent.id,
-              voterKey: c.phoneHash,
-            },
-          },
-          update: { value: 1 },
-          create: {
-            targetType: "comment",
-            targetId: parent.id,
-            voterKey: c.phoneHash,
-            value: Math.random() < 0.85 ? 1 : -1,
-          },
-        });
-      }
-    }
-    return top;
-  }
-
-  for (const memeId of memeIds) {
-    const n = await seedThread("meme", memeId, 2 + Math.floor(Math.random() * 2));
-    await prisma.meme.update({
-      where: { id: memeId },
-      data: { commentCount: n },
-    });
-    for (const c of citizens.slice(0, 6)) {
-      await prisma.engagementVote.upsert({
-        where: {
-          targetType_targetId_voterKey: {
-            targetType: "meme",
-            targetId: memeId,
-            voterKey: c.phoneHash,
-          },
-        },
-        update: {},
-        create: {
-          targetType: "meme",
-          targetId: memeId,
-          voterKey: c.phoneHash,
-          value: Math.random() < 0.8 ? 1 : -1,
-        },
-      });
-    }
-  }
-
-  const allReports = await prisma.citizenReport.findMany({ select: { id: true } });
-  for (const r of allReports) {
-    const n = await seedThread("report", r.id, 2);
-    const ups = Math.floor(Math.random() * 20) + 2;
-    const downs = Math.floor(Math.random() * 4);
-    await prisma.citizenReport.update({
-      where: { id: r.id },
-      data: { commentCount: n, upvotes: ups, downvotes: downs },
-    });
-    for (const c of citizens.slice(0, 5)) {
-      await prisma.engagementVote.upsert({
-        where: {
-          targetType_targetId_voterKey: {
-            targetType: "report",
-            targetId: r.id,
-            voterKey: c.phoneHash,
-          },
-        },
-        update: {},
-        create: {
-          targetType: "report",
-          targetId: r.id,
-          voterKey: c.phoneHash,
-          value: Math.random() < 0.75 ? 1 : -1,
-        },
-      });
-    }
-  }
-
-  const allDemands = await prisma.publicDemand.findMany();
-  for (const d of allDemands) {
-    const n = await seedThread("demand", d.id, 2);
-    await prisma.publicDemand.update({
-      where: { id: d.id },
-      data: {
-        commentCount: n,
-        upvotes: d.supportCount,
-        downvotes: Math.floor(Math.random() * 3),
-      },
-    });
-  }
-
-  for (const iss of issueDefs) {
-    await seedThread("issue", iss.slug, 3);
-  }
-
-  const allNotices = await prisma.notice.findMany();
-  for (const n of allNotices) {
-    const comments = await seedThread("notice", n.id, 2);
-    await prisma.notice.update({
-      where: { id: n.id },
-      data: {
-        commentCount: comments,
-        upvotes: Math.max(0, n.signatures - 1),
-      },
-    });
-  }
-
-  const allProposals = await prisma.proposal.findMany({ select: { id: true } });
-  for (const p of allProposals) {
-    await seedThread("proposal", p.id, 2);
-  }
-
-  const ec = await prisma.engagementComment.count();
-  const ev = await prisma.engagementVote.count();
-  console.log(`  ${ec} engagement comments, ${ev} engagement votes`);
+  // Explicitly ensure no engagement rows exist for demo content
+  await prisma.engagementVote.deleteMany();
+  await prisma.engagementComment.deleteMany();
+  await prisma.vote.deleteMany();
+  await prisma.comment.deleteMany();
+  await prisma.reportVote.deleteMany();
+  await prisma.reportReaction.deleteMany();
+  await prisma.demandSupport.deleteMany();
+  await prisma.memeVote.deleteMany();
+  await prisma.signature.deleteMany();
+  console.log("  engagement tables cleared (0 likes / comments / votes)");
 
   // --- Mongo feed / trends / discussions ---
   await connectMongo();
@@ -782,7 +641,7 @@ async function main() {
     PlatformStats.deleteMany({}),
   ]);
 
-  const feedItems: {
+  type FeedItem = {
     type: string;
     title: string;
     excerpt: string;
@@ -797,46 +656,54 @@ async function main() {
     mediaUrl?: string;
     mediaType?: string;
     locationLevel?: string;
-    village?: string;
     town?: string;
     city?: string;
     district?: string;
     state?: string;
     country?: string;
-  }[] = [];
+    createdAt: Date;
+  };
 
-  for (const iss of issueDefs) {
+  const feedItems: FeedItem[] = [];
+
+  for (const [idx, iss] of issueDefs.entries()) {
     const a = pick(citizens);
     feedItems.push({
       type: "issue",
       title: iss.title,
       excerpt: iss.summary,
       href: `/issues/${iss.slug}`,
-      meta: `${iss.category} · trending`,
-      votes: 20 + Math.floor(Math.random() * 80),
-      hot: true,
-      tags: ["issue", iss.category.toLowerCase(), "janark"],
+      meta: `${iss.category} · India`,
+      votes: 0,
+      hot: false,
+      tags: ["issue", iss.category.toLowerCase(), "india", "janark"],
       author: a.label,
       authorAnonId: a.anonId,
       refId: iss.slug,
+      country: "India",
+      createdAt: daysAgo(idx + 1),
     });
   }
-  for (const p of proposals) {
+
+  for (const [idx, p] of proposals.entries()) {
     const a = pick(citizens);
     feedItems.push({
       type: "proposal",
       title: p.title,
       excerpt: p.description,
       href: `/vote/${p.id}`,
-      meta: "Open vote · live",
-      votes: 15 + Math.floor(Math.random() * 60),
-      hot: Math.random() > 0.3,
-      tags: ["vote", "proposal", "janark"],
+      meta: "Open vote · 0 ballots",
+      votes: 0,
+      hot: false,
+      tags: ["vote", "proposal", "india", "janark"],
       author: a.label,
       authorAnonId: a.anonId,
       refId: p.id,
+      country: "India",
+      createdAt: daysAgo(idx + 2),
     });
   }
+
   for (let i = 0; i < reportIds.length; i++) {
     const r = reportDefs[i]!;
     const id = reportIds[i]!;
@@ -848,23 +715,24 @@ async function main() {
       excerpt: r.body,
       href: `/reports/${id}`,
       meta: `${r.locationLevel} · ${r.state}`,
-      votes: 8 + Math.floor(Math.random() * 40),
-      hot: Math.random() > 0.4,
-      tags: [r.type, r.locationLevel, "janark", r.state.toLowerCase()],
+      votes: 0,
+      hot: false,
+      tags: [r.type, r.locationLevel, "india", r.state.toLowerCase().replace(/\s+/g, "")],
       author: a.label,
       authorAnonId: a.anonId,
       refId: id,
       mediaUrl: media.url,
       mediaType: media.type,
       locationLevel: r.locationLevel,
-      village: r.village,
       town: r.town,
       city: r.city,
       district: r.district,
       state: r.state,
       country: "India",
+      createdAt: daysAgo(2 + (i % 10)),
     });
   }
+
   for (let i = 0; i < demandIds.length; i++) {
     const d = demandDefs[i]!;
     const id = demandIds[i]!;
@@ -875,77 +743,98 @@ async function main() {
       excerpt: d.ask,
       href: `/demands/${id}`,
       meta: `${d.locationLevel} · public demand`,
-      votes: 25 + Math.floor(Math.random() * 70),
-      hot: true,
-      tags: ["demand", d.category, "janark", d.state.toLowerCase()],
+      votes: 0,
+      hot: false,
+      tags: ["demand", d.category, "india", "janark"],
       author: a.label,
       authorAnonId: a.anonId,
       refId: id,
       locationLevel: d.locationLevel,
-      city: d.city,
-      district: d.district,
-      state: d.state,
+      city: d.city ?? undefined,
+      district: d.district ?? undefined,
+      state: d.state ?? undefined,
       country: "India",
+      createdAt: daysAgo(1 + (i % 8)),
     });
   }
+
   for (let i = 0; i < memeIds.length; i++) {
     const m = memeDefs[i]!;
     const id = memeIds[i]!;
     const a = pick(citizens);
-    const imageUrl = MEME_IMAGES[i % MEME_IMAGES.length]!;
-    const mediaType = imageUrl.endsWith(".mp4")
-      ? "video"
-      : imageUrl.includes("giphy")
-        ? "gif"
-        : "image";
     feedItems.push({
       type: "meme",
       title: m.title,
       excerpt: m.caption,
       href: `/memes/${id}`,
       meta: m.tags.map((t) => `#${t}`).join(" "),
-      votes: 10 + Math.floor(Math.random() * 90),
-      hot: true,
+      votes: 0,
+      hot: false,
       tags: ["meme", ...m.tags],
       author: a.label,
       authorAnonId: a.anonId,
       refId: id,
-      mediaUrl: imageUrl,
-      mediaType,
+      mediaUrl: MEME_IMAGES[i % MEME_IMAGES.length],
+      mediaType: "image",
+      country: "India",
+      createdAt: daysAgo(i % 6),
     });
   }
 
-  // Free-form discussions on the square
+  for (const [ni, noticeId] of noticeIds.entries()) {
+    const n = noticeDefs[ni]!;
+    const a = pick(citizens);
+    feedItems.push({
+      type: "notice",
+      title: n.title,
+      excerpt: n.description.slice(0, 200),
+      href: `/notice/${noticeId}`,
+      meta: "Notice · 0 signatures",
+      votes: 0,
+      hot: false,
+      tags: ["notice", "india", "janark"],
+      author: a.label,
+      authorAnonId: a.anonId,
+      refId: noticeId,
+      country: "India",
+      createdAt: daysAgo(3),
+    });
+  }
+
+  // Free-form discussions on ongoing national themes
   const freeTalk = [
     {
-      title: "What should be on the national signal this week?",
-      body: "Water, jobs, school meals — vote with your feet (and hashtags).",
-      tags: ["discussion", "janark", "signal"],
+      title: "What should India’s civic square track this month?",
+      body: "Exam credibility, primary healthcare stock-outs, urban air & waste, continuous water, teacher vacancies — add place + topic hashtags. Keep it non-partisan.",
+      tags: ["discussion", "india", "janark", "civic"],
+      locationLevel: "national",
+      state: undefined as string | undefined,
+      city: undefined as string | undefined,
+      district: undefined as string | undefined,
+      country: "India",
+    },
+    {
+      title: "How do we verify local air and waste claims?",
+      body: "Share ward-level photos, dates, and official ticket numbers. Label facts vs opinions. No party branding.",
+      tags: ["discussion", "airquality", "waste", "janark"],
+      locationLevel: "city",
+      city: "Delhi",
+      district: "New Delhi",
+      state: "Delhi",
+      country: "India",
+    },
+    {
+      title: "Documenting PHC medicine gaps without doxxing staff",
+      body: "Report medicine names, dates, and clinic location — not personal attacks. The ask is public stock transparency.",
+      tags: ["discussion", "healthcare", "phc", "janark"],
       locationLevel: "state",
       state: "Maharashtra",
-      country: "India",
-    },
-    {
-      title: "Share one local win from your ward",
-      body: "Small fixes count. Evidence posts welcome.",
-      tags: ["discussion", "local", "janark"],
-      locationLevel: "city",
-      city: "Pune",
-      district: "Pune",
-      state: "Maharashtra",
-      country: "India",
-    },
-    {
-      title: "Hashtag etiquette for reports",
-      body: "Use place + topic tags so others can find you. Stay anonymous.",
-      tags: ["discussion", "howto", "janark"],
-      locationLevel: "city",
-      city: "Bengaluru",
-      district: "Bengaluru Urban",
-      state: "Karnataka",
+      city: undefined,
+      district: undefined,
       country: "India",
     },
   ];
+
   for (const [fi, f] of freeTalk.entries()) {
     const a = pick(citizens);
     const media = SAMPLE_MEDIA[fi % SAMPLE_MEDIA.length]!;
@@ -955,9 +844,9 @@ async function main() {
       excerpt: f.body.slice(0, 220),
       body: f.body,
       href: "/feed",
-      meta: "Open discussion · demo",
-      votes: 5 + Math.floor(Math.random() * 30),
-      hot: true,
+      meta: "Open discussion · India",
+      votes: 0,
+      hot: false,
       tags: f.tags,
       author: a.label,
       authorAnonId: a.anonId,
@@ -968,6 +857,7 @@ async function main() {
       district: f.district,
       state: f.state,
       country: f.country,
+      createdAt: daysAgo(fi + 1),
     });
     post.href = `/feed?post=${post._id}`;
     await post.save();
@@ -978,7 +868,7 @@ async function main() {
       authorHash: a.phoneHash,
       body: f.body,
       kind: "opinion",
-      upvotes: Math.floor(Math.random() * 10),
+      upvotes: 0,
       voters: [],
       mediaUrl: media.url,
       mediaType: media.type,
@@ -986,41 +876,19 @@ async function main() {
   }
 
   for (const item of feedItems) {
-    await FeedPost.create({
-      ...item,
-      createdAt: daysAgo(Math.floor(Math.random() * 14)),
-    });
+    await FeedPost.create(item);
   }
 
-  for (const iss of issueDefs) {
-    for (let i = 0; i < 2; i++) {
-      const a = pick(citizens);
-      await Discussion.create({
-        issueSlug: iss.slug,
-        author: a.label,
-        authorAnonId: a.anonId,
-        authorHash: a.phoneHash,
-        body: pick([
-          "Adding a field note from our block.",
-          "Neutral on timeline; support the transparency ask.",
-          "News: similar demand raised in the neighbouring district.",
-        ]),
-        kind: pick(["opinion", "evidence", "news"]),
-        upvotes: Math.floor(Math.random() * 8),
-        voters: [],
-      });
-    }
-  }
-
+  // Topic labels only — scores reflect topic presence, not fake likes
   const trendTerms = [
-    { term: "#janark", score: 42, category: "platform" },
-    { term: "#water", score: 28, category: "infrastructure" },
-    { term: "#education", score: 24, category: "education" },
-    { term: "#women", score: 21, category: "women" },
-    { term: "#jobs", score: 19, category: "employment" },
-    { term: "Maharashtra", score: 33, category: "state" },
-    { term: "Public demand", score: 27, category: "demand" },
-    { term: "#transport", score: 16, category: "transport" },
+    { term: "#exams", score: 6, category: "education" },
+    { term: "#healthcare", score: 5, category: "healthcare" },
+    { term: "#airquality", score: 5, category: "environment" },
+    { term: "#water", score: 4, category: "infrastructure" },
+    { term: "#education", score: 5, category: "education" },
+    { term: "#waste", score: 4, category: "environment" },
+    { term: "Delhi", score: 3, category: "city" },
+    { term: "India", score: 8, category: "country" },
   ];
   for (const t of trendTerms) {
     await Trend.create(t);
@@ -1028,45 +896,39 @@ async function main() {
 
   await Activity.create([
     {
-      kind: "meme",
-      summary: "Demo memes posted for UI validation",
-      href: "/memes",
+      kind: "issue",
+      summary: "Demo issues seeded: exams, healthcare, air/waste, water, teachers",
+      href: "/issues",
     },
     {
       kind: "proposal",
-      summary: "Demo votes opened on midday meals & night buses",
-      href: "/vote/midday-meal-audit",
+      summary: "Open civic votes posted — zero ballots cast yet",
+      href: "/vote/exam-independent-audit",
     },
     {
-      kind: "issue",
-      summary: "Demo reports and demands seeded across states",
-      href: "/explore",
+      kind: "discussion",
+      summary: "Public demands on exam calendar, PHC stocks, dumps, water, teachers",
+      href: "/demands",
     },
   ]);
 
-  const stats = await getLiveRoughCounts();
-  await PlatformStats.create({
-    key: "global",
-    citizens: stats.citizens,
-    activeProposals: stats.proposals,
-    votes: stats.votes,
-    notices: stats.notices,
-  });
-
-  console.log(`  ${feedItems.length + freeTalk.length} feed posts`);
-  console.log(`  ${trendTerms.length} trends`);
-  console.log("Demo seed complete.");
-  console.log("Open http://localhost:3000 — trending, memes, demands, reports, votes, profiles.");
-}
-
-async function getLiveRoughCounts() {
-  const [citizens, proposals, votes, notices] = await Promise.all([
+  const [citizenCount, proposalCount, noticeCount] = await Promise.all([
     prisma.phoneIdentity.count(),
     prisma.proposal.count(),
-    prisma.vote.count(),
     prisma.notice.count(),
   ]);
-  return { citizens, proposals, votes, notices };
+  await PlatformStats.create({
+    key: "global",
+    citizens: citizenCount,
+    activeProposals: proposalCount,
+    votes: 0,
+    notices: noticeCount,
+  });
+
+  console.log(`  ${feedItems.length + freeTalk.length} feed posts (0 votes)`);
+  console.log(`  ${trendTerms.length} topic trends`);
+  console.log("Demo seed complete — India civic topics, zero engagement.");
+  console.log("Open http://localhost:3000");
 }
 
 main()

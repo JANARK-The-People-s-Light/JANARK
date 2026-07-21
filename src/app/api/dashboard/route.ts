@@ -11,6 +11,15 @@ export async function GET(req: Request) {
     const stats = await getLiveStats();
     return liveJson({ stats });
   }
-  const data = await getDashboardData();
+
+  const data = await getDashboardData({
+    country: searchParams.get("country")?.trim() || undefined,
+    state: searchParams.get("state")?.trim() || undefined,
+    district: searchParams.get("district")?.trim() || undefined,
+    city: searchParams.get("city")?.trim() || undefined,
+    tag: searchParams.get("tag")?.trim() || undefined,
+    q: searchParams.get("q")?.trim() || undefined,
+    kind: searchParams.get("kind")?.trim() || undefined,
+  });
   return liveJson(data);
 }

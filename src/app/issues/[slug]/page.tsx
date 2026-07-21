@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
-import { mapIssue, mapProposal } from "@/lib/services";
+import { computeIssueLiveMetrics, mapIssue, mapProposal } from "@/lib/services";
 import { Stars } from "@/components/Ui";
 import { EngageBar } from "@/components/EngageBar";
 
@@ -46,7 +46,12 @@ export default async function IssueDetailPage({ params }: Props) {
   const issueRow = await prisma.issue.findUnique({ where: { slug } });
   if (!issueRow) notFound();
 
-  const issue = mapIssue(issueRow);
+  const live = await computeIssueLiveMetrics(slug);
+  const issue = mapIssue({
+    ...issueRow,
+    voteCount: live.voteCount,
+    rating: live.rating,
+  });
   const [proposals, relatedRows] = await Promise.all([
     prisma.proposal.findMany({ where: { issueSlug: slug } }),
     prisma.issue.findMany({
@@ -54,7 +59,12 @@ export default async function IssueDetailPage({ params }: Props) {
     }),
   ]);
 
-  const related = relatedRows.map(mapIssue);
+  const related = await Promise.all(
+    relatedRows.map(async (row) => {
+      const m = await computeIssueLiveMetrics(row.slug);
+      return mapIssue({ ...row, voteCount: m.voteCount, rating: m.rating });
+    }),
+  );
   const linkedVotes = proposals.map(mapProposal);
 
   return (
@@ -66,8 +76,13 @@ export default async function IssueDetailPage({ params }: Props) {
         {issue.title}
       </h1>
       <p className="mt-3 text-sm text-muted">
-        <Stars rating={issue.rating} /> ·{" "}
-        {issue.voteCount.toLocaleString("en-IN")} citizen votes
+        {live.rating > 0 ? (
+          <>
+            <Stars rating={live.rating} /> ·{" "}
+          </>
+        ) : null}
+        {live.voteCount.toLocaleString("en-IN")} citizen signals
+        {live.voteCount === 0 ? " · none yet" : null}
       </p>
 
       <section className="mt-10">

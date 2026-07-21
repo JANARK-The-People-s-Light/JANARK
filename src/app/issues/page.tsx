@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
-import { mapIssue } from "@/lib/services";
+import { computeIssueLiveMetrics, mapIssue } from "@/lib/services";
 import { Stars } from "@/components/Ui";
 
 export const dynamic = "force-dynamic";
@@ -31,7 +31,18 @@ export default async function IssuesPage() {
   const rows = await prisma.issue.findMany({
     orderBy: [{ voteCount: "desc" }],
   });
-  const issues = rows.map(mapIssue);
+  const issues = (
+    await Promise.all(
+      rows.map(async (row) => {
+        const m = await computeIssueLiveMetrics(row.slug);
+        return mapIssue({
+          ...row,
+          voteCount: m.voteCount,
+          rating: m.rating,
+        });
+      }),
+    )
+  ).sort((a, b) => b.voteCount - a.voteCount);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
@@ -101,8 +112,14 @@ export default async function IssuesPage() {
                 {issue.summary}
               </p>
               <p className="mt-3 text-sm text-muted">
-                <Stars rating={issue.rating} /> ·{" "}
-                {issue.voteCount.toLocaleString("en-IN")} votes
+                {issue.rating > 0 ? (
+                  <>
+                    <Stars rating={issue.rating} /> ·{" "}
+                  </>
+                ) : null}
+                {issue.voteCount > 0
+                  ? `${issue.voteCount.toLocaleString("en-IN")} citizen signals`
+                  : "No signals yet"}
               </p>
             </Link>
           ))}

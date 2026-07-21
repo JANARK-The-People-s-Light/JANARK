@@ -2,7 +2,7 @@ import { prisma } from "@/lib/db";
 import { connectMongo } from "@/lib/mongo";
 import { FeedPost } from "@/lib/mongo-models";
 import { publicAuthorFromVoterKey } from "@/lib/identity";
-import { bumpMongoStats, recordActivity } from "@/lib/services";
+import { bumpMongoStats, recordActivity, syncIssueLiveMetrics } from "@/lib/services";
 import type { MediaType } from "@/lib/media";
 
 export const ENGAGE_TARGETS = [
@@ -205,6 +205,19 @@ export async function castEngageVote(opts: {
 
   await applyParentVoteDelta(targetType, targetId, upDelta, downDelta);
 
+  // Keep issue stars / vote counts live when citizens react
+  if (targetType === "issue") {
+    await syncIssueLiveMetrics(targetId).catch(() => {});
+  } else if (targetType === "proposal") {
+    const prop = await prisma.proposal.findUnique({
+      where: { id: targetId },
+      select: { issueSlug: true },
+    });
+    if (prop?.issueSlug) {
+      await syncIssueLiveMetrics(prop.issueSlug).catch(() => {});
+    }
+  }
+
   // Dual-write meme votes for /api/memes compatibility
   if (targetType === "meme") {
     const mv = await prisma.memeVote.findUnique({
@@ -400,6 +413,18 @@ export async function createEngageComment(opts: {
   // Only top-level comments bump parent commentCount
   if (!parentId) {
     await bumpCommentCount(targetType, targetId, 1);
+  }
+
+  if (targetType === "issue") {
+    await syncIssueLiveMetrics(targetId).catch(() => {});
+  } else if (targetType === "proposal") {
+    const prop = await prisma.proposal.findUnique({
+      where: { id: targetId },
+      select: { issueSlug: true },
+    });
+    if (prop?.issueSlug) {
+      await syncIssueLiveMetrics(prop.issueSlug).catch(() => {});
+    }
   }
 
   await recordActivity({

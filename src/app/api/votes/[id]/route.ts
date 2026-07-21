@@ -9,6 +9,7 @@ import {
   getLiveVoteTallies,
   mapProposal,
   recordActivity,
+  syncIssueLiveMetrics,
 } from "@/lib/services";
 
 export const dynamic = "force-dynamic";
@@ -81,11 +82,8 @@ export async function POST(
     data: { totalVotes: tallies.liveVotes },
   });
 
-  if (proposal.issueSlug && !existing) {
-    await prisma.issue.update({
-      where: { slug: proposal.issueSlug },
-      data: { voteCount: { increment: 1 } },
-    });
+  if (proposal.issueSlug) {
+    await syncIssueLiveMetrics(proposal.issueSlug);
   }
 
   await connectMongo();

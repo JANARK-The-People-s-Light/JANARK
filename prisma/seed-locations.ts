@@ -16,39 +16,45 @@ async function main() {
   const extras = [
     {
       type: "problem",
-      title: "Flooded underpass every monsoon",
-      body: "City underpass near station floods within 20 minutes of rain. Traffic and safety risk.",
+      title: "Incomplete footpaths force pedestrians into traffic",
+      body: "Major corridor near college has broken footpath stretches. Walkability is basic infrastructure.",
       locationLevel: "city",
       city: "Bengaluru",
       district: "Bengaluru Urban",
       state: "Karnataka",
       country: "India",
       authorLabel: "Anonymous citizen",
-      upvotes: 340,
+      upvotes: 0,
+      downvotes: 0,
+      commentCount: 0,
     },
     {
       type: "issue",
-      title: "Town market waste not collected",
-      body: "Weekly market leaves rotting waste for days. Need fixed collection schedule.",
+      title: "Weekly market waste left for days",
+      body: "Segregation and collection schedule missing after market day. Align with updated waste rules.",
       locationLevel: "town",
       town: "Chikmagalur",
       district: "Chikkamagaluru",
       state: "Karnataka",
       country: "India",
-      authorLabel: "Shopkeepers association",
-      upvotes: 89,
+      authorLabel: "Anonymous citizen",
+      upvotes: 0,
+      downvotes: 0,
+      commentCount: 0,
     },
     {
-      type: "crime",
-      title: "Eve-teasing near city college gate",
-      body: "Repeated harassment reports after evening classes. Request dedicated patrol.",
-      locationLevel: "city",
-      city: "Pune",
-      district: "Pune",
-      state: "Maharashtra",
+      type: "problem",
+      title: "Government school — long-pending teacher vacancy",
+      body: "Subject posts vacant for a full year. Publish recruitment timeline school-wise.",
+      locationLevel: "town",
+      town: "Sitapur",
+      district: "Sitapur",
+      state: "Uttar Pradesh",
       country: "India",
       authorLabel: "Anonymous citizen",
-      upvotes: 156,
+      upvotes: 0,
+      downvotes: 0,
+      commentCount: 0,
     },
   ];
 
@@ -59,27 +65,12 @@ async function main() {
     if (!exists) await prisma.citizenReport.create({ data: s });
   }
 
-  // Tag existing national proposals
   await prisma.proposal.updateMany({
     where: { locationLevel: null },
     data: { locationLevel: "national", country: "India" },
   });
 
-  // One state-scoped vote example
-  const stateVote = await prisma.proposal.findFirst({
-    where: { id: "neet-security-overhaul" },
-  });
-  if (stateVote) {
-    await prisma.proposal.update({
-      where: { id: "neet-security-overhaul" },
-      data: {
-        locationLevel: "national",
-        country: "India",
-      },
-    });
-  }
-
-  console.log("Location browse seed ready");
+  console.log("Location browse seed ready (0 upvotes)");
 }
 
 main()

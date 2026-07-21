@@ -15,25 +15,9 @@ const prisma = new PrismaClient({
 async function main() {
   const samples = [
     {
-      title: "Restore 24x7 drinking water in ward 12",
-      ask: "Guarantee tanker supply within 48 hours and fix the main pipeline leak.",
-      body: "Families have had intermittent supply for three weeks. Schools are sending children home with empty bottles.",
-      target: "district",
-      targetDetail: "Municipal corporation",
-      category: "infrastructure",
-      status: "gathering",
-      locationLevel: "city",
-      city: "Indore",
-      district: "Indore",
-      state: "Madhya Pradesh",
-      country: "India",
-      authorLabel: "Anonymous citizen",
-      supportCount: 482,
-    },
-    {
-      title: "Transparent NEET re-exam timeline",
-      ask: "Publish a fixed national re-exam calendar and independent audit report within 30 days.",
-      body: "Students need certainty. Delays and opaque process destroy a year of preparation.",
+      title: "Publish a national exam-security & re-exam calendar",
+      ask: "Publish fixed exam-security protocols and any re-exam calendar within a stated deadline.",
+      body: "Students need certainty after repeated entrance-test controversies. Process credibility — not party politics.",
       target: "government",
       targetDetail: "Ministry of Education / NTA",
       category: "education",
@@ -41,23 +25,46 @@ async function main() {
       locationLevel: "national",
       country: "India",
       authorLabel: "Anonymous citizen",
-      supportCount: 12040,
+      supportCount: 0,
+      upvotes: 0,
+      downvotes: 0,
+      commentCount: 0,
     },
     {
-      title: "Night police patrol near town bus stand",
-      ask: "Deploy nightly patrol and fix street lighting within 15 days.",
-      body: "Snatching incidents after dark have risen. Women workers returning late feel unsafe.",
-      target: "district",
-      targetDetail: "SP office",
-      category: "justice",
+      title: "Weekly PHC medicine stock on a public dashboard",
+      ask: "Every district to post essential-medicine availability for primary clinics every Monday.",
+      body: "Primary care fails when shelves are empty. A live stock board lets citizens verify delivery.",
+      target: "state",
+      targetDetail: "State health department",
+      category: "healthcare",
       status: "gathering",
-      locationLevel: "town",
-      town: "Sitapur",
-      district: "Sitapur",
-      state: "Uttar Pradesh",
+      locationLevel: "state",
+      state: "Maharashtra",
       country: "India",
       authorLabel: "Anonymous citizen",
-      supportCount: 219,
+      supportCount: 0,
+      upvotes: 0,
+      downvotes: 0,
+      commentCount: 0,
+    },
+    {
+      title: "Scientific processing for legacy dump sites",
+      ask: "Publish a time-bound plan to process legacy waste — not only cover it.",
+      body: "Collection rose, but dump mountains and leachate remain a health hazard under updated solid-waste rules.",
+      target: "district",
+      targetDetail: "Municipal corporation",
+      category: "environment",
+      status: "gathering",
+      locationLevel: "city",
+      city: "Delhi",
+      district: "East Delhi",
+      state: "Delhi",
+      country: "India",
+      authorLabel: "Anonymous citizen",
+      supportCount: 0,
+      upvotes: 0,
+      downvotes: 0,
+      commentCount: 0,
     },
   ];
 
@@ -67,7 +74,7 @@ async function main() {
     });
     if (!exists) await prisma.publicDemand.create({ data: s });
   }
-  console.log("Public demands seeded");
+  console.log("Public demands seeded (0 supports)");
 }
 
 main()
