@@ -27,7 +27,9 @@ function contentSecurityPolicy(isProd: boolean): string {
   if (!isProd) {
     scriptSrc.push("'unsafe-eval'"); // Next dev
   }
-  return [
+  const site = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+  const httpsSite = site.startsWith("https://");
+  const directives = [
     "default-src 'self'",
     `script-src ${scriptSrc.join(" ")}`,
     "style-src 'self' 'unsafe-inline'",
@@ -40,8 +42,12 @@ function contentSecurityPolicy(isProd: boolean): string {
     "base-uri 'self'",
     "form-action 'self'",
     "object-src 'none'",
-    "upgrade-insecure-requests",
-  ].join("; ");
+  ];
+  // Only on real HTTPS hosts — otherwise localhost http:// images/uploads break
+  if (isProd && httpsSite) {
+    directives.push("upgrade-insecure-requests");
+  }
+  return directives.join("; ");
 }
 
 function withSecurityHeaders(res: NextResponse) {

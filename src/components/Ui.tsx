@@ -1,4 +1,10 @@
 import Link from "next/link";
+import {
+  metricLabel,
+  placeLabel,
+  relativeTime,
+  resolveFeedKind,
+} from "@/lib/feed-kind";
 import { portalHref } from "@/lib/paths";
 
 export function DemoBadge({ className = "" }: { className?: string }) {
@@ -79,6 +85,12 @@ export function FeedCard({
   hot,
   mediaUrl,
   mediaType,
+  tags,
+  createdAt,
+  city,
+  district,
+  state,
+  country,
 }: {
   id?: string;
   type: string;
@@ -91,79 +103,108 @@ export function FeedCard({
   hot?: boolean;
   mediaUrl?: string | null;
   mediaType?: "image" | "gif" | "video" | string | null;
+  tags?: string[];
+  createdAt?: string | null;
+  city?: string | null;
+  district?: string | null;
+  state?: string | null;
+  country?: string | null;
 }) {
   const cardHref = (() => {
     if (publicId) return `/p/${publicId}`;
     const h = (href || "").trim();
-    // Legacy discussion cards pointed at the feed list — open the post itself.
     if (!h || h === "/feed" || h.startsWith("/feed?")) {
       return id ? `/p/${id}` : "/feed";
     }
     return h;
   })();
+
+  const kind = resolveFeedKind(type, { title, href: cardHref, tags });
+  const when = relativeTime(createdAt);
+  const where = placeLabel({ city, district, state, country });
+  const cleanTitle = title.replace(
+    /^\[(demand|petition|issue|crime|problem|other|notice)\]\s*/i,
+    "",
+  );
+  const metric =
+    votes != null ? metricLabel(kind.metric, votes) : null;
+
   return (
     <Link
       href={portalHref(cardHref)}
-      className="group block border-b border-line py-5 transition hover:bg-sand/40"
+      className="group relative block py-8 transition first:pt-2"
     >
-      <div className="flex items-start justify-between gap-3 sm:gap-4">
-        <div className="min-w-0 flex-1">
-          <div className="mb-2 flex flex-wrap items-center gap-2 text-xs uppercase tracking-wider text-muted">
-            {hot && (
-              <span className="text-saffron animate-pulse-soft">Trending</span>
-            )}
-            <span>{type}</span>
-            {mediaType ? <span>· {mediaType}</span> : null}
-            {publicId ? (
-              <span className="font-mono normal-case tracking-normal text-muted">
-                {publicId}
-              </span>
-            ) : null}
-          </div>
-          <h3 className="font-display break-words text-lg text-navy transition group-hover:text-amber sm:text-2xl">
-            {title}
-          </h3>
-          <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
-            {excerpt}
-          </p>
-          {mediaUrl ? (
-            <div
-              className="mt-3 max-w-md overflow-hidden"
-              onClick={(e) => e.preventDefault()}
-            >
-              {mediaType === "video" ? (
-                <video
-                  src={mediaUrl}
-                  controls
-                  playsInline
-                  preload="metadata"
-                  className="max-h-56 w-full object-contain"
-                  onClick={(e) => e.stopPropagation()}
-                />
-              ) : (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={mediaUrl}
-                  alt=""
-                  className="max-h-56 w-full object-contain"
-                  loading="lazy"
-                  referrerPolicy="no-referrer"
-                />
-              )}
-            </div>
+      <span
+        className={`absolute left-0 top-8 bottom-8 w-[3px] rounded-full ${kind.bar} opacity-80 transition group-hover:opacity-100`}
+        aria-hidden
+      />
+      <div className="pl-5 sm:pl-6">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px]">
+          <span
+            className={`inline-flex rounded-full px-2.5 py-0.5 text-[11px] font-semibold tracking-wide ${kind.pill} ${kind.pillText}`}
+          >
+            {kind.label}
+          </span>
+          {hot ? (
+            <span className="text-[11px] font-medium text-saffron">
+              Trending
+            </span>
           ) : null}
-          <p className="mt-3 text-xs text-muted">{meta}</p>
+          {when ? <span className="text-muted">{when}</span> : null}
+          {where ? (
+            <span className="text-muted">
+              <span className="text-navy/25">·</span> {where}
+            </span>
+          ) : null}
         </div>
-        {votes != null && (
-          <div className="shrink-0 text-right">
-            <p className="font-display text-lg text-navy">
-              {votes.toLocaleString("en-IN")}
-            </p>
-            <p className="text-[10px] uppercase tracking-wider text-muted">
-              signal
-            </p>
+
+        <h3 className="font-display mt-3 max-w-2xl text-[1.35rem] leading-snug tracking-tight text-navy transition group-hover:text-navy-mid sm:text-[1.75rem]">
+          {cleanTitle}
+        </h3>
+
+        {excerpt?.trim() ? (
+          <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-muted line-clamp-2">
+            {excerpt.replace(/^\[(demand|petition)\]\s*/i, "")}
+          </p>
+        ) : null}
+
+        {mediaUrl ? (
+          <div
+            className="mt-5 max-w-lg overflow-hidden rounded-2xl bg-sand/40"
+            onClick={(e) => e.preventDefault()}
+          >
+            {mediaType === "video" ? (
+              <video
+                src={mediaUrl}
+                controls
+                playsInline
+                preload="metadata"
+                className="max-h-64 w-full object-contain"
+                onClick={(e) => e.stopPropagation()}
+              />
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={mediaUrl}
+                alt=""
+                className="max-h-64 w-full object-contain"
+                loading="lazy"
+              />
+            )}
           </div>
-        )}
+        ) : null}
+
+        <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+          {metric ? (
+            <span className="tabular-nums text-navy">
+              <span className="font-semibold">{metric.value}</span>{" "}
+              <span className="text-muted">{metric.label}</span>
+            </span>
+          ) : null}
+          {meta && !where ? (
+            <span className="text-xs text-muted">{meta}</span>
+          ) : null}
+        </div>
       </div>
     </Link>
   );

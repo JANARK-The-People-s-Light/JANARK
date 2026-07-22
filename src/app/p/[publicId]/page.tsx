@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { AuthorLink } from "@/components/AuthorLink";
 import { FeedEngage } from "@/components/FeedEngage";
+import { FeedOwnControls } from "@/components/FeedOwnControls";
 import { connectMongo } from "@/lib/mongo";
 import { FeedPost } from "@/lib/mongo-models";
 import { portalHref } from "@/lib/paths";
@@ -82,6 +83,12 @@ export default async function PublicPostPage({ params }: Props) {
           />
         </p>
       ) : null}
+      <FeedOwnControls
+        id={String(post._id)}
+        authorAnonId={post.authorAnonId ? String(post.authorAnonId) : null}
+        title={String(post.title)}
+        body={body}
+      />
       <p className="mt-6 whitespace-pre-wrap text-base leading-relaxed text-navy/90">
         {body}
       </p>

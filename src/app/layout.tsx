@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { Fraunces, Source_Sans_3 } from "next/font/google";
 import { AuthProvider } from "@/components/AuthModal";
 import { CreateActionMenu } from "@/components/CreateActionMenu";
-import { SiteFooter, SiteHeader } from "@/components/SiteChrome";
+import { PortalShell } from "@/components/PortalShell";
 import { VisitTelemetry } from "@/components/VisitTelemetry";
 import "./globals.css";
 
@@ -24,19 +24,19 @@ const site =
 export const metadata: Metadata = {
   metadataBase: new URL(site),
   title: {
-    default: "Janark — The light for us, by us",
+    default: "Janark",
     template: "%s · Janark",
   },
   description:
-    "The light for us, by us. A non-profit civic organisation — independent of government and parties. Just a unified voice.",
+    "Independent non-profit civic platform for public discussion, petitions, reports, and community voting.",
   icons: {
     icon: [{ url: "/logo/janark.png", type: "image/png" }],
     apple: [{ url: "/logo/janark.png" }],
   },
   openGraph: {
-    title: "Janark — The light for us, by us",
+    title: "Janark",
     description:
-      "A non-profit civic organisation — independent of government and parties. Just a unified voice.",
+      "Independent non-profit civic platform for public discussion, petitions, reports, and community voting.",
     url: site,
     siteName: "Janark",
     locale: "en_IN",
@@ -45,9 +45,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Janark — The light for us, by us",
+    title: "Janark",
     description:
-      "A non-profit civic organisation — independent of government and parties. Just a unified voice.",
+      "Independent non-profit civic platform for public discussion, petitions, reports, and community voting.",
     images: ["/logo/janark-solid.png"],
   },
 };
@@ -73,14 +73,12 @@ export default function RootLayout({
       lang="en"
       className={`${display.variable} ${body.variable} h-full antialiased`}
     >
-      <body className="surface-grain flex min-h-full flex-col overflow-x-hidden">
+      <body className="surface-grain min-h-full overflow-x-hidden antialiased">
         <AuthProvider>
           <Suspense fallback={null}>
             <VisitTelemetry />
           </Suspense>
-          <SiteHeader />
-          <main className="min-w-0 flex-1">{children}</main>
-          <SiteFooter />
+          <PortalShell>{children}</PortalShell>
           <CreateActionMenu />
         </AuthProvider>
       </body>

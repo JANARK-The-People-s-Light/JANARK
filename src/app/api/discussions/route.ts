@@ -4,11 +4,16 @@ import { Discussion, FeedPost } from "@/lib/mongo-models";
 import { prisma } from "@/lib/db";
 import { guardAnonymousWrite } from "@/lib/anti-bot";
 import { guardFail } from "@/lib/http";
-import { bumpTrend, recordActivity } from "@/lib/services";
+import { bumpTopicTrends, recordActivity } from "@/lib/services";
 import { publicAuthorFromVoterKey } from "@/lib/identity";
 import { parseOptionalMedia } from "@/lib/media";
 import { requireCivicPostTerms } from "@/lib/civic-post-terms";
 import { allocatePublicPostId, publicPostHref } from "@/lib/public-id";
+import {
+  buildFeedTags,
+  collectTopicHashtags,
+} from "@/lib/hashtags";
+import { ensureHashtagCatalog } from "@/lib/ensure-hashtags";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -97,6 +102,11 @@ export async function POST(req: Request) {
   let createdHref: string | null = null;
 
   if (!issueSlug && !feedPostId && title) {
+    const topics = collectTopicHashtags({
+      hashtags: body.hashtags ?? body.tags,
+      texts: [title, text],
+    });
+    await ensureHashtagCatalog(topics);
     const publicId = await allocatePublicPostId();
     const post = await FeedPost.create({
       type: "discussion",
@@ -108,7 +118,7 @@ export async function POST(req: Request) {
       meta: "Open discussion · new",
       votes: 0,
       hot: true,
-      tags: ["discussion"],
+      tags: buildFeedTags(["discussion"], topics),
       author,
       authorAnonId,
       mediaUrl: media.mediaUrl ?? undefined,
@@ -117,6 +127,7 @@ export async function POST(req: Request) {
     linkedFeedId = String(post._id);
     createdPublicId = publicId;
     createdHref = publicPostHref(publicId);
+    await bumpTopicTrends(topics, 2, "discussion");
   }
 
   const discussion = await Discussion.create({
@@ -149,10 +160,6 @@ export async function POST(req: Request) {
     }
   }
 
-  await bumpTrend(
-    issueSlug ? issueSlug.replace(/-/g, " ") : "Open discussion",
-    1,
-  );
   await recordActivity({
     kind: "discussion",
     summary: `${author}: ${text.slice(0, 80)}`,

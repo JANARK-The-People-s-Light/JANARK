@@ -2,10 +2,17 @@ import { NextResponse } from "next/server";
 import { connectMongo } from "@/lib/mongo";
 import { FeedPost, Trend } from "@/lib/mongo-models";
 import { prisma } from "@/lib/db";
-import { bumpTrend, recordActivity } from "@/lib/services";
+import { bumpTopicTrends, recordActivity } from "@/lib/services";
 import { guardAnonymousWrite } from "@/lib/anti-bot";
 import { guardFail, liveJson } from "@/lib/http";
-import { normalizeHashtag } from "@/lib/memes";
+import {
+  buildFeedTags,
+  collectTopicHashtags,
+  isNoiseTrendTerm,
+  normalizeHashtag,
+  topicTagsOnly,
+} from "@/lib/hashtags";
+import { ensureHashtagCatalog } from "@/lib/ensure-hashtags";
 import {
   groupTargetsByType,
   rankByCivicScore,
@@ -31,6 +38,7 @@ const TYPES = new Set([
   "vote",
   "petition",
   "report",
+  "share",
 ]);
 
 const CIVIC_SORTS = new Set<CivicSortMode>(["trending", "momentum", "hot"]);
@@ -380,16 +388,17 @@ export async function GET(req: Request) {
 
   const hashtagMap = new Map<string, number>();
   for (const t of prismaTags) {
+    if (isNoiseTrendTerm(t.tag)) continue;
     hashtagMap.set(t.tag, (hashtagMap.get(t.tag) ?? 0) + t._count.memes);
   }
   for (const b of tagBuckets) {
     const raw = String(b._id || "").replace(/^#/, "").toLowerCase();
-    if (!raw || raw.length < 2) continue;
+    if (!raw || isNoiseTrendTerm(raw)) continue;
     hashtagMap.set(raw, (hashtagMap.get(raw) ?? 0) + b.count);
   }
   for (const t of trends) {
     const term = String(t.term || "").replace(/^#/, "").toLowerCase();
-    if (!term || term.includes(" ")) continue;
+    if (!term || term.includes(" ") || isNoiseTrendTerm(term)) continue;
     if (/^[a-z0-9_]{2,40}$/.test(term)) {
       hashtagMap.set(term, (hashtagMap.get(term) ?? 0) + (t.score || 1));
     }
@@ -447,7 +456,7 @@ export async function GET(req: Request) {
       hot: p.hot,
       author: p.author,
       authorAnonId: p.authorAnonId ?? null,
-      tags: p.tags,
+      tags: topicTagsOnly(Array.isArray(p.tags) ? p.tags.map(String) : []),
       refId: p.refId ?? null,
       mediaUrl: p.mediaUrl ?? null,
       mediaType: p.mediaType ?? null,
@@ -525,6 +534,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const topics = collectTopicHashtags({
+    hashtags: body.hashtags ?? body.tags,
+    texts: [title, excerpt, typeof body.body === "string" ? body.body : ""],
+  });
+  await ensureHashtagCatalog(topics);
+
   const publicId = await allocatePublicPostId();
   const post = await FeedPost.create({
     type: body.type ?? "discussion",
@@ -536,7 +551,7 @@ export async function POST(req: Request) {
     meta: body.meta ?? "Citizen post",
     votes: 0,
     hot: true,
-    tags: Array.isArray(body.tags) ? body.tags : ["citizen"],
+    tags: buildFeedTags(["citizen"], topics),
     author: author.authorLabel,
     authorAnonId: author.authorAnonId,
     refId: body.refId,
@@ -551,7 +566,7 @@ export async function POST(req: Request) {
     country: str(body.country) ?? "India",
   });
 
-  await bumpTrend(title.split(" ")[0] || "Feed", 2);
+  await bumpTopicTrends(topics, 2, "feed");
   await recordActivity({
     kind: "discussion",
     summary: `Feed: ${title}`,

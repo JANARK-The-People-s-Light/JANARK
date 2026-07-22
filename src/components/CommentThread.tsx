@@ -28,6 +28,7 @@ type Comment = {
   downvotes: number;
   score: number;
   myVote: number | null;
+  isMine?: boolean;
   createdAt: string;
   parentId: string | null;
   mediaUrl?: string | null;
@@ -50,13 +51,16 @@ export function CommentThread({
   targetId,
   onCountChange,
 }: Props) {
-  const { ensureAuth } = useAuth();
+  const { ensureAuth, session } = useAuth();
   const [comments, setComments] = useState<Comment[]>([]);
   const [draft, setDraft] = useState("");
   const [mediaUrl, setMediaUrl] = useState("");
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const [replyDraft, setReplyDraft] = useState("");
   const [replyMedia, setReplyMedia] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState("");
+  const [editMedia, setEditMedia] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [acceptedTerms, setAcceptedTerms] = useCivicPostTermsAccept();
@@ -152,6 +156,69 @@ export function CommentThread({
     if (res.ok) await load();
   }
 
+  async function saveEdit(id: string) {
+    const voterKey = ensureAuth("edit your comment");
+    if (!voterKey) return;
+    if (editDraft.trim().length < 2 && !editMedia.trim()) {
+      setError("Write a short comment or add a GIF");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/comments/${id}`, {
+        method: "PATCH",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          body: editDraft.trim(),
+          mediaUrl: editMedia.trim() || undefined,
+          website: "",
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Could not save");
+        return;
+      }
+      const list = (data.comments ?? []) as Comment[];
+      setComments(list);
+      onCountChange?.(countTopLevel(list));
+      setEditingId(null);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function deleteComment(id: string) {
+    if (!window.confirm("Delete this comment? Replies will be removed too.")) {
+      return;
+    }
+    const voterKey = ensureAuth("delete your comment");
+    if (!voterKey) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/comments/${id}`, {
+        method: "DELETE",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ website: "" }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error ?? "Could not delete");
+        return;
+      }
+      const list = (data.comments ?? []) as Comment[];
+      setComments(list);
+      onCountChange?.(countTopLevel(list));
+      if (editingId === id) setEditingId(null);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <div className="mt-6 border-t border-line pt-6">
       <h3 className="font-display text-lg text-navy">Comments</h3>
@@ -198,9 +265,13 @@ export function CommentThread({
             key={c.id}
             comment={c}
             depth={0}
+            sessionAnonId={session?.anonId ?? null}
             replyTo={replyTo}
             replyDraft={replyDraft}
             replyMedia={replyMedia}
+            editingId={editingId}
+            editDraft={editDraft}
+            editMedia={editMedia}
             busy={busy}
             acceptedTerms={acceptedTerms}
             onReply={(id) => {
@@ -215,6 +286,19 @@ export function CommentThread({
               if (replyTo) void submit(replyDraft, replyTo, replyMedia);
             }}
             onVote={voteComment}
+            onStartEdit={(id, body, media) => {
+              setEditingId(id);
+              setEditDraft(body);
+              setEditMedia(media ?? "");
+              setError(null);
+            }}
+            onCancelEdit={() => setEditingId(null)}
+            onEditDraft={setEditDraft}
+            onEditMedia={setEditMedia}
+            onSaveEdit={() => {
+              if (editingId) void saveEdit(editingId);
+            }}
+            onDelete={(id) => void deleteComment(id)}
           />
         ))}
       </ul>
@@ -225,9 +309,13 @@ export function CommentThread({
 function CommentItem({
   comment,
   depth,
+  sessionAnonId,
   replyTo,
   replyDraft,
   replyMedia,
+  editingId,
+  editDraft,
+  editMedia,
   busy,
   acceptedTerms,
   onReply,
@@ -236,12 +324,22 @@ function CommentItem({
   onReplyMedia,
   onSubmitReply,
   onVote,
+  onStartEdit,
+  onCancelEdit,
+  onEditDraft,
+  onEditMedia,
+  onSaveEdit,
+  onDelete,
 }: {
   comment: Comment;
   depth: number;
+  sessionAnonId: string | null;
   replyTo: string | null;
   replyDraft: string;
   replyMedia: string;
+  editingId: string | null;
+  editDraft: string;
+  editMedia: string;
   busy: boolean;
   acceptedTerms: boolean;
   onReply: (id: string) => void;
@@ -250,8 +348,23 @@ function CommentItem({
   onReplyMedia: (v: string) => void;
   onSubmitReply: () => void;
   onVote: (id: string, choice: "upvote" | "downvote") => void;
+  onStartEdit: (id: string, body: string, media?: string | null) => void;
+  onCancelEdit: () => void;
+  onEditDraft: (v: string) => void;
+  onEditMedia: (v: string) => void;
+  onSaveEdit: () => void;
+  onDelete: (id: string) => void;
 }) {
   const isReplying = replyTo === comment.id;
+  const isEditing = editingId === comment.id;
+  const isMine =
+    comment.isMine === true ||
+    Boolean(
+      sessionAnonId &&
+        comment.authorAnonId &&
+        sessionAnonId.toLowerCase() === comment.authorAnonId.toLowerCase(),
+    );
+
   return (
     <li className={depth > 0 ? "ml-4 border-l border-line pl-4 sm:ml-6" : ""}>
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-xs text-muted">
@@ -262,19 +375,53 @@ function CommentItem({
         />
         <span>· {comment.createdAt.slice(0, 10)}</span>
       </div>
-      <p className="mt-1 whitespace-pre-wrap text-sm text-navy/90">
-        {comment.body}
-      </p>
-      {comment.mediaUrl ? (
-        <div className="mt-2 max-w-sm overflow-hidden border border-line">
-          <MediaViewer
-            url={comment.mediaUrl}
-            mediaType={(comment.mediaType as MediaType) ?? undefined}
-            compact
-            alt="Comment media"
+
+      {isEditing ? (
+        <div className="mt-2 space-y-2">
+          <textarea
+            value={editDraft}
+            onChange={(e) => onEditDraft(e.target.value)}
+            rows={3}
+            className="w-full border border-line bg-white px-3 py-2 text-sm focus:border-amber focus:outline-none"
+            autoFocus
           />
+          <MediaAttach value={editMedia} onChange={onEditMedia} gifOnly />
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              disabled={busy}
+              onClick={onSaveEdit}
+              className="bg-navy px-3 py-1.5 text-xs text-cream disabled:opacity-60"
+            >
+              Save
+            </button>
+            <button
+              type="button"
+              onClick={onCancelEdit}
+              className="px-3 py-1.5 text-xs text-muted hover:text-navy"
+            >
+              Cancel
+            </button>
+          </div>
         </div>
-      ) : null}
+      ) : (
+        <>
+          <p className="mt-1 whitespace-pre-wrap text-sm text-navy/90">
+            {comment.body}
+          </p>
+          {comment.mediaUrl ? (
+            <div className="mt-2 max-w-sm overflow-hidden border border-line">
+              <MediaViewer
+                url={comment.mediaUrl}
+                mediaType={(comment.mediaType as MediaType) ?? undefined}
+                compact
+                alt="Comment media"
+              />
+            </div>
+          ) : null}
+        </>
+      )}
+
       <div className="mt-2 flex flex-wrap items-center gap-0.5">
         <button
           type="button"
@@ -311,6 +458,27 @@ function CommentItem({
             <IconReply className="h-3.5 w-3.5" />
           </button>
         )}
+        {isMine && !isEditing ? (
+          <>
+            <button
+              type="button"
+              onClick={() =>
+                onStartEdit(comment.id, comment.body, comment.mediaUrl)
+              }
+              className="ml-1 px-2 py-1 text-[11px] text-amber hover:underline"
+            >
+              Edit
+            </button>
+            <button
+              type="button"
+              onClick={() => onDelete(comment.id)}
+              disabled={busy}
+              className="px-2 py-1 text-[11px] text-danger hover:underline disabled:opacity-60"
+            >
+              Delete
+            </button>
+          </>
+        ) : null}
         <ReportButton
           targetType="comment"
           targetId={comment.id}
@@ -360,9 +528,13 @@ function CommentItem({
               key={r.id}
               comment={r}
               depth={depth + 1}
+              sessionAnonId={sessionAnonId}
               replyTo={replyTo}
               replyDraft={replyDraft}
               replyMedia={replyMedia}
+              editingId={editingId}
+              editDraft={editDraft}
+              editMedia={editMedia}
               busy={busy}
               acceptedTerms={acceptedTerms}
               onReply={onReply}
@@ -371,6 +543,12 @@ function CommentItem({
               onReplyMedia={onReplyMedia}
               onSubmitReply={onSubmitReply}
               onVote={onVote}
+              onStartEdit={onStartEdit}
+              onCancelEdit={onCancelEdit}
+              onEditDraft={onEditDraft}
+              onEditMedia={onEditMedia}
+              onSaveEdit={onSaveEdit}
+              onDelete={onDelete}
             />
           ))}
         </ul>

@@ -158,12 +158,16 @@ function webglInfo(): {
 
 async function audioFingerprint(): Promise<string> {
   try {
-    const AC =
-      window.AudioContext ||
-      (window as unknown as { webkitAudioContext: typeof AudioContext })
-        .webkitAudioContext;
-    if (!AC) return "";
-    const ctx = new AC();
+    // OfflineAudioContext — silent; never routes to speakers
+    const Offline =
+      window.OfflineAudioContext ||
+      (
+        window as unknown as {
+          webkitOfflineAudioContext: typeof OfflineAudioContext;
+        }
+      ).webkitOfflineAudioContext;
+    if (!Offline) return "";
+    const ctx = new Offline(1, 44100, 44100);
     const osc = ctx.createOscillator();
     const comp = ctx.createDynamicsCompressor();
     osc.type = "triangle";
@@ -171,18 +175,21 @@ async function audioFingerprint(): Promise<string> {
     osc.connect(comp);
     comp.connect(ctx.destination);
     osc.start(0);
-    await new Promise((r) => setTimeout(r, 30));
+    osc.stop(0.05);
+    const buffer = await ctx.startRendering();
+    let sum = 0;
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < data.length; i += 100) {
+      sum += Math.abs(data[i] ?? 0);
+    }
     const sig = [
       ctx.sampleRate,
-      ctx.destination.maxChannelCount,
+      buffer.length,
       comp.threshold.value,
       comp.knee.value,
       comp.ratio.value,
-      comp.attack.value,
-      comp.release.value,
+      sum.toFixed(6),
     ].join("|");
-    osc.stop();
-    await ctx.close();
     return hashString(sig);
   } catch {
     return "";

@@ -8,7 +8,7 @@ import {
   StateSignal,
   Trend,
 } from "@/lib/mongo-models";
-import { normalizeHashtag } from "@/lib/memes";
+import { isNoiseTrendTerm, normalizeHashtag } from "@/lib/hashtags";
 
 export function mapIssue(row: {
   slug: string;
@@ -474,14 +474,31 @@ export async function recordActivity(input: {
 
 export async function bumpTrend(term: string, by = 1, category?: string) {
   await connectMongo();
+  const { isNoiseTrendTerm, normalizeHashtag } = await import("@/lib/hashtags");
+  if (isNoiseTrendTerm(term)) return;
+  const clean = normalizeHashtag(term);
+  if (!clean) return;
+  const stored = `#${clean}`;
   await Trend.findOneAndUpdate(
-    { term },
+    { term: stored },
     {
       $inc: { score: by },
-      $setOnInsert: { term, category },
+      $setOnInsert: { term: stored, category },
     },
     { upsert: true },
   );
+}
+
+/** Bump only citizen topic hashtags (Twitter-style trending). */
+export async function bumpTopicTrends(
+  tags: string[],
+  by = 2,
+  category?: string,
+) {
+  const { topicTagsOnly } = await import("@/lib/hashtags");
+  for (const t of topicTagsOnly(tags).slice(0, 5)) {
+    await bumpTrend(`#${t}`, by, category);
+  }
 }
 
 export async function getDashboardData(filters: DashboardFilters = {}) {
@@ -757,22 +774,22 @@ export async function getDashboardData(filters: DashboardFilters = {}) {
 
   const hashtagMap = new Map<string, number>();
   for (const t of hashtagsPrisma) {
+    if (isNoiseTrendTerm(t.tag)) continue;
     hashtagMap.set(t.tag, (hashtagMap.get(t.tag) ?? 0) + t._count.memes);
   }
   for (const b of tagBuckets) {
     const raw = String(b._id || "")
       .replace(/^#/, "")
       .toLowerCase();
-    if (!raw) continue;
+    if (!raw || isNoiseTrendTerm(raw)) continue;
     hashtagMap.set(raw, (hashtagMap.get(raw) ?? 0) + b.count);
   }
   for (const t of trends) {
     const term = String(t.term || "")
       .replace(/^#/, "")
       .toLowerCase();
-    if (term) {
-      hashtagMap.set(term, (hashtagMap.get(term) ?? 0) + (t.score || 1));
-    }
+    if (!term || isNoiseTrendTerm(term)) continue;
+    hashtagMap.set(term, (hashtagMap.get(term) ?? 0) + (t.score || 1));
   }
   const hashtags = [...hashtagMap.entries()]
     .map(([tag, count]) => ({ tag, count }))
@@ -876,11 +893,15 @@ export async function getDashboardData(filters: DashboardFilters = {}) {
       href: `/petitions/${d.id}`,
       place: [d.city || d.town, d.district, d.state].filter(Boolean).join(", "),
     })),
-    trends: trends.map((t) => ({
-      term: t.term,
-      score: t.score,
-      category: t.category,
-    })),
+    trends: trends
+      .filter((t) => !isNoiseTrendTerm(String(t.term || "")))
+      .map((t) => ({
+        term: String(t.term).startsWith("#")
+          ? String(t.term)
+          : `#${normalizeHashtag(String(t.term)) || t.term}`,
+        score: t.score,
+        category: t.category,
+      })),
     states: liveStates,
     activity: activity.map((a) => ({
       id: String(a._id),

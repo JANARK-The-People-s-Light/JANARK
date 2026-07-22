@@ -19,6 +19,8 @@ type Petition = {
   authorLabel: string;
   supportCount: number;
   createdAt: string;
+  mediaUrl?: string | null;
+  mediaType?: string | null;
 };
 
 function PetitionsInner() {
@@ -75,7 +77,7 @@ function PetitionsInner() {
           href={portalHref("/petitions/new")}
           className="bg-amber px-4 py-2.5 text-sm font-semibold text-navy"
         >
-          Start a petition
+          Launch petition
         </Link>
       </div>
 
@@ -175,6 +177,28 @@ function PetitionsInner() {
                   Ask: {p.ask}
                 </p>
                 <p className="mt-2 line-clamp-2 text-sm text-muted">{p.body}</p>
+                {p.mediaUrl ? (
+                  <div className="mt-3 max-w-sm overflow-hidden">
+                    {p.mediaType === "video" ? (
+                      <video
+                        src={p.mediaUrl}
+                        controls
+                        playsInline
+                        preload="metadata"
+                        className="max-h-40 w-full object-contain"
+                        onClick={(e) => e.preventDefault()}
+                      />
+                    ) : (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={p.mediaUrl}
+                        alt=""
+                        className="max-h-40 w-full object-contain"
+                        loading="lazy"
+                      />
+                    )}
+                  </div>
+                ) : null}
                 <p className="mt-3 text-xs text-muted">{p.authorLabel}</p>
               </Link>
               {isLive ? (

@@ -5,6 +5,7 @@ import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { HashtagFilter } from "@/components/HashtagFilter";
 import { IconFilter, IconSearch, IconX } from "@/components/Icons";
+import { SearchableSelect } from "@/components/SearchableSelect";
 import { portalHref } from "@/lib/paths";
 
 type Stats = {
@@ -68,7 +69,6 @@ const KINDS = [
   { value: "reports", label: "Reports" },
   { value: "demands", label: "Demands" },
   { value: "votes", label: "Votes" },
-  { value: "memes", label: "Memes" },
 ] as const;
 
 const EMPTY_LOCATIONS = {
@@ -77,9 +77,6 @@ const EMPTY_LOCATIONS = {
   districts: [] as string[],
   cities: [] as string[],
 };
-
-const selectClass =
-  "min-h-10 w-full border border-line bg-white px-2 py-2 text-sm text-navy";
 
 function DashboardInner() {
   const router = useRouter();
@@ -218,7 +215,7 @@ function DashboardInner() {
     data.topIssues.length === 0 &&
     data.topReports.length === 0 &&
     data.topDemands.length === 0 &&
-    data.trends.length === 0 &&
+    data.hashtags.length === 0 &&
     data.activity.length === 0 &&
     data.states.length === 0 &&
     data.hotFeed.length === 0;
@@ -250,63 +247,57 @@ function DashboardInner() {
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           <label className="min-w-0">
             <span className="mb-1 block text-[11px] text-muted">Country</span>
-            <select
+            <SearchableSelect
               value={country}
-              onChange={(e) => setParam("country", e.target.value || null)}
-              className={selectClass}
-            >
-              <option value="">All</option>
-              {locations.countries.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
+              onChange={(v) => setParam("country", v || null)}
+              options={locations.countries.map((c) => ({
+                value: c,
+                label: c,
+              }))}
+              emptyLabel="All"
+              searchPlaceholder="Search country…"
+              variant="box"
+              aria-label="Country"
+            />
           </label>
           <label className="min-w-0">
             <span className="mb-1 block text-[11px] text-muted">State</span>
-            <select
+            <SearchableSelect
               value={state}
-              onChange={(e) => setParam("state", e.target.value || null)}
-              className={selectClass}
-            >
-              <option value="">All</option>
-              {locations.states.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
+              onChange={(v) => setParam("state", v || null)}
+              options={locations.states.map((s) => ({ value: s, label: s }))}
+              emptyLabel="All"
+              searchPlaceholder="Search state…"
+              variant="box"
+              aria-label="State"
+            />
           </label>
           <label className="min-w-0">
             <span className="mb-1 block text-[11px] text-muted">District</span>
-            <select
+            <SearchableSelect
               value={district}
-              onChange={(e) => setParam("district", e.target.value || null)}
-              className={selectClass}
-            >
-              <option value="">All</option>
-              {locations.districts.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
+              onChange={(v) => setParam("district", v || null)}
+              options={locations.districts.map((d) => ({
+                value: d,
+                label: d,
+              }))}
+              emptyLabel="All"
+              searchPlaceholder="Search district…"
+              variant="box"
+              aria-label="District"
+            />
           </label>
           <label className="min-w-0">
             <span className="mb-1 block text-[11px] text-muted">City / town</span>
-            <select
+            <SearchableSelect
               value={city}
-              onChange={(e) => setParam("city", e.target.value || null)}
-              className={selectClass}
-            >
-              <option value="">All</option>
-              {locations.cities.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
+              onChange={(v) => setParam("city", v || null)}
+              options={locations.cities.map((c) => ({ value: c, label: c }))}
+              emptyLabel="All"
+              searchPlaceholder="Search city…"
+              variant="box"
+              aria-label="City or town"
+            />
           </label>
         </div>
       </div>
@@ -349,7 +340,7 @@ function DashboardInner() {
           />
         ) : (
           <p className="text-sm text-muted">
-            Topics appear as citizens tag posts and memes.
+            Topics appear as citizens tag posts.
           </p>
         )}
       </div>
@@ -361,13 +352,42 @@ function DashboardInner() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
       <p className="text-xs uppercase tracking-wider text-muted">
-        National signal
+        Near you · across the country
       </p>
       <h1 className="font-display mt-1 text-3xl text-navy sm:text-4xl">
-        National signal
+        Activity
       </h1>
 
       <div className="mt-6 flex flex-wrap items-center gap-2 border-b border-line pb-4">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            setParam("q", q.trim() || null);
+          }}
+          className="flex min-w-0 flex-1 items-center gap-1 border border-line bg-white sm:max-w-xs sm:flex-none"
+        >
+          <IconSearch className="ml-2.5 h-4 w-4 shrink-0 text-muted" />
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search activity…"
+            className="min-h-10 min-w-0 flex-1 bg-transparent py-2 pr-2 pl-1 text-sm outline-none placeholder:text-muted"
+            aria-label="Search activity"
+          />
+          {q ? (
+            <button
+              type="button"
+              onClick={() => {
+                setQ("");
+                setParam("q", null);
+              }}
+              className="px-2 text-muted hover:text-navy"
+              aria-label="Clear search"
+            >
+              <IconX className="h-3.5 w-3.5" />
+            </button>
+          ) : null}
+        </form>
         <button
           type="button"
           onClick={() => setFilterOpen(true)}
@@ -386,9 +406,9 @@ function DashboardInner() {
             </span>
           ) : null}
         </button>
-        <p className="min-w-0 flex-1 text-sm text-muted sm:max-w-xl">
-          What citizens are elevating right now. Filter by place, topic, or
-          type.
+        <p className="min-w-0 flex-1 basis-full text-sm text-muted sm:basis-auto sm:max-w-xl">
+          What people near you — and across the country — are elevating. Filter
+          by place, topic, or type.
         </p>
         {filterSummary.slice(0, 4).map((s) => (
           <button
@@ -673,42 +693,25 @@ function DashboardInner() {
             )}
           </div>
 
-          {data.trends.length > 0 && (
+          {data.hashtags.length > 0 && (
             <section className="mt-12">
-              <h2 className="font-display text-2xl text-navy">Live trends</h2>
+              <h2 className="font-display text-2xl text-navy">Trending topics</h2>
               <ul className="mt-4 max-h-[13.75rem] divide-y divide-line overflow-y-auto overscroll-contain border-y border-line pr-1">
-                {data.trends.slice(0, 30).map((t) => {
-                  const clean = t.term.replace(/^#/, "");
-                  return (
-                    <li key={t.term}>
-                      <button
-                        type="button"
-                        onClick={() => setParam("tag", clean)}
-                        className="flex h-11 w-full items-center justify-between text-left text-sm text-muted transition hover:text-amber"
-                      >
-                        <span className="truncate pr-2">
-                          {t.term.startsWith("#") ? t.term : `#${clean}`}
-                        </span>
-                        <span className="shrink-0 text-[11px] tabular-nums opacity-50">
-                          {t.score}
-                        </span>
-                      </button>
-                    </li>
-                  );
-                })}
+                {data.hashtags.slice(0, 16).map((t) => (
+                  <li key={t.tag}>
+                    <button
+                      type="button"
+                      onClick={() => setParam("tag", t.tag)}
+                      className="flex h-11 w-full items-center justify-between text-left text-sm text-muted transition hover:text-amber"
+                    >
+                      <span className="truncate pr-2">#{t.tag}</span>
+                      <span className="shrink-0 text-[11px] tabular-nums opacity-50">
+                        {t.count}
+                      </span>
+                    </button>
+                  </li>
+                ))}
               </ul>
-            </section>
-          )}
-
-          {data.hashtags.length > 0 && !hasFilters && (
-            <section className="mt-10">
-              <HashtagFilter
-                tags={data.hashtags}
-                active={tag || undefined}
-                onSelect={(t) => setParam("tag", tag === t ? null : t)}
-                limit={16}
-                label="Topics"
-              />
             </section>
           )}
 

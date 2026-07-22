@@ -439,6 +439,91 @@ export async function createEngageComment(opts: {
   return comment;
 }
 
+export async function updateEngageComment(opts: {
+  commentId: string;
+  voterKey: string;
+  body: string;
+  mediaUrl?: string | null;
+  mediaType?: MediaType | null;
+}) {
+  const row = await prisma.engagementComment.findUnique({
+    where: { id: opts.commentId },
+  });
+  if (!row) throw new Error("Not found");
+  if (!row.authorHash || row.authorHash !== opts.voterKey) {
+    throw new Error("Forbidden");
+  }
+
+  const text = opts.body.trim();
+  const mediaUrl =
+    opts.mediaUrl === undefined ? row.mediaUrl : opts.mediaUrl?.trim() || null;
+  const mediaType =
+    opts.mediaType === undefined ? row.mediaType : opts.mediaType;
+
+  if (!text && !mediaUrl) {
+    throw new Error("Write a comment or attach media");
+  }
+  if (text.length > 4000) {
+    throw new Error("Comment must be at most 4000 characters");
+  }
+
+  return prisma.engagementComment.update({
+    where: { id: opts.commentId },
+    data: {
+      body:
+        text ||
+        (mediaType === "video" ? "Shared a video" : "Shared media"),
+      mediaUrl,
+      mediaType,
+    },
+  });
+}
+
+export async function deleteEngageComment(opts: {
+  commentId: string;
+  voterKey: string;
+}) {
+  const row = await prisma.engagementComment.findUnique({
+    where: { id: opts.commentId },
+  });
+  if (!row) throw new Error("Not found");
+  if (!row.authorHash || row.authorHash !== opts.voterKey) {
+    throw new Error("Forbidden");
+  }
+
+  // Cascade: collect this comment and all descendants on the same target
+  const allOnTarget = await prisma.engagementComment.findMany({
+    where: { targetType: row.targetType, targetId: row.targetId },
+    select: { id: true, parentId: true },
+  });
+  const toDelete = new Set<string>([row.id]);
+  let grew = true;
+  while (grew) {
+    grew = false;
+    for (const c of allOnTarget) {
+      if (c.parentId && toDelete.has(c.parentId) && !toDelete.has(c.id)) {
+        toDelete.add(c.id);
+        grew = true;
+      }
+    }
+  }
+  const ids = [...toDelete];
+
+  await prisma.engagementVote.deleteMany({
+    where: { targetType: "comment", targetId: { in: ids } },
+  });
+  await prisma.engagementComment.deleteMany({
+    where: { id: { in: ids } },
+  });
+
+  // Top-level comment removed → decrement parent counter
+  if (!row.parentId) {
+    await bumpCommentCount(row.targetType, row.targetId, -1);
+  }
+
+  return { targetType: row.targetType, targetId: row.targetId };
+}
+
 async function bumpCommentCount(
   targetType: string,
   targetId: string,
@@ -504,7 +589,9 @@ export type PublicComment = {
   downvotes: number;
   score: number;
   myVote: number | null;
+  isMine: boolean;
   createdAt: string;
+  updatedAt?: string;
   parentId: string | null;
   mediaUrl: string | null;
   mediaType: string | null;
@@ -544,7 +631,9 @@ export async function listEngageComments(
       downvotes: r.downvotes,
       score: score(r.upvotes, r.downvotes),
       myVote: myVotes.get(r.id) ?? null,
+      isMine: Boolean(voterKey && r.authorHash && r.authorHash === voterKey),
       createdAt: r.createdAt.toISOString(),
+      updatedAt: r.updatedAt?.toISOString?.() ?? undefined,
       parentId: r.parentId,
       mediaUrl: r.mediaUrl,
       mediaType: r.mediaType,

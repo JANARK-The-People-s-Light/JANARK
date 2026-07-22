@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import type { MediaType } from "@/lib/media";
 import { detectMediaType } from "@/lib/media";
 
@@ -20,7 +21,16 @@ export function MediaViewer({
   compact,
 }: Props) {
   const kind = mediaType ?? detectMediaType(url);
-  const maxH = compact ? "max-h-48" : className.includes("max-h-") ? "" : "max-h-[28rem]";
+  const maxH = compact
+    ? "max-h-48"
+    : className.includes("max-h-")
+      ? ""
+      : "max-h-[28rem]";
+  const [failed, setFailed] = useState(false);
+
+  if (failed) {
+    return <p className="text-xs text-muted">Could not load attachment</p>;
+  }
 
   if (kind === "video") {
     return (
@@ -30,6 +40,7 @@ export function MediaViewer({
         playsInline
         preload="metadata"
         className={`w-full bg-sand object-contain ${maxH} ${className}`}
+        onError={() => setFailed(true)}
       >
         <a href={url} target="_blank" rel="noopener noreferrer">
           Open video
@@ -45,11 +56,7 @@ export function MediaViewer({
       alt={alt}
       className={`w-full bg-sand object-contain ${maxH} ${className}`}
       loading="lazy"
-      referrerPolicy="no-referrer"
-      onError={(e) => {
-        const el = e.target as HTMLImageElement;
-        el.style.display = "none";
-      }}
+      onError={() => setFailed(true)}
     />
   );
 }

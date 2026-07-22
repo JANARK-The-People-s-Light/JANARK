@@ -4,7 +4,7 @@ const FeedPostSchema = new Schema(
   {
     type: {
       type: String,
-      enum: ["discussion", "proposal", "notice", "vote", "issue", "meme"],
+      enum: ["discussion", "proposal", "notice", "vote", "issue", "meme", "share"],
       required: true,
     },
     title: { type: String, required: true },

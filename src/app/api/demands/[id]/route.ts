@@ -46,10 +46,21 @@ export async function GET(
     });
     supportedByMe = Boolean(row);
   }
-  const { authorHash: _h, ...rest } = demand;
+  const { authorHash, ...rest } = demand;
+  const isMine = session
+    ? await (async () => {
+        const { assertContentOwner } = await import("@/lib/own-content");
+        return assertContentOwner({
+          phoneHash: session.phoneHash,
+          authorHash,
+          authorAnonId: demand.authorAnonId,
+        });
+      })()
+    : false;
   return NextResponse.json({
     demand: { ...rest, locationLabel: locationLabel(demand) },
     supportedByMe,
+    isMine,
   });
 }
 
@@ -148,4 +159,117 @@ export async function POST(
       },
     });
   }
+}
+
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+  const body = (await req.json()) as Record<string, unknown>;
+  const gate = await guardAnonymousWrite({
+    action: "demand-edit",
+    body,
+    req,
+    phoneRequired: true,
+    limit: 40,
+    windowMs: 60 * 60 * 1000,
+  });
+  if (!gate.ok) return guardFail(gate);
+
+  const voterKey = String(body.voterKey ?? "").trim();
+  const demand = await prisma.publicDemand.findUnique({ where: { id } });
+  if (!demand) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  const { assertContentOwner, updateFeedMirrors } = await import(
+    "@/lib/own-content"
+  );
+  const ok = await assertContentOwner({
+    phoneHash: voterKey,
+    authorHash: demand.authorHash,
+    authorAnonId: demand.authorAnonId,
+  });
+  if (!ok) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const title = String(body.title ?? "").trim();
+  const text = String(body.body ?? "").trim();
+  const ask = String(body.ask ?? demand.ask).trim();
+  if (!title || !text || !ask) {
+    return NextResponse.json(
+      { error: "title, ask, and body required" },
+      { status: 400 },
+    );
+  }
+
+  const updated = await prisma.publicDemand.update({
+    where: { id },
+    data: { title, body: text, ask },
+  });
+
+  await updateFeedMirrors(
+    { refId: id },
+    {
+      title,
+      excerpt: text.slice(0, 220),
+      body: text,
+    },
+  );
+
+  const { authorHash: _h, ...rest } = updated;
+  return NextResponse.json({
+    demand: { ...rest, locationLabel: locationLabel(updated) },
+    isMine: true,
+  });
+}
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+  let body: Record<string, unknown> = {};
+  try {
+    body = (await req.json()) as Record<string, unknown>;
+  } catch {
+    body = {};
+  }
+  const gate = await guardAnonymousWrite({
+    action: "demand-delete",
+    body,
+    req,
+    phoneRequired: true,
+    limit: 30,
+    windowMs: 60 * 60 * 1000,
+  });
+  if (!gate.ok) return guardFail(gate);
+
+  const voterKey = String(body.voterKey ?? "").trim();
+  const demand = await prisma.publicDemand.findUnique({ where: { id } });
+  if (!demand) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  const {
+    assertContentOwner,
+    deleteEngageForTarget,
+    deleteFeedMirrors,
+  } = await import("@/lib/own-content");
+  const ok = await assertContentOwner({
+    phoneHash: voterKey,
+    authorHash: demand.authorHash,
+    authorAnonId: demand.authorAnonId,
+  });
+  if (!ok) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  await deleteEngageForTarget("demand", id);
+  await deleteFeedMirrors({ refId: id });
+  await prisma.publicDemand.delete({ where: { id } });
+
+  return NextResponse.json({ ok: true });
 }

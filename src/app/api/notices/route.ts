@@ -4,7 +4,7 @@ import { connectMongo } from "@/lib/mongo";
 import { FeedPost } from "@/lib/mongo-models";
 import {
   bumpMongoStats,
-  bumpTrend,
+  bumpTopicTrends,
   recordActivity,
 } from "@/lib/services";
 import { guardAnonymousWrite } from "@/lib/anti-bot";
@@ -13,6 +13,11 @@ import { publicAuthorFromVoterKey } from "@/lib/identity";
 import { parseOptionalMedia } from "@/lib/media";
 import { requireCivicPostTerms } from "@/lib/civic-post-terms";
 import { allocatePublicPostId } from "@/lib/public-id";
+import {
+  buildFeedTags,
+  collectTopicHashtags,
+} from "@/lib/hashtags";
+import { ensureHashtagCatalog } from "@/lib/ensure-hashtags";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -88,6 +93,11 @@ export async function POST(req: Request) {
     },
   });
 
+  const topics = collectTopicHashtags({
+    hashtags: body.hashtags ?? body.tags,
+    texts: [title, description],
+  });
+  await ensureHashtagCatalog(topics);
   await connectMongo();
   await FeedPost.create({
     type: "notice",
@@ -98,7 +108,7 @@ export async function POST(req: Request) {
     meta: `${target} · new notice`,
     votes: 1,
     hot: true,
-    tags: [target, "notice"],
+    tags: buildFeedTags([target, "notice"], topics),
     refId: notice.id,
     author: publicAuthor.authorLabel,
     authorAnonId: publicAuthor.authorAnonId,
@@ -106,7 +116,7 @@ export async function POST(req: Request) {
     mediaUrl: media.mediaUrl ?? undefined,
     mediaType: media.mediaType ?? undefined,
   });
-  await bumpTrend(target, 2);
+  await bumpTopicTrends(topics, 2, "notice");
   await bumpMongoStats({ notices: 1, citizens: 1 });
   await recordActivity({
     kind: "notice",

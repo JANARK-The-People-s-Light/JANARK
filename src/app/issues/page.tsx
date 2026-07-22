@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
 import { computeIssueLiveMetrics, mapIssue } from "@/lib/services";
-import { Stars } from "@/components/Ui";
+import { IssuesBrowse } from "@/components/IssuesBrowse";
 import { portalHref } from "@/lib/paths";
 
 export const dynamic = "force-dynamic";
@@ -12,21 +12,6 @@ export const fetchCache = "force-no-store";
 export const metadata: Metadata = {
   title: "National Issues",
 };
-
-const CATEGORIES = [
-  "Education",
-  "Employment",
-  "Healthcare",
-  "Corruption",
-  "Judiciary",
-  "Women",
-  "Agriculture",
-  "Environment",
-  "Infrastructure",
-  "Police",
-  "Cybersecurity",
-  "Voting Reform",
-];
 
 export default async function IssuesPage() {
   const rows = await prisma.issue.findMany({
@@ -76,64 +61,16 @@ export default async function IssuesPage() {
         </div>
       </div>
 
-      <div className="mt-10 flex flex-wrap gap-x-3 gap-y-1">
-        {CATEGORIES.map((cat) => {
-          const count = issues.filter((i) => i.category === cat).length;
-          return (
-            <span
-              key={cat}
-              className="py-1.5 text-sm text-muted"
-            >
-              {cat}
-              {count > 0 ? (
-                <span className="ml-1.5 text-[11px] tabular-nums opacity-50">
-                  {count}
-                </span>
-              ) : null}
-            </span>
-          );
-        })}
-      </div>
-
-      {issues.length === 0 ? (
-        <p className="mt-12 text-muted">
-          No issues yet.{" "}
-          <Link href={portalHref("/issues/new")} className="text-amber hover:underline">
-            Raise the first national issue
-          </Link>
-          .
-        </p>
-      ) : (
-        <div className="mt-12 divide-y divide-line border-y border-line">
-          {issues.map((issue) => (
-            <Link
-              key={issue.slug}
-              href={portalHref(`/issues/${issue.slug}`)}
-              className="block py-5 transition hover:bg-sand/30"
-            >
-              <p className="text-xs uppercase tracking-wider text-muted">
-                {issue.category}
-              </p>
-              <h2 className="font-display mt-1 text-xl text-navy">
-                {issue.title}
-              </h2>
-              <p className="mt-2 line-clamp-2 text-sm text-muted">
-                {issue.summary}
-              </p>
-              <p className="mt-3 text-sm text-muted">
-                {issue.rating > 0 ? (
-                  <>
-                    <Stars rating={issue.rating} /> ·{" "}
-                  </>
-                ) : null}
-                {issue.voteCount > 0
-                  ? `${issue.voteCount.toLocaleString("en-IN")} citizen signals`
-                  : "No signals yet"}
-              </p>
-            </Link>
-          ))}
-        </div>
-      )}
+      <IssuesBrowse
+        issues={issues.map((i) => ({
+          slug: i.slug,
+          title: i.title,
+          summary: i.summary,
+          category: i.category,
+          rating: i.rating,
+          voteCount: i.voteCount,
+        }))}
+      />
     </div>
   );
 }

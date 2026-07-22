@@ -178,6 +178,36 @@ model CitizenReport {
   @@index([authorAnonId])
 }
 
+/// Lightweight civic share — photo/video + caption (not a structured report)
+model CommunityShare {
+  id             String   @id @default(cuid())
+  publicId       String?  @unique
+  caption        String
+  mediaUrl       String
+  mediaType      String? // image | gif | video
+  locationLabel  String?
+  city           String?
+  district       String?
+  state          String?
+  country        String?  @default("India")
+  /// Optional links into structured civic content
+  issueSlug      String?
+  petitionId     String?
+  authorLabel    String   @default("Anonymous citizen")
+  authorAnonId   String?
+  authorHash     String?
+  upvotes        Int      @default(0)
+  downvotes      Int      @default(0)
+  commentCount   Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([createdAt])
+  @@index([authorAnonId])
+  @@index([city])
+  @@index([state])
+}
+
 model ReportReaction {
   id        String   @id @default(cuid())
   reportId  String
@@ -214,6 +244,21 @@ model PhoneIdentity {
   verifiedAt   DateTime @default(now())
   lastSeenAt   DateTime @default(now())
   createdAt    DateTime @default(now())
+}
+
+/// Instagram-style follow between public anonymity IDs (never phone hashes)
+model AnonFollow {
+  id          String   @id @default(cuid())
+  /// Follower's public anonId (jn-…)
+  followerId  String
+  /// Who they follow (jn-…)
+  followingId String
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+  @@index([followingId])
+  @@index([followerId])
+  @@index([createdAt])
 }
 
 model PhoneOtp {

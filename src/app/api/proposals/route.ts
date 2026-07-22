@@ -4,7 +4,7 @@ import { connectMongo } from "@/lib/mongo";
 import { FeedPost } from "@/lib/mongo-models";
 import {
   bumpMongoStats,
-  bumpTrend,
+  bumpTopicTrends,
   mapProposal,
   recordActivity,
 } from "@/lib/services";
@@ -14,6 +14,11 @@ import { requireCivicPostTerms } from "@/lib/civic-post-terms";
 import { parseOptionalMedia } from "@/lib/media";
 import { publicAuthorFromVoterKey } from "@/lib/identity";
 import { allocatePublicPostId } from "@/lib/public-id";
+import {
+  buildFeedTags,
+  collectTopicHashtags,
+} from "@/lib/hashtags";
+import { ensureHashtagCatalog } from "@/lib/ensure-hashtags";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -51,12 +56,11 @@ export async function POST(req: Request) {
   }
 
   const title = String(body.title ?? "").trim();
-  const description = String(body.description ?? "").trim();
-  if (!title || !description) {
-    return NextResponse.json(
-      { error: "title and description required" },
-      { status: 400 },
-    );
+  const description =
+    String(body.description ?? "").trim() ||
+    "Open civic vote for public signal.";
+  if (!title) {
+    return NextResponse.json({ error: "title required" }, { status: 400 });
   }
 
   let id = slugify(title) || `proposal-${Date.now()}`;
@@ -119,6 +123,11 @@ export async function POST(req: Request) {
     },
   });
 
+  const topics = collectTopicHashtags({
+    hashtags: body.hashtags ?? body.tags,
+    texts: [title, description],
+  });
+  await ensureHashtagCatalog(topics);
   await connectMongo();
   await FeedPost.create({
     type: "proposal",
@@ -129,14 +138,14 @@ export async function POST(req: Request) {
     meta: "Open vote · new",
     votes: 0,
     hot: true,
-    tags: ["vote"],
+    tags: buildFeedTags(["vote"], topics),
     refId: id,
     author: author?.authorLabel ?? "Citizen",
     authorAnonId: author?.authorAnonId,
     mediaUrl: media.mediaUrl ?? undefined,
     mediaType: media.mediaType ?? undefined,
   });
-  await bumpTrend("Open vote", 2);
+  await bumpTopicTrends(topics, 2, "vote");
   await recordActivity({
     kind: "proposal",
     summary: `New proposal: ${title}`,

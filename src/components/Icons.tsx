@@ -209,6 +209,147 @@ export function IconInstagram({ className }: IconProps) {
 const iconBtn =
   "inline-flex items-center justify-center gap-0.5 rounded-sm p-1.5 text-sm transition disabled:opacity-60";
 
+export function IconHome({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M3 11.5 12 4l9 7.5" />
+      <path d="M5.5 10.5V20h13v-9.5" />
+    </Svg>
+  );
+}
+
+export function IconMegaphone({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M3 11v2a1 1 0 0 0 1 1h2l6 4V6L6 10H4a1 1 0 0 0-1 1z" />
+      <path d="M16 8.5a4 4 0 0 1 0 7" />
+      <path d="M7 15v3a2 2 0 0 0 2 2h1" />
+    </Svg>
+  );
+}
+
+export function IconMapPin({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M12 21s7-5.2 7-11a7 7 0 1 0-14 0c0 5.8 7 11 7 11z" />
+      <circle cx="12" cy="10" r="2.5" />
+    </Svg>
+  );
+}
+
+export function IconBallot({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <rect x="4" y="3" width="16" height="18" rx="2" />
+      <path d="M8 8h8" />
+      <path d="M8 12h8" />
+      <path d="M8 16h5" />
+    </Svg>
+  );
+}
+
+export function IconFlame({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M12 3c2 3 1 5 1 5s3-1 4 2 0 6-2 8-5 2-7 0-4-5-2-8c1 2 3 2 3 2S10 6 12 3z" />
+    </Svg>
+  );
+}
+
+export function IconBell({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M6 9a6 6 0 0 1 12 0c0 7 3 7 3 7H3s3 0 3-7" />
+      <path d="M10 19a2 2 0 0 0 4 0" />
+    </Svg>
+  );
+}
+
+export function IconStar({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <polygon points="12 3 14.5 9 21 9.5 16 14 17.5 21 12 17.5 6.5 21 8 14 3 9.5 9.5 9" />
+    </Svg>
+  );
+}
+
+export function IconUser({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <circle cx="12" cy="8" r="4" />
+      <path d="M4 20a8 8 0 0 1 16 0" />
+    </Svg>
+  );
+}
+
+export function IconSettings({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <circle cx="12" cy="12" r="3" />
+      <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+    </Svg>
+  );
+}
+
+export function IconMenu({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <line x1="4" y1="7" x2="20" y2="7" />
+      <line x1="4" y1="12" x2="20" y2="12" />
+      <line x1="4" y1="17" x2="20" y2="17" />
+    </Svg>
+  );
+}
+
+export function IconFileText({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+      <path d="M14 3v5h5" />
+      <path d="M9 13h6" />
+      <path d="M9 17h4" />
+    </Svg>
+  );
+}
+
+export function IconPlus({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <line x1="12" y1="5" x2="12" y2="19" />
+      <line x1="5" y1="12" x2="19" y2="12" />
+    </Svg>
+  );
+}
+
+export function IconGrid({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <rect x="3" y="3" width="7" height="7" rx="1" />
+      <rect x="14" y="3" width="7" height="7" rx="1" />
+      <rect x="3" y="14" width="7" height="7" rx="1" />
+      <rect x="14" y="14" width="7" height="7" rx="1" />
+    </Svg>
+  );
+}
+
+export function IconChat({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </Svg>
+  );
+}
+
+export function IconImage({ className }: IconProps) {
+  return (
+    <Svg className={className}>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <circle cx="9" cy="10" r="2" />
+      <path d="m21 15-4.5-4.5L7 20" />
+    </Svg>
+  );
+}
+
 export function iconBtnClass(active?: boolean, danger?: boolean) {
   if (danger && active) {
     return `${iconBtn} text-danger`;

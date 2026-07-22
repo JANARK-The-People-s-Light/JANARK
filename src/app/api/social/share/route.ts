@@ -88,7 +88,7 @@ export async function POST(req: Request) {
     const url = `${site}${path}`;
     const text = title
       ? `${title} — via Janark`
-      : "Shared from Janark — the light for us, by us";
+      : "Shared from Janark";
 
     if (platform === "twitter") {
       publishResults.x = await maybePostToX(`${text}\n${url}`);

@@ -166,3 +166,111 @@ export async function POST(
     report: updated ? publicReport(updated) : null,
   });
 }
+
+export async function PATCH(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+  const body = (await req.json()) as Record<string, unknown>;
+  const gate = await guardAnonymousWrite({
+    action: "report-edit",
+    body,
+    req,
+    phoneRequired: true,
+    limit: 60,
+    windowMs: 60 * 60 * 1000,
+  });
+  if (!gate.ok) return guardFail(gate);
+
+  const voterKey = String(body.voterKey ?? "").trim();
+  const report = await prisma.citizenReport.findUnique({ where: { id } });
+  if (!report) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  const { assertContentOwner, updateFeedMirrors } = await import(
+    "@/lib/own-content"
+  );
+  const ok = await assertContentOwner({
+    phoneHash: voterKey,
+    authorHash: report.authorHash,
+    authorAnonId: report.authorAnonId,
+  });
+  if (!ok) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const title = String(body.title ?? "").trim();
+  const text = String(body.body ?? "").trim();
+  if (!title || !text) {
+    return NextResponse.json(
+      { error: "title and body required" },
+      { status: 400 },
+    );
+  }
+
+  const updated = await prisma.citizenReport.update({
+    where: { id },
+    data: { title, body: text },
+  });
+
+  await updateFeedMirrors(
+    { refId: id },
+    {
+      title,
+      excerpt: text.slice(0, 220),
+      body: text,
+    },
+  );
+
+  return NextResponse.json({ report: publicReport(updated), isMine: true });
+}
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+  let body: Record<string, unknown> = {};
+  try {
+    body = (await req.json()) as Record<string, unknown>;
+  } catch {
+    body = {};
+  }
+  const gate = await guardAnonymousWrite({
+    action: "report-delete",
+    body,
+    req,
+    phoneRequired: true,
+    limit: 40,
+    windowMs: 60 * 60 * 1000,
+  });
+  if (!gate.ok) return guardFail(gate);
+
+  const voterKey = String(body.voterKey ?? "").trim();
+  const report = await prisma.citizenReport.findUnique({ where: { id } });
+  if (!report) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
+  const {
+    assertContentOwner,
+    deleteEngageForTarget,
+    deleteFeedMirrors,
+  } = await import("@/lib/own-content");
+  const ok = await assertContentOwner({
+    phoneHash: voterKey,
+    authorHash: report.authorHash,
+    authorAnonId: report.authorAnonId,
+  });
+  if (!ok) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  await deleteEngageForTarget("report", id);
+  await deleteFeedMirrors({ refId: id });
+  await prisma.citizenReport.delete({ where: { id } });
+
+  return NextResponse.json({ ok: true });
+}

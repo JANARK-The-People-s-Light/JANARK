@@ -9,6 +9,7 @@ import {
 } from "@/lib/identity";
 import { publicMeme, score } from "@/lib/memes";
 import { publicReport } from "@/lib/phone";
+import { resolveSessionFromRequest } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -16,7 +17,7 @@ export const fetchCache = "force-no-store";
 
 type Ctx = { params: Promise<{ anonId: string }> };
 
-export async function GET(_req: Request, ctx: Ctx) {
+export async function GET(req: Request, ctx: Ctx) {
   const { anonId: raw } = await ctx.params;
   const anonId = raw.toLowerCase();
   if (!isValidAnonId(anonId)) {
@@ -31,6 +32,16 @@ export async function GET(_req: Request, ctx: Ctx) {
   const phoneHash = identity.phoneHash;
   const label = displayAnonLabel(anonId);
 
+  const session = await resolveSessionFromRequest(req);
+  let viewerAnonId: string | null = null;
+  if (session?.phoneHash) {
+    const viewer = await prisma.phoneIdentity.findUnique({
+      where: { phoneHash: session.phoneHash },
+      select: { anonId: true },
+    });
+    viewerAnonId = viewer?.anonId ?? null;
+  }
+
   const [
     memes,
     reports,
@@ -42,6 +53,9 @@ export async function GET(_req: Request, ctx: Ctx) {
     demandSupports,
     proposalVotes,
     noticeSignatures,
+    followersCount,
+    followingCount,
+    viewerFollowsRow,
   ] = await Promise.all([
     prisma.meme.findMany({
       where: {
@@ -116,6 +130,18 @@ export async function GET(_req: Request, ctx: Ctx) {
       orderBy: { createdAt: "desc" },
       take: 50,
     }),
+    prisma.anonFollow.count({ where: { followingId: anonId } }),
+    prisma.anonFollow.count({ where: { followerId: anonId } }),
+    viewerAnonId
+      ? prisma.anonFollow.findUnique({
+          where: {
+            followerId_followingId: {
+              followerId: viewerAnonId,
+              followingId: anonId,
+            },
+          },
+        })
+      : Promise.resolve(null),
   ]);
 
   await connectMongo();
@@ -257,6 +283,8 @@ export async function GET(_req: Request, ctx: Ctx) {
       reactions.demandSupports.length +
       reactions.proposalVotes.length +
       reactions.noticeSignatures.length,
+    followers: followersCount,
+    following: followingCount,
     memberSince: identity.createdAt,
   };
 
@@ -268,6 +296,10 @@ export async function GET(_req: Request, ctx: Ctx) {
       // never expose phoneHash / phoneHint publicly
     },
     counts,
+    follow: {
+      viewerFollows: Boolean(viewerFollowsRow),
+      isSelf: Boolean(viewerAnonId && viewerAnonId === anonId),
+    },
     posts,
     reactions,
   });

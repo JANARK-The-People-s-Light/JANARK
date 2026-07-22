@@ -48,7 +48,10 @@ export function assertProductionSecurity(): void {
   }
 
   if (process.env.EXPOSE_DEV_OTP === "1") {
-    errors.push("EXPOSE_DEV_OTP must not be enabled in production");
+    // Allowed only with the explicit no-SMS demo override (e.g. local Docker)
+    if (process.env.ALLOW_OTP_WITHOUT_SMS !== "1") {
+      errors.push("EXPOSE_DEV_OTP must not be enabled in production");
+    }
   }
 
   if (!process.env.MONGODB_URI?.trim()) {
@@ -79,6 +82,8 @@ export function assertProductionSecurity(): void {
 }
 
 export function allowDevOtpInResponse(): boolean {
-  if (isProductionRuntime()) return false;
-  return process.env.EXPOSE_DEV_OTP === "1";
+  if (process.env.EXPOSE_DEV_OTP !== "1") return false;
+  // Local/dev, or production compose demo with ALLOW_OTP_WITHOUT_SMS
+  if (!isProductionRuntime()) return true;
+  return process.env.ALLOW_OTP_WITHOUT_SMS === "1";
 }

@@ -14,8 +14,7 @@ const links = [
   { href: "/petitions", label: "Petitions" },
   { href: "/reports", label: "Reports" },
   { href: "/issues", label: "Issues" },
-  { href: "/memes", label: "Memes" },
-  { href: "/dashboard", label: "Dashboard" },
+  { href: "/dashboard", label: "Activity" },
 ].map((l) => ({ ...l, href: portalHref(l.href) }));
 
 export function SiteHeader() {
@@ -248,8 +247,7 @@ export function SiteHeader() {
             <time dateTime="2026-08-15">15 August 2026</time>
             <span className="font-normal">
               {" "}
-              · for us, by us · so feel free to contribute here
-              —{" "}
+              · contribute on{" "}
               <a
                 href="https://github.com/JANARK-The-People-s-Light/JANARK"
                 target="_blank"
@@ -285,12 +283,9 @@ export function SiteFooter() {
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-8 sm:flex-row sm:items-start sm:justify-between sm:gap-8 sm:px-6">
         <div className="min-w-0">
           <BrandLogo size="md" withWordmark onDark />
-          <p className="mt-2 font-display text-sm leading-snug text-amber-bright/90">
-            for us, by us
-          </p>
           <p className="mt-2 max-w-md text-sm leading-relaxed text-sand/70">
-            A non-profit civic organisation — independent of government and
-            parties. Just a unified voice.
+            Independent non-profit civic platform for public discussion,
+            petitions, reports, and community voting.
           </p>
           <p className="mt-3 text-xs text-sand/40">
             Coming soon · public launch{" "}

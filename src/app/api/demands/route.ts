@@ -4,7 +4,7 @@ import { connectMongo } from "@/lib/mongo";
 import { FeedPost } from "@/lib/mongo-models";
 import {
   bumpMongoStats,
-  bumpTrend,
+  bumpTopicTrends,
   recordActivity,
 } from "@/lib/services";
 import { guardAnonymousWrite } from "@/lib/anti-bot";
@@ -13,6 +13,11 @@ import { publicAuthorFromVoterKey } from "@/lib/identity";
 import { parseOptionalMedia } from "@/lib/media";
 import { requireCivicPostTerms } from "@/lib/civic-post-terms";
 import { allocatePublicPostId } from "@/lib/public-id";
+import {
+  buildFeedTags,
+  collectTopicHashtags,
+} from "@/lib/hashtags";
+import { ensureHashtagCatalog } from "@/lib/ensure-hashtags";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -112,9 +117,11 @@ export async function POST(req: Request) {
   }
 
   const title = String(body.title ?? "").trim();
-  const text = String(body.body ?? "").trim();
-  const ask = String(body.ask ?? "").trim();
-  const locationLevel = String(body.locationLevel ?? "national");
+  const ask = String(body.ask ?? "").trim() || title;
+  const text = String(body.body ?? "").trim() || ask;
+  const locationLevelRaw = String(body.locationLevel ?? "national");
+  const locationLevel =
+    locationLevelRaw === "nation" ? "national" : locationLevelRaw;
   const voterKey = body.voterKey ? String(body.voterKey) : null;
   if (!voterKey) {
     return NextResponse.json(
@@ -130,11 +137,8 @@ export async function POST(req: Request) {
     );
   }
 
-  if (!title || !text || !ask) {
-    return NextResponse.json(
-      { error: "title, description, and clear ask required" },
-      { status: 400 },
-    );
+  if (!title) {
+    return NextResponse.json({ error: "title required" }, { status: 400 });
   }
   if (!LEVELS.has(locationLevel)) {
     return NextResponse.json({ error: "Invalid location level" }, { status: 400 });
@@ -143,12 +147,6 @@ export async function POST(req: Request) {
   const media = parseOptionalMedia(body);
   if (media.error) {
     return NextResponse.json({ error: media.error }, { status: 400 });
-  }
-  if (!media.mediaUrl) {
-    return NextResponse.json(
-      { error: "Attachment required (image, GIF, or video)" },
-      { status: 400 },
-    );
   }
 
   const publicId = await allocatePublicPostId();
@@ -183,6 +181,11 @@ export async function POST(req: Request) {
   });
 
   const label = locationLabel(demand);
+  const topics = collectTopicHashtags({
+    hashtags: body.hashtags ?? body.tags,
+    texts: [title, text, ask],
+  });
+  await ensureHashtagCatalog(topics);
   await connectMongo();
   await FeedPost.create({
     type: "discussion",
@@ -194,7 +197,10 @@ export async function POST(req: Request) {
     meta: `${label} · petition`,
     votes: demand.supportCount,
     hot: true,
-    tags: ["petition", "demand", locationLevel, demand.state ?? "India"].filter(Boolean) as string[],
+    tags: buildFeedTags(
+      ["petition", "demand", locationLevel, demand.state ?? "India"],
+      topics,
+    ),
     refId: demand.id,
     author: demand.authorLabel,
     authorAnonId: publicAuthor.authorAnonId,
@@ -208,8 +214,7 @@ export async function POST(req: Request) {
     state: demand.state ?? undefined,
     country: demand.country,
   });
-  await bumpTrend("Petition", 3);
-  if (demand.state) await bumpTrend(demand.state, 1);
+  await bumpTopicTrends(topics, 2, "petition");
   await bumpMongoStats({ citizens: 1 });
   await recordActivity({
     kind: "proposal",

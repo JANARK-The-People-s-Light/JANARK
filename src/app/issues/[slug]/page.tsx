@@ -120,31 +120,41 @@ export default async function IssueDetailPage({ params }: Props) {
       </section>
 
       <div className="mt-10 grid gap-8 sm:grid-cols-2">
-        <section>
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-success">
-            Pros / Arguments for
-          </h2>
-          <ul className="mt-3 space-y-2">
-            {issue.pros.map((p) => (
-              <li key={p} className="text-sm leading-relaxed text-navy/90">
-                · {p}
-              </li>
-            ))}
-          </ul>
-        </section>
-        <section>
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-danger">
-            Cons / Arguments against
-          </h2>
-          <ul className="mt-3 space-y-2">
-            {issue.cons.map((c) => (
-              <li key={c} className="text-sm leading-relaxed text-navy/90">
-                · {c}
-              </li>
-            ))}
-          </ul>
-        </section>
+        {issue.pros.length > 0 ? (
+          <section>
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-success">
+              Arguments for
+            </h2>
+            <ul className="mt-3 space-y-2">
+              {issue.pros.map((p) => (
+                <li key={p} className="text-sm leading-relaxed text-navy/90">
+                  · {p}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
+        {issue.cons.length > 0 ? (
+          <section>
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-danger">
+              Arguments against
+            </h2>
+            <ul className="mt-3 space-y-2">
+              {issue.cons.map((c) => (
+                <li key={c} className="text-sm leading-relaxed text-navy/90">
+                  · {c}
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
       </div>
+
+      {issue.pros.length === 0 && issue.cons.length === 0 ? (
+        <p className="mt-10 text-sm text-muted">
+          Balanced arguments will grow from discussion — not from a form.
+        </p>
+      ) : null}
 
       <section className="mt-12">
         <h2 className="font-display text-2xl text-navy">Discussion</h2>

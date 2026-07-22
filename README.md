@@ -1,8 +1,8 @@
 # Janark (जनार्क)
 
-> The light for us, by us.
+> Independent non-profit civic platform for public discussion, petitions, reports, and community voting.
 
-**Janark** is a **non-profit**, independent civic platform — not a government portal, not a party channel. Citizens browse freely; phone OTP is required only to post or react. Public identity is an **anonymity ID**, never a phone number.
+**Janark** is not a government portal or party channel. Citizens browse freely; phone OTP is required only to post or react. Public identity is an **anonymity ID**, never a phone number.
 
 **License:** [Business Source License 1.1](LICENSE) · [NOTICE](NOTICE) · [Trademark](TRADEMARK.md) · [Contributing](CONTRIBUTING.md)
 
@@ -84,10 +84,12 @@ docker compose down
 
 Compose sets production secrets defaults suitable for **local verification only**. For a real deploy, override at least:
 
-- `PHONE_HASH_SALT`, `HUMAN_TOKEN_SECRET`, `IP_HASH_SALT` (≥24 random chars)
+- `DOCKER_PHONE_HASH_SALT`, `DOCKER_HUMAN_TOKEN_SECRET`, `DOCKER_IP_HASH_SALT` (≥24 random chars) — or set those names so a weak host `.env` salt is not reused
 - `NEXT_PUBLIC_SITE_URL` (your public HTTPS origin — rebuild after changing)
-- OTP SMS (`TWILIO_*` or `MSG91_*`) and unset `ALLOW_OTP_WITHOUT_SMS`
+- OTP SMS (`TWILIO_*` or `MSG91_*`), then set `ALLOW_OTP_WITHOUT_SMS=0` and `DOCKER_EXPOSE_DEV_OTP=0`
 - Prefer Postgres instead of SQLite for multi-instance deploys
+
+Local compose echoes a **Dev OTP** in the login UI (no SMS). That is demo-only.
 
 Persistent volumes: SQLite (`janark_sqlite`), uploads (`janark_uploads`), Mongo (`janark_mongo`).
 

@@ -4,7 +4,7 @@ import { connectMongo } from "@/lib/mongo";
 import { FeedPost } from "@/lib/mongo-models";
 import {
   bumpMongoStats,
-  bumpTrend,
+  bumpTopicTrends,
   recordActivity,
 } from "@/lib/services";
 import { guardAnonymousWrite } from "@/lib/anti-bot";
@@ -14,6 +14,11 @@ import { publicAuthorFromVoterKey } from "@/lib/identity";
 import { parseOptionalMedia } from "@/lib/media";
 import { requireCivicPostTerms } from "@/lib/civic-post-terms";
 import { allocatePublicPostId } from "@/lib/public-id";
+import {
+  buildFeedTags,
+  collectTopicHashtags,
+} from "@/lib/hashtags";
+import { ensureHashtagCatalog } from "@/lib/ensure-hashtags";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -133,9 +138,12 @@ export async function POST(req: Request) {
   }
 
   const title = String(body.title ?? "").trim();
-  const text = String(body.body ?? "").trim();
+  const text =
+    String(body.body ?? "").trim() || title;
   const type = String(body.type ?? "problem");
-  const locationLevel = String(body.locationLevel ?? "village");
+  const locationLevelRaw = String(body.locationLevel ?? "city");
+  const locationLevel =
+    locationLevelRaw === "nation" ? "national" : locationLevelRaw;
   const voterKey = body.voterKey ? String(body.voterKey) : null;
   if (!voterKey) {
     return NextResponse.json(
@@ -151,11 +159,8 @@ export async function POST(req: Request) {
     );
   }
 
-  if (!title || !text) {
-    return NextResponse.json(
-      { error: "title and description required" },
-      { status: 400 },
-    );
+  if (!title) {
+    return NextResponse.json({ error: "title required" }, { status: 400 });
   }
   if (!TYPES.has(type) || !LEVELS.has(locationLevel)) {
     return NextResponse.json(
@@ -193,6 +198,11 @@ export async function POST(req: Request) {
   });
 
   const label = locationLabel(report);
+  const topics = collectTopicHashtags({
+    hashtags: body.hashtags ?? body.tags,
+    texts: [title, text],
+  });
+  await ensureHashtagCatalog(topics);
 
   await connectMongo();
   await FeedPost.create({
@@ -205,7 +215,10 @@ export async function POST(req: Request) {
     meta: `${label} · ${locationLevel}`,
     votes: 0,
     hot: true,
-    tags: [type, locationLevel, report.state ?? "India"].filter(Boolean) as string[],
+    tags: buildFeedTags(
+      [type, locationLevel, report.state ?? "India"],
+      topics,
+    ),
     refId: report.id,
     author: report.authorLabel,
     authorAnonId: publicAuthor.authorAnonId,
@@ -219,8 +232,7 @@ export async function POST(req: Request) {
     state: report.state ?? undefined,
     country: report.country,
   });
-  await bumpTrend(type, 2, locationLevel);
-  if (report.state) await bumpTrend(report.state, 1, "state");
+  await bumpTopicTrends(topics, 2, "report");
   await bumpMongoStats({ citizens: 1 });
   await recordActivity({
     kind: "issue",

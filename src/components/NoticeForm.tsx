@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { DemoBadge } from "@/components/Ui";
 import { useAuth } from "@/components/AuthModal";
+import { HashtagInput } from "@/components/HashtagInput";
 import { MediaAttach } from "@/components/MediaAttach";
 import { PostTermsAccept } from "@/components/PostTermsAccept";
 import { useCivicPostTermsAccept } from "@/components/useCivicPostTermsAccept";
@@ -23,6 +24,7 @@ export function NoticeForm() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [mediaUrl, setMediaUrl] = useState("");
+  const [hashtags, setHashtags] = useState<string[]>([]);
   const [target, setTarget] = useState("national");
   const [targetDetail, setTargetDetail] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -48,6 +50,7 @@ export function NoticeForm() {
           title: title.trim(),
           description: description.trim(),
           mediaUrl: mediaUrl.trim() || undefined,
+          hashtags,
           target,
           targetDetail: targetDetail.trim() || undefined,
           voterKey,
@@ -114,6 +117,7 @@ export function NoticeForm() {
       </label>
 
       <MediaAttach value={mediaUrl} onChange={setMediaUrl} />
+      <HashtagInput value={hashtags} onChange={setHashtags} />
 
       <label className="block">
         <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted">

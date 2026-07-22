@@ -7,6 +7,7 @@ import { FeedCard } from "@/components/Ui";
 import { FeedEngage } from "@/components/FeedEngage";
 import { HashtagFilter, InlineTags } from "@/components/HashtagFilter";
 import { IconFilter, IconSearch, IconX } from "@/components/Icons";
+import { SearchableSelect } from "@/components/SearchableSelect";
 import { portalHref } from "@/lib/paths";
 
 type Post = {
@@ -42,17 +43,20 @@ type Locations = {
 
 const TABS = [
   { value: "all", label: "All" },
-  { value: "discussion", label: "Discussions" },
   { value: "petition", label: "Petitions" },
-  { value: "proposal", label: "Votes" },
-  { value: "issue", label: "Issues" },
   { value: "report", label: "Reports" },
-  { value: "meme", label: "Memes" },
+  { value: "proposal", label: "Votes" },
+  { value: "discussion", label: "Discussions" },
+] as const;
+
+/** Extra types only inside the Filter sheet */
+const FILTER_EXTRA = [
+  { value: "share", label: "Community posts" },
+  { value: "issue", label: "Issues" },
   { value: "notice", label: "Notices" },
 ] as const;
 
-/** Type chips inside Filter — only when All tab is active */
-const FILTER_TYPES = TABS;
+const FILTER_TYPES = [...TABS, ...FILTER_EXTRA] as const;
 
 const SORTS = [
   { value: "trending", label: "Trending" },
@@ -218,7 +222,9 @@ function HomeTrendingInner() {
     else if (state) parts.push(state);
     else if (country) parts.push(country);
     if (type !== "all") {
-      parts.push(TABS.find((t) => t.value === type)?.label ?? type);
+      parts.push(
+        FILTER_TYPES.find((t) => t.value === type)?.label ?? type,
+      );
     }
     if (tag) parts.push(`#${tag}`);
     if (qParam.trim()) parts.push(`“${qParam.trim()}”`);
@@ -230,6 +236,112 @@ function HomeTrendingInner() {
 
   const empty = !loading && posts.length === 0;
 
+  const emptyState = useMemo(() => {
+    const extraFilters = Boolean(
+      tag || qParam || country || state || district || city,
+    );
+    const byType: Record<
+      string,
+      { message: string; primary: { href: string; label: string } }
+    > = {
+      proposal: {
+        message: extraFilters
+          ? "No votes match these filters yet."
+          : "No votes yet. Start one.",
+        primary: {
+          href: portalHref("/vote/new"),
+          label: "Create vote / poll",
+        },
+      },
+      issue: {
+        message: extraFilters
+          ? "No issues match these filters yet."
+          : "No issues yet. Raise one.",
+        primary: {
+          href: portalHref("/issues/new"),
+          label: "Raise an issue",
+        },
+      },
+      report: {
+        message: extraFilters
+          ? "No reports match these filters yet."
+          : "No reports yet. File one.",
+        primary: {
+          href: portalHref("/reports/new"),
+          label: "File a report",
+        },
+      },
+      petition: {
+        message: extraFilters
+          ? "No petitions match these filters yet."
+          : "No petitions yet. Start one.",
+        primary: {
+          href: portalHref("/petitions/new"),
+          label: "Launch petition",
+        },
+      },
+      discussion: {
+        message: extraFilters
+          ? "No discussions match these filters yet."
+          : "No discussions yet. Start one.",
+        primary: {
+          href: portalHref("/feed/new"),
+          label: "Start a discussion",
+        },
+      },
+      notice: {
+        message: extraFilters
+          ? "No notices match these filters yet."
+          : "No notices yet. Post one.",
+        primary: {
+          href: portalHref("/notice/new"),
+          label: "Raise a notice",
+        },
+      },
+      share: {
+        message: extraFilters
+          ? "No community posts match these filters yet."
+          : "No community posts yet. Share something.",
+        primary: {
+          href: portalHref("/share/new"),
+          label: "Share",
+        },
+      },
+    };
+
+    if (type !== "all" && byType[type]) {
+      return {
+        message: byType[type].message,
+        actions: [byType[type].primary],
+      };
+    }
+
+    return {
+      message: hasFilters
+        ? "No posts match these filters yet."
+        : "Nothing trending yet. Be the first to share.",
+      actions: [
+        {
+          href: portalHref("/share/new"),
+          label: "Share",
+        },
+        {
+          href: portalHref("/petitions/new"),
+          label: "Start a petition",
+        },
+      ],
+    };
+  }, [
+    type,
+    tag,
+    qParam,
+    country,
+    state,
+    district,
+    city,
+    hasFilters,
+  ]);
+
   const filterPanel = (
     <div className="space-y-5 p-4 sm:p-5">
       <div>
@@ -237,63 +349,57 @@ function HomeTrendingInner() {
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           <label className="min-w-0">
             <span className="mb-1 block text-[11px] text-muted">Country</span>
-            <select
+            <SearchableSelect
               value={country}
-              onChange={(e) => setParam("country", e.target.value || null)}
-              className="min-h-10 w-full border border-line bg-white px-2 py-2 text-sm text-navy"
-            >
-              <option value="">All</option>
-              {locations.countries.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
+              onChange={(v) => setParam("country", v || null)}
+              options={locations.countries.map((c) => ({
+                value: c,
+                label: c,
+              }))}
+              emptyLabel="All"
+              searchPlaceholder="Search country…"
+              variant="box"
+              aria-label="Country"
+            />
           </label>
           <label className="min-w-0">
             <span className="mb-1 block text-[11px] text-muted">State</span>
-            <select
+            <SearchableSelect
               value={state}
-              onChange={(e) => setParam("state", e.target.value || null)}
-              className="min-h-10 w-full border border-line bg-white px-2 py-2 text-sm text-navy"
-            >
-              <option value="">All</option>
-              {locations.states.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
+              onChange={(v) => setParam("state", v || null)}
+              options={locations.states.map((s) => ({ value: s, label: s }))}
+              emptyLabel="All"
+              searchPlaceholder="Search state…"
+              variant="box"
+              aria-label="State"
+            />
           </label>
           <label className="min-w-0">
             <span className="mb-1 block text-[11px] text-muted">District</span>
-            <select
+            <SearchableSelect
               value={district}
-              onChange={(e) => setParam("district", e.target.value || null)}
-              className="min-h-10 w-full border border-line bg-white px-2 py-2 text-sm text-navy"
-            >
-              <option value="">All</option>
-              {locations.districts.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
+              onChange={(v) => setParam("district", v || null)}
+              options={locations.districts.map((d) => ({
+                value: d,
+                label: d,
+              }))}
+              emptyLabel="All"
+              searchPlaceholder="Search district…"
+              variant="box"
+              aria-label="District"
+            />
           </label>
           <label className="min-w-0">
             <span className="mb-1 block text-[11px] text-muted">City / town</span>
-            <select
+            <SearchableSelect
               value={city}
-              onChange={(e) => setParam("city", e.target.value || null)}
-              className="min-h-10 w-full border border-line bg-white px-2 py-2 text-sm text-navy"
-            >
-              <option value="">All</option>
-              {locations.cities.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
-            </select>
+              onChange={(v) => setParam("city", v || null)}
+              options={locations.cities.map((c) => ({ value: c, label: c }))}
+              emptyLabel="All"
+              searchPlaceholder="Search city…"
+              variant="box"
+              aria-label="City or town"
+            />
           </label>
         </div>
       </div>
@@ -379,7 +485,7 @@ function HomeTrendingInner() {
           <p className="text-sm text-muted">
             Showing{" "}
             <span className="font-medium text-navy">
-              {TABS.find((t) => t.value === type)?.label ?? type}
+              {FILTER_TYPES.find((t) => t.value === type)?.label ?? type}
             </span>{" "}
             — switch tabs above to change type. Place and hashtag filters still
             apply.
@@ -399,7 +505,7 @@ function HomeTrendingInner() {
           />
         ) : (
           <p className="text-sm text-muted">
-            Topics appear as citizens tag posts and memes.
+            Topics appear as citizens tag posts.
           </p>
         )}
       </div>
@@ -407,71 +513,79 @@ function HomeTrendingInner() {
   );
 
   return (
-    <section className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-muted">
-            Live square
-          </p>
-          <h2 className="font-display mt-1 text-2xl text-navy sm:text-3xl">
-            Trending now
-          </h2>
-        </div>
-        <Link
-          href={portalHref("/feed")}
-          className="shrink-0 text-sm font-medium text-amber hover:underline"
-        >
-          Full feed →
-        </Link>
-      </div>
-
-      <div className="mt-4 flex flex-wrap items-center gap-2">
-        <button
-          type="button"
-          onClick={() => setFilterOpen(true)}
-          className={`inline-flex items-center gap-1.5 rounded-sm p-1.5 text-sm transition ${
-            hasFilters
-              ? "text-amber"
-              : "text-navy/70 hover:text-navy"
-          }`}
-          aria-haspopup="dialog"
-          aria-expanded={filterOpen}
-          aria-label="Open filters and sort"
-          title="Filter & sort"
-        >
-          <IconFilter className="h-5 w-5" />
-          {hasFilters ? (
-            <span className="text-xs tabular-nums text-navy">
-              {filterSummary.length || ""}
-            </span>
-          ) : null}
-        </button>
-        <p className="min-w-0 flex-1 text-sm text-muted sm:max-w-xl">
-          Ranked by civic momentum — use Filter to sort and narrow by place or
-          hashtag.
-        </p>
-        {filterSummary.slice(0, 3).map((s) => (
+    <section className="px-4 py-8 sm:px-8 sm:py-10">
+      <div className="flex flex-wrap items-end justify-between gap-4">
+        <h1 className="font-display text-3xl tracking-tight text-navy sm:text-4xl">
+          Community Feed
+        </h1>
+        <div className="flex flex-wrap items-center gap-2">
+          <form
+            onSubmit={submitSearch}
+            className="flex min-w-0 flex-1 items-center gap-1 border border-line bg-white sm:min-w-[14rem] sm:flex-none"
+          >
+            <IconSearch className="ml-2.5 h-4 w-4 shrink-0 text-muted" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search feed…"
+              className="min-h-10 min-w-0 flex-1 bg-transparent py-2 pr-2 pl-1 text-sm outline-none placeholder:text-muted"
+              aria-label="Search feed"
+            />
+            {q ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setQ("");
+                  setParam("q", null);
+                }}
+                className="px-2 text-muted hover:text-navy"
+                aria-label="Clear search"
+              >
+                <IconX className="h-3.5 w-3.5" />
+              </button>
+            ) : null}
+          </form>
           <button
-            key={s}
             type="button"
             onClick={() => setFilterOpen(true)}
-            className="max-w-[10rem] truncate px-1.5 py-1 text-xs text-muted underline-offset-2 hover:text-navy hover:underline"
+            className={`inline-flex items-center gap-1.5 text-sm transition ${
+              hasFilters ? "text-amber" : "text-muted hover:text-navy"
+            }`}
+            aria-haspopup="dialog"
+            aria-expanded={filterOpen}
+            aria-label="Open filters and sort"
           >
-            {s}
+            <IconFilter className="h-4 w-4" />
+            Filter
+            {hasFilters ? (
+              <span className="tabular-nums text-xs">{filterSummary.length}</span>
+            ) : null}
           </button>
-        ))}
-        {hasFilters && (
+        </div>
+      </div>
+
+      {filterSummary.length > 0 ? (
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          {filterSummary.slice(0, 4).map((s) => (
+            <button
+              key={s}
+              type="button"
+              onClick={() => setFilterOpen(true)}
+              className="text-xs text-muted underline-offset-2 hover:text-navy hover:underline"
+            >
+              {s}
+            </button>
+          ))}
           <button
             type="button"
             onClick={() => clearFilters()}
-            className="inline-flex items-center justify-center rounded-sm p-1.5 text-navy/60 hover:text-navy"
+            className="inline-flex text-muted hover:text-navy"
             aria-label="Clear filters"
-            title="Clear filters"
           >
-            <IconX />
+            <IconX className="h-3.5 w-3.5" />
           </button>
-        )}
-      </div>
+        </div>
+      ) : null}
 
       {filterOpen && (
         <div
@@ -493,9 +607,7 @@ function HomeTrendingInner() {
                   Filter
                 </p>
                 <p className="mt-0.5 text-sm text-muted">
-                  {type === "all"
-                    ? "Sort, location, type, and hashtags"
-                    : "Sort, location, and hashtags"}
+                  Sort, place, type, and topics
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -534,100 +646,80 @@ function HomeTrendingInner() {
 
       {error && <p className="mt-6 text-sm text-danger">{error}</p>}
 
-      <div className="mt-8 border-t border-line pt-6">
-        <div className="mb-4">
-          <p className="text-xs uppercase tracking-wider text-muted">
-            Browse by type
-          </p>
-          <p className="mt-1 text-sm text-muted">
-            Choose what to follow — All, or lock to petitions, votes, reports,
-            and more.
-          </p>
-          <div
-            className="-mx-4 mt-3 flex gap-1 overflow-x-auto border-b border-line px-4 pb-px sm:mx-0 sm:px-0"
-            role="tablist"
-            aria-label="Browse by type"
-          >
-            {TABS.map((t) => {
-              const active = type === t.value;
-              const count =
-                t.value === "all"
-                  ? typeCounts.all
-                  : t.value === "proposal"
-                    ? (typeCounts.votes ?? typeCounts.proposal)
-                    : typeCounts[t.value];
-              return (
-                <button
-                  key={t.value}
-                  type="button"
-                  role="tab"
-                  aria-selected={active}
-                  onClick={() => setParam("type", t.value)}
-                  className={`shrink-0 border-b-2 px-3 py-2.5 text-sm transition ${
-                    active
-                      ? "border-amber font-medium text-navy"
-                      : "border-transparent text-muted hover:text-navy"
-                  }`}
-                >
-                  {t.label}
-                  {typeof count === "number" && count > 0 ? (
-                    <span className="ml-1.5 text-[11px] tabular-nums opacity-50">
-                      {count}
-                    </span>
-                  ) : null}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+      <div
+        className="-mx-4 mt-8 flex gap-1 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0"
+        role="tablist"
+        aria-label="Community feed"
+      >
+        {TABS.map((t) => {
+          const active = type === t.value;
+          const count =
+            t.value === "all"
+              ? typeCounts.all
+              : t.value === "proposal"
+                ? (typeCounts.votes ?? typeCounts.proposal)
+                : typeCounts[t.value];
+          return (
+            <button
+              key={t.value}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => setParam("type", t.value)}
+              className={`shrink-0 rounded-full px-4 py-2 text-sm transition ${
+                active
+                  ? "bg-navy text-cream"
+                  : "text-muted hover:bg-sand/70 hover:text-navy"
+              }`}
+            >
+              {t.label}
+              {typeof count === "number" && count > 0 ? (
+                <span className="ml-1.5 tabular-nums opacity-60">{count}</span>
+              ) : null}
+            </button>
+          );
+        })}
+      </div>
 
+      <div className="mt-2 divide-y divide-line/70">
         {loading && posts.length === 0 && (
-          <p className="py-10 text-sm text-muted">Loading trending…</p>
+          <p className="py-16 text-sm text-muted">Loading feed…</p>
         )}
         {empty && (
-          <div className="py-10">
-            <p className="text-sm text-muted">
-              {hasFilters
-                ? "No posts match these filters yet."
-                : "Nothing trending yet. Be the first to post."}
-            </p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              <Link
-                href={portalHref("/petitions/new")}
-                className="bg-navy px-4 py-2 text-sm text-cream"
-              >
-                Start a petition
-              </Link>
-              <Link
-                href={portalHref("/memes/new")}
-                className="px-1 py-2 text-sm text-muted hover:text-navy"
-              >
-                Post a meme
-              </Link>
-              <Link
-                href={portalHref("/feed")}
-                className="px-1 py-2 text-sm text-muted hover:text-navy"
-              >
-                Start a discussion
-              </Link>
+          <div className="py-16">
+            <p className="text-base text-muted">{emptyState.message}</p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              {emptyState.actions.map((action, i) => (
+                <Link
+                  key={action.href}
+                  href={action.href}
+                  className={
+                    i === 0
+                      ? "rounded-full bg-navy px-5 py-2.5 text-sm text-cream"
+                      : "px-2 py-2.5 text-sm text-muted hover:text-navy"
+                  }
+                >
+                  {action.label}
+                </Link>
+              ))}
             </div>
           </div>
         )}
         {posts.map((item) => (
-          <div key={item.id} className="border-b border-line py-6">
+          <article key={item.id} className="min-w-0">
             <FeedCard {...item} />
             {item.tags && item.tags.length > 0 ? (
               <InlineTags
-                className="mt-3"
+                className="mt-1 pl-5 sm:pl-6"
                 tags={item.tags}
                 onSelect={toggleTag}
                 limit={4}
               />
             ) : null}
-            <div className="mt-4">
+            <div className="mt-3 pl-5 sm:pl-6">
               <FeedEngage post={item} compact />
             </div>
-          </div>
+          </article>
         ))}
       </div>
     </section>
@@ -638,7 +730,7 @@ export function HomeTrending() {
   return (
     <Suspense
       fallback={
-        <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+        <section className="px-4 py-8 sm:px-6">
           <p className="text-sm text-muted">Loading trending…</p>
         </section>
       }

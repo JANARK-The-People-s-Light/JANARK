@@ -6,15 +6,16 @@ import { guardAnonymousWrite } from "@/lib/anti-bot";
 import { guardFail } from "@/lib/http";
 import {
   bumpMongoStats,
-  bumpTrend,
+  bumpTopicTrends,
   recordActivity,
 } from "@/lib/services";
 import {
+  collectTopicHashtags,
   isValidMediaUrl,
-  parseHashtags,
   publicMeme,
   score,
 } from "@/lib/memes";
+import { buildFeedTags } from "@/lib/hashtags";
 import { detectMediaType } from "@/lib/media";
 import { publicAuthorFromVoterKey } from "@/lib/identity";
 import { requireCivicPostTerms } from "@/lib/civic-post-terms";
@@ -119,7 +120,10 @@ export async function POST(req: Request) {
   const caption = body.caption ? String(body.caption).trim() : null;
   const imageUrl = String(body.imageUrl ?? "").trim();
   const sourceUrl = body.sourceUrl ? String(body.sourceUrl).trim() : null;
-  const tags = parseHashtags(body.hashtags ?? body.tags);
+  const tags = collectTopicHashtags({
+    hashtags: body.hashtags ?? body.tags,
+    texts: [title, caption],
+  });
   const voterKey = String(body.voterKey ?? "");
   const publicAuthor = await publicAuthorFromVoterKey(voterKey);
   if (!publicAuthor) {
@@ -202,16 +206,14 @@ export async function POST(req: Request) {
     meta: tagList.map((t) => `#${t}`).join(" "),
     votes: 0,
     hot: true,
-    tags: ["meme", ...tagList],
+    tags: buildFeedTags(["meme"], tagList),
     refId: meme.id,
     author: meme.authorLabel,
     authorAnonId: publicAuthor.authorAnonId,
     mediaUrl: imageUrl,
     mediaType,
   });
-  for (const t of tagList.slice(0, 5)) {
-    await bumpTrend(`#${t}`, 2, "meme");
-  }
+  await bumpTopicTrends(tagList, 2, "meme");
   await bumpMongoStats({ citizens: 1 });
   await recordActivity({
     kind: "meme",

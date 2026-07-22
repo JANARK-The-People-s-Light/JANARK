@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { getVoterKey } from "@/lib/client-id";
 import { MemeCard, type MemeCardData } from "@/components/MemeCard";
@@ -9,7 +9,6 @@ import { portalHref } from "@/lib/paths";
 
 export default function MemeDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
   const [meme, setMeme] = useState<MemeCardData | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,8 +34,8 @@ export default function MemeDetailPage() {
     return (
       <div className="mx-auto max-w-xl px-4 py-16 text-center">
         <p className="text-muted">{error}</p>
-        <Link href={portalHref("/memes")} className="mt-4 inline-block text-amber">
-          Back to memes
+        <Link href={portalHref("/")} className="mt-4 inline-block text-amber">
+          Back home
         </Link>
       </div>
     );
@@ -53,16 +52,13 @@ export default function MemeDetailPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 py-12 sm:px-6">
       <Link
-        href={portalHref("/memes")}
+        href={portalHref("/")}
         className="text-sm text-muted hover:text-amber"
       >
-        ← All memes
+        ← Home
       </Link>
       <div className="mt-6">
-        <MemeCard
-          meme={meme}
-          onTagClick={(t) => router.push(portalHref(`/memes?tag=${encodeURIComponent(t)}`))}
-        />
+        <MemeCard meme={meme} />
       </div>
       {meme.sourceUrl && (
         <p className="mt-4 text-sm text-muted">

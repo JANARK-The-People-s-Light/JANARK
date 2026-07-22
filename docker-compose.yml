@@ -25,11 +25,13 @@ services:
       DATABASE_URL: file:/data/janark.db
       MONGODB_URI: mongodb://mongo:27017/janark
       NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
-      PHONE_HASH_SALT: ${PHONE_HASH_SALT:-docker-local-phone-hash-salt-min-24}
-      HUMAN_TOKEN_SECRET: ${HUMAN_TOKEN_SECRET:-docker-local-human-token-secret-24}
-      IP_HASH_SALT: ${IP_HASH_SALT:-docker-local-ip-hash-salt-min-24xx}
-      # Demo/compose only — configure Twilio/MSG91 for real OTP delivery
+      # Use DOCKER_* so a local .env with weak/dev salts does not break production checks
+      PHONE_HASH_SALT: ${DOCKER_PHONE_HASH_SALT:-docker-local-phone-hash-salt-min-24}
+      HUMAN_TOKEN_SECRET: ${DOCKER_HUMAN_TOKEN_SECRET:-docker-local-human-token-secret-24}
+      IP_HASH_SALT: ${DOCKER_IP_HASH_SALT:-docker-local-ip-hash-salt-min-24xx}
+      # Compose demo: no SMS provider — echo OTP in the UI (never for real hosting)
       ALLOW_OTP_WITHOUT_SMS: ${ALLOW_OTP_WITHOUT_SMS:-1}
+      EXPOSE_DEV_OTP: ${DOCKER_EXPOSE_DEV_OTP:-1}
     volumes:
       - janark_sqlite:/data
       - janark_uploads:/app/public/uploads

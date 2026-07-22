@@ -1,35 +1,11 @@
-/** Normalize and validate meme hashtags / media links */
+/** Meme media helpers — hashtag utils live in `@/lib/hashtags`. */
 
-export function normalizeHashtag(raw: string): string | null {
-  const t = raw
-    .trim()
-    .replace(/^#+/, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9_]/g, "");
-  if (t.length < 2 || t.length > 40) return null;
-  return t;
-}
-
-export function parseHashtags(input: unknown): string[] {
-  const parts: string[] = [];
-  if (Array.isArray(input)) {
-    for (const p of input) parts.push(String(p));
-  } else if (typeof input === "string") {
-    parts.push(
-      ...input.split(/[\s,]+/).filter(Boolean),
-    );
-  }
-  const out: string[] = [];
-  const seen = new Set<string>();
-  for (const p of parts) {
-    const n = normalizeHashtag(p);
-    if (n && !seen.has(n)) {
-      seen.add(n);
-      out.push(n);
-    }
-  }
-  return out.slice(0, 12);
-}
+export {
+  normalizeHashtag,
+  parseHashtags,
+  collectTopicHashtags,
+  extractHashtagsFromText,
+} from "@/lib/hashtags";
 
 export function isValidMediaUrl(url: string): boolean {
   try {

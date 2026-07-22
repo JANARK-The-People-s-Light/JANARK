@@ -61,12 +61,27 @@ export function PhoneAuth({ onVerified }: Props) {
           ...(turnstileToken ? { turnstileToken } : {}),
         }),
       });
-      const data = await res.json();
+      const text = await res.text();
+      let data: {
+        error?: string;
+        hint?: string;
+        devCode?: string;
+      } = {};
+      try {
+        data = text ? (JSON.parse(text) as typeof data) : {};
+      } catch {
+        setError(
+          res.ok
+            ? "Network error"
+            : "Server error — check Docker env (PHONE_HASH_SALT) and logs",
+        );
+        return;
+      }
       if (!res.ok) {
         setError(data.error ?? "Could not send OTP");
         return;
       }
-      setHint(data.hint);
+      setHint(data.hint ?? null);
       setDevCode(data.devCode ?? null);
       setStep("otp");
     } catch {

@@ -4,7 +4,7 @@ import { connectMongo } from "@/lib/mongo";
 import { FeedPost } from "@/lib/mongo-models";
 import {
   bumpMongoStats,
-  bumpTrend,
+  bumpTopicTrends,
   mapIssue,
   recordActivity,
 } from "@/lib/services";
@@ -14,6 +14,11 @@ import { requireCivicPostTerms } from "@/lib/civic-post-terms";
 import { parseOptionalMedia } from "@/lib/media";
 import { publicAuthorFromVoterKey } from "@/lib/identity";
 import { allocatePublicPostId } from "@/lib/public-id";
+import {
+  buildFeedTags,
+  collectTopicHashtags,
+} from "@/lib/hashtags";
+import { ensureHashtagCatalog } from "@/lib/ensure-hashtags";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -54,13 +59,11 @@ export async function POST(req: Request) {
   }
 
   const title = String(body.title ?? "").trim();
-  const category = String(body.category ?? "Education").trim();
-  const summary = String(body.summary ?? "").trim();
-  if (!title || !summary) {
-    return NextResponse.json(
-      { error: "title and summary required" },
-      { status: 400 },
-    );
+  const category = String(body.category ?? "Infrastructure").trim();
+  const summary =
+    String(body.summary ?? "").trim() || title;
+  if (!title) {
+    return NextResponse.json({ error: "title required" }, { status: 400 });
   }
 
   let slug = slugify(title) || `issue-${Date.now()}`;
@@ -84,12 +87,8 @@ export async function POST(req: Request) {
       summary,
       whyItMatters: String(body.whyItMatters ?? summary),
       currentSituation: String(body.currentSituation ?? "Citizen-raised issue."),
-      pros: JSON.stringify(
-        Array.isArray(body.pros) ? body.pros : ["Citizen support growing"],
-      ),
-      cons: JSON.stringify(
-        Array.isArray(body.cons) ? body.cons : ["Needs broader debate"],
-      ),
+      pros: JSON.stringify(Array.isArray(body.pros) ? body.pros : []),
+      cons: JSON.stringify(Array.isArray(body.cons) ? body.cons : []),
       sources: JSON.stringify(Array.isArray(body.sources) ? body.sources : []),
       relatedSlugs: JSON.stringify(
         Array.isArray(body.relatedSlugs) ? body.relatedSlugs : [],
@@ -101,6 +100,11 @@ export async function POST(req: Request) {
     },
   });
 
+  const topics = collectTopicHashtags({
+    hashtags: body.hashtags ?? body.tags,
+    texts: [title, summary],
+  });
+  await ensureHashtagCatalog(topics);
   await connectMongo();
   await FeedPost.create({
     type: "issue",
@@ -111,7 +115,7 @@ export async function POST(req: Request) {
     meta: `${category} · new`,
     votes: 0,
     hot: true,
-    tags: [category],
+    tags: buildFeedTags([category], topics),
     refId: slug,
     author: author?.authorLabel ?? "Citizen",
     authorAnonId: author?.authorAnonId,
@@ -119,7 +123,7 @@ export async function POST(req: Request) {
     mediaUrl: media.mediaUrl ?? undefined,
     mediaType: media.mediaType ?? undefined,
   });
-  await bumpTrend(category, 3);
+  await bumpTopicTrends(topics, 2, "issue");
   await recordActivity({
     kind: "issue",
     summary: `New issue raised: ${title}`,

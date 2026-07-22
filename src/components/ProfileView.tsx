@@ -2,12 +2,20 @@
 
 import Link from "next/link";
 import { portalHref } from "@/lib/paths";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AuthorLink } from "@/components/AuthorLink";
+import { FollowButton } from "@/components/FollowButton";
 
 type ProfilePayload = {
   profile: { anonId: string; label: string; memberSince: string };
-  counts: { posts: number; reactions: number; memberSince: string };
+  counts: {
+    posts: number;
+    reactions: number;
+    followers?: number;
+    following?: number;
+    memberSince: string;
+  };
+  follow?: { viewerFollows: boolean; isSelf: boolean };
   posts: {
     memes: Array<{
       id: string;
@@ -97,6 +105,7 @@ type ProfilePayload = {
 };
 
 type Tab = "posts" | "reactions";
+type PeopleList = "followers" | "following" | null;
 
 function fmt(d: string) {
   try {
@@ -115,19 +124,55 @@ export function ProfileView({ anonId }: { anonId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<Tab>("posts");
+  const [peopleList, setPeopleList] = useState<PeopleList>(null);
+  const [people, setPeople] = useState<Array<{ anonId: string; label: string }>>(
+    [],
+  );
+  const [peopleLoading, setPeopleLoading] = useState(false);
+  const [followers, setFollowers] = useState(0);
+  const [followingCount, setFollowingCount] = useState(0);
+  const [viewerFollows, setViewerFollows] = useState(false);
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/profiles/${anonId}`, { cache: "no-store" })
+    fetch(`/api/profiles/${anonId}`, {
+      cache: "no-store",
+      credentials: "same-origin",
+    })
       .then(async (r) => {
         const json = await r.json();
         if (!r.ok) throw new Error(json.error ?? "Not found");
         setData(json);
+        setFollowers(Number(json.counts?.followers ?? 0));
+        setFollowingCount(Number(json.counts?.following ?? 0));
+        setViewerFollows(Boolean(json.follow?.viewerFollows));
         setError(null);
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, [anonId]);
+
+  const openPeople = useCallback(
+    async (list: "followers" | "following") => {
+      setPeopleList(list);
+      setPeopleLoading(true);
+      try {
+        const res = await fetch(
+          `/api/follow?anonId=${encodeURIComponent(anonId)}&list=${list}`,
+          { cache: "no-store", credentials: "same-origin" },
+        );
+        const json = await res.json();
+        if (res.ok) {
+          setPeople(json.people ?? []);
+          setFollowers(Number(json.followers ?? followers));
+          setFollowingCount(Number(json.followingCount ?? followingCount));
+        }
+      } finally {
+        setPeopleLoading(false);
+      }
+    },
+    [anonId, followers, followingCount],
+  );
 
   if (loading) {
     return <p className="text-sm text-muted">Loading profile…</p>;
@@ -143,7 +188,8 @@ export function ProfileView({ anonId }: { anonId: string }) {
     );
   }
 
-  const { profile, counts, posts, reactions } = data;
+  const { profile, counts, posts, reactions, follow } = data;
+  const isSelf = Boolean(follow?.isSelf);
 
   return (
     <div className="space-y-8">
@@ -151,20 +197,57 @@ export function ProfileView({ anonId }: { anonId: string }) {
         <p className="text-xs uppercase tracking-[0.2em] text-muted">
           Anonymous profile
         </p>
-        <h1 className="font-display mt-2 break-words text-3xl text-navy sm:text-4xl">
-          {profile.label}
-        </h1>
-        <p className="mt-2 break-all font-mono text-sm text-amber">{profile.anonId}</p>
+        <div className="mt-2 flex flex-wrap items-start justify-between gap-4">
+          <div className="min-w-0">
+            <h1 className="font-display break-words text-3xl text-navy sm:text-4xl">
+              {profile.label}
+            </h1>
+            <p className="mt-2 break-all font-mono text-sm text-amber">
+              {profile.anonId}
+            </p>
+          </div>
+          <FollowButton
+            key={`${anonId}-${viewerFollows}`}
+            targetAnonId={profile.anonId}
+            initialFollowing={viewerFollows}
+            isSelf={isSelf}
+            onChange={(s) => {
+              setViewerFollows(s.viewerFollows);
+              setFollowers(s.followers);
+              setFollowingCount(s.followingCount);
+            }}
+          />
+        </div>
         <p className="mt-4 max-w-xl text-sm leading-relaxed text-muted">
           This ID is public and anonymous. No phone number, name, or personal
           details are shown — only posts and reactions tied to this anonymity
-          ID.
+          ID. Follow to keep up with their civic posts.
         </p>
         <div className="mt-6 flex flex-wrap gap-6 text-sm">
           <div>
             <p className="font-display text-2xl text-navy">{counts.posts}</p>
             <p className="text-xs uppercase tracking-wider text-muted">Posts</p>
           </div>
+          <button
+            type="button"
+            onClick={() => void openPeople("followers")}
+            className="text-left transition hover:opacity-80"
+          >
+            <p className="font-display text-2xl text-navy">{followers}</p>
+            <p className="text-xs uppercase tracking-wider text-muted">
+              Followers
+            </p>
+          </button>
+          <button
+            type="button"
+            onClick={() => void openPeople("following")}
+            className="text-left transition hover:opacity-80"
+          >
+            <p className="font-display text-2xl text-navy">{followingCount}</p>
+            <p className="text-xs uppercase tracking-wider text-muted">
+              Following
+            </p>
+          </button>
           <div>
             <p className="font-display text-2xl text-navy">{counts.reactions}</p>
             <p className="text-xs uppercase tracking-wider text-muted">
@@ -178,6 +261,52 @@ export function ProfileView({ anonId }: { anonId: string }) {
             </p>
           </div>
         </div>
+
+        {peopleList ? (
+          <div className="mt-6 border border-line bg-white p-4">
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-navy">
+                {peopleList === "followers" ? "Followers" : "Following"}
+              </h2>
+              <button
+                type="button"
+                onClick={() => setPeopleList(null)}
+                className="text-xs text-muted hover:text-navy"
+              >
+                Close
+              </button>
+            </div>
+            {peopleLoading ? (
+              <p className="mt-4 text-sm text-muted">Loading…</p>
+            ) : people.length === 0 ? (
+              <p className="mt-4 text-sm text-muted">
+                No one here yet.
+              </p>
+            ) : (
+              <ul className="mt-3 divide-y divide-line">
+                {people.map((p) => (
+                  <li key={p.anonId}>
+                    <Link
+                      href={portalHref(`/u/${p.anonId}`)}
+                      className="flex items-center justify-between gap-3 py-3 hover:bg-sand/40"
+                      onClick={() => setPeopleList(null)}
+                    >
+                      <span>
+                        <span className="block text-sm font-medium text-navy">
+                          {p.label}
+                        </span>
+                        <span className="font-mono text-xs text-amber">
+                          {p.anonId}
+                        </span>
+                      </span>
+                      <span className="text-xs text-muted">View</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ) : null}
       </header>
 
       <div className="flex gap-2 border-b border-line">

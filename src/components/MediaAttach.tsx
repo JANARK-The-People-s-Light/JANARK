@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { detectMediaType, type MediaType } from "@/lib/media";
 import { MediaViewer } from "@/components/MediaViewer";
 import { IconAttach, IconGif, IconX } from "@/components/Icons";
@@ -22,8 +22,35 @@ type Props = {
   collapsed?: boolean;
 };
 
+function clipboardImageFile(
+  data: DataTransfer | null,
+  gifOnly?: boolean,
+): File | null {
+  if (!data) return null;
+
+  const fromFiles = Array.from(data.files || []).find((f) =>
+    gifOnly
+      ? f.type === "image/gif" || /\.gif$/i.test(f.name)
+      : f.type.startsWith("image/") || f.type.startsWith("video/"),
+  );
+  if (fromFiles) return fromFiles;
+
+  for (const item of Array.from(data.items || [])) {
+    if (item.kind !== "file") continue;
+    const type = (item.type || "").toLowerCase();
+    if (gifOnly) {
+      if (type !== "image/gif") continue;
+    } else if (!type.startsWith("image/") && !type.startsWith("video/")) {
+      continue;
+    }
+    const file = item.getAsFile();
+    if (file) return file;
+  }
+  return null;
+}
+
 /**
- * Optional attachment for posts: upload a file or paste a public media link.
+ * Optional attachment for posts: upload a file, paste from clipboard, or paste a public media link.
  * Uploads require phone login and go to /api/upload → /uploads/….
  */
 export function MediaAttach({
@@ -36,6 +63,7 @@ export function MediaAttach({
   collapsed,
 }: Props) {
   const { ensureAuth } = useAuth();
+  const rootRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const useCollapsed = collapsed ?? !required;
   const [open, setOpen] = useState(Boolean(value.trim()) || required);
@@ -57,34 +85,84 @@ export function MediaAttach({
   const invalidGif =
     gifOnly && value.trim() && mediaType !== null && mediaType !== "gif";
 
-  async function uploadFile(file: File) {
-    setError(null);
-    const voterKey = ensureAuth("upload an attachment");
-    if (!voterKey) return;
+  const uploadFile = useCallback(
+    async (file: File) => {
+      setError(null);
+      if (gifOnly) {
+        const ok =
+          file.type === "image/gif" || /\.gif$/i.test(file.name || "");
+        if (!ok) {
+          setError("Comments only support GIF images — paste or upload a .gif");
+          setOpen(true);
+          return;
+        }
+      }
 
-    setBusy(true);
-    try {
-      const form = new FormData();
-      form.set("file", file);
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        credentials: "same-origin",
-        body: form,
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error ?? "Upload failed");
+      const voterKey = ensureAuth("upload an attachment");
+      if (!voterKey) return;
+
+      setOpen(true);
+      setBusy(true);
+      try {
+        const form = new FormData();
+        form.set("file", file);
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          credentials: "same-origin",
+          body: form,
+        });
+        const text = await res.text();
+        let data: { error?: string; url?: string } = {};
+        try {
+          data = text ? (JSON.parse(text) as typeof data) : {};
+        } catch {
+          setError("Upload failed");
+          return;
+        }
+        if (!res.ok) {
+          setError(data.error ?? "Upload failed");
+          return;
+        }
+        onChange(String(data.url ?? ""));
+        setMode("upload");
+      } catch {
+        setError("Network error while uploading");
+      } finally {
+        setBusy(false);
+        if (fileRef.current) fileRef.current.value = "";
+      }
+    },
+    [ensureAuth, gifOnly, onChange],
+  );
+
+  // Paste image/GIF from clipboard while focus is in the same form (or this control).
+  useEffect(() => {
+    function onPaste(e: ClipboardEvent) {
+      const file = clipboardImageFile(e.clipboardData, gifOnly);
+      if (!file) return;
+
+      const root = rootRef.current;
+      if (!root) return;
+      const scope = root.closest("form") ?? root;
+      const active = document.activeElement;
+      if (
+        active &&
+        active !== document.body &&
+        !scope.contains(active) &&
+        active !== root
+      ) {
         return;
       }
-      onChange(String(data.url ?? ""));
-      setMode("upload");
-    } catch {
-      setError("Network error while uploading");
-    } finally {
-      setBusy(false);
-      if (fileRef.current) fileRef.current.value = "";
+
+      // Prefer not to steal plain-text pastes into text fields when no image file
+      // (clipboardImageFile already requires a file). Always take image pastes.
+      e.preventDefault();
+      void uploadFile(file);
     }
-  }
+
+    document.addEventListener("paste", onPaste);
+    return () => document.removeEventListener("paste", onPaste);
+  }, [gifOnly, uploadFile]);
 
   function clear() {
     onChange("");
@@ -94,7 +172,7 @@ export function MediaAttach({
 
   if (gifOnly) {
     return (
-      <div className={className}>
+      <div ref={rootRef} className={className}>
         {!open ? (
           <button
             type="button"
@@ -113,7 +191,8 @@ export function MediaAttach({
                   Add a GIF
                 </p>
                 <p className="mt-1 text-xs text-muted">
-                  Comments only support GIFs. Open{" "}
+                  Paste a GIF (⌘/Ctrl+V), upload a .gif, or paste a Giphy/Tenor
+                  link.{" "}
                   <a
                     href="https://giphy.com"
                     target="_blank"
@@ -122,7 +201,7 @@ export function MediaAttach({
                   >
                     Giphy
                   </a>{" "}
-                  or{" "}
+                  ·{" "}
                   <a
                     href="https://tenor.com"
                     target="_blank"
@@ -131,8 +210,6 @@ export function MediaAttach({
                   >
                     Tenor
                   </a>
-                  , copy the GIF link, and paste it below — or upload a .gif
-                  file.
                 </p>
               </div>
               <button
@@ -209,8 +286,8 @@ export function MediaAttach({
             {required ? "" : " (optional)"}
           </p>
           <p className="mt-1 text-xs text-muted">
-            Upload a photo, GIF, or short video from your device, or paste a
-            public https link.
+            Paste an image (⌘/Ctrl+V), upload a file, or paste a public https
+            link.
           </p>
         </div>
         {!required ? (
@@ -236,7 +313,7 @@ export function MediaAttach({
               : "border border-line bg-white px-3 py-1.5 text-navy"
           }
         >
-          Upload file
+          Upload / paste
         </button>
         <button
           type="button"
@@ -265,8 +342,8 @@ export function MediaAttach({
             }}
           />
           <p className="text-xs text-muted">
-            JPEG, PNG, WebP, GIF, MP4, or WebM · max 8 MB. Phone login required
-            to upload.
+            JPEG, PNG, WebP, GIF, MP4, or WebM · max 8 MB. Paste from clipboard
+            or choose a file. Phone login required to upload.
           </p>
           {busy ? <p className="text-xs text-navy">Uploading…</p> : null}
         </div>
@@ -282,7 +359,8 @@ export function MediaAttach({
             placeholder="https://… .gif · .png · .jpg · .mp4 · .webm"
           />
           <p className="mt-1.5 text-xs text-muted">
-            Paste a direct link (Giphy, Imgur, your CDN).
+            Paste a direct link (Giphy, Imgur, your CDN). You can also paste an
+            image file with ⌘/Ctrl+V.
             {mediaType && !value.startsWith("/uploads/") ? (
               <span className="ml-1 text-navy">Detected: {mediaType}</span>
             ) : null}
@@ -310,7 +388,7 @@ export function MediaAttach({
 
   if (useCollapsed && !open) {
     return (
-      <div className={className}>
+      <div ref={rootRef} className={className}>
         <button
           type="button"
           onClick={() => setOpen(true)}
@@ -319,9 +397,16 @@ export function MediaAttach({
           <IconAttach className="h-4 w-4" />
           Add attachment
         </button>
+        <p className="mt-1.5 text-xs text-muted">
+          Or paste an image anywhere in this form (⌘/Ctrl+V)
+        </p>
       </div>
     );
   }
 
-  return <div className={className}>{panel}</div>;
+  return (
+    <div ref={rootRef} className={className}>
+      {panel}
+    </div>
+  );
 }

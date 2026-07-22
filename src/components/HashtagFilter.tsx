@@ -1,5 +1,7 @@
 "use client";
 
+import { topicTagsOnly } from "@/lib/hashtags";
+
 type Tag = { tag: string; count?: number };
 
 type FilterProps = {
@@ -23,7 +25,9 @@ export function HashtagFilter({
   label = "Topics",
   className = "",
 }: FilterProps) {
-  const list = tags.slice(0, limit);
+  const list = topicTagsOnly(tags.map((t) => t.tag))
+    .map((tag) => tags.find((t) => t.tag === tag) ?? { tag })
+    .slice(0, limit);
   if (list.length === 0) return null;
 
   return (
@@ -101,9 +105,7 @@ export function InlineTags({
   limit = 4,
   className = "",
 }: InlineProps) {
-  const clean = tags
-    .map((t) => t.replace(/^#/, "").toLowerCase())
-    .filter(Boolean);
+  const clean = topicTagsOnly(tags);
   const shown = clean.slice(0, limit);
   if (shown.length === 0) return null;
   const extra = clean.length - shown.length;

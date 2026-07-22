@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { DemandActions } from "@/components/DemandActions";
+import { PetitionOwnControls } from "@/components/PetitionOwnControls";
 import { AuthorLink } from "@/components/AuthorLink";
 
 export const dynamic = "force-dynamic";
@@ -50,6 +51,13 @@ export default async function PetitionDetailPage({ params }: Props) {
         <AuthorLink anonId={demand.authorAnonId} label={demand.authorLabel} /> ·{" "}
         {demand.createdAt.toISOString().slice(0, 10)}
       </p>
+      <PetitionOwnControls
+        id={demand.id}
+        authorAnonId={demand.authorAnonId}
+        title={demand.title}
+        ask={demand.ask}
+        body={demand.body}
+      />
       <p className="mt-8 whitespace-pre-wrap text-lg leading-relaxed text-navy/90">
         {demand.body}
       </p>
@@ -69,7 +77,6 @@ export default async function PetitionDetailPage({ params }: Props) {
               alt=""
               className="max-h-[28rem] w-full object-contain"
               loading="lazy"
-              referrerPolicy="no-referrer"
             />
           )}
         </div>
