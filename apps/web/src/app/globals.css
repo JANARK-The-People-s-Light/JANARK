@@ -1,0 +1,329 @@
+@import "tailwindcss";
+
+/**
+ * Design tokens — every theme sets the same variables.
+ * --navy / --navy-mid = ink (text on surfaces)
+ * --chrome / --chrome-mid = solid fills (header, primary dark buttons)
+ * --on-chrome = text/icons on chrome fills
+ * --amber / --amber-bright = action fills (buttons, chips)
+ * --on-amber = ink on amber fills (always dark — navy remaps on dark themes)
+ * --link = interactive text (AA on background / white / sand)
+ * --font-display / --font-body = face stacks (selected per theme)
+ */
+
+:root,
+[data-theme="brand-day"] {
+  --background: #ffffff;
+  --foreground: #02274b;
+  --navy: #02274b;
+  --navy-mid: #002e57;
+  --chrome: #02274b;
+  --chrome-mid: #002e57;
+  --amber: #f89e17;
+  --amber-bright: #ffc83d;
+  --on-amber: #02274b;
+  --link: #9a4d00;
+  --saffron: #9a4d00;
+  --sand: #ffe7a3;
+  --cream: #fff8e8;
+  --muted: #5d6264;
+  --line: #d9dde0;
+  --white: #ffffff;
+  --on-chrome: #fff8e8;
+  --success: #1f6b4a;
+  --danger: #9b2c2c;
+  --fact: #002e57;
+  --news: #8a6a12;
+  --opinion: #5d6264;
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-body: var(--font-source-sans), system-ui, sans-serif;
+}
+
+[data-theme="brand-warm"] {
+  --background: #ffe7a3;
+  --foreground: #02274b;
+  --navy: #02274b;
+  --navy-mid: #002e57;
+  --chrome: #02274b;
+  --chrome-mid: #002e57;
+  --amber: #f89e17;
+  --amber-bright: #ffc83d;
+  --on-amber: #02274b;
+  --link: #7a3a00;
+  --saffron: #7a3a00;
+  --sand: #fff4cc;
+  --cream: #fff8e0;
+  --muted: #4a4f51;
+  --line: #d4b84a;
+  --white: #ffffff;
+  --on-chrome: #fff8e8;
+  --success: #1f6b4a;
+  --danger: #9b2c2c;
+  --fact: #002e57;
+  --news: #7a3a00;
+  --opinion: #4a4f51;
+  --font-display: var(--font-literata), Georgia, serif;
+  --font-body: var(--font-source-sans), system-ui, sans-serif;
+}
+
+[data-theme="brand-night"] {
+  --background: #02274b;
+  --foreground: #ffffff;
+  --navy: #ffffff;
+  --navy-mid: #ffe7a3;
+  --chrome: #002e57;
+  --chrome-mid: #0a3a66;
+  --amber: #ffc83d;
+  --amber-bright: #f89e17;
+  --on-amber: #02274b;
+  --link: #ffc83d;
+  --saffron: #ffc83d;
+  --sand: #002e57;
+  --cream: #0a3058;
+  --muted: #b8c0c6;
+  --line: #3d5a73;
+  --white: #002e57;
+  --on-chrome: #ffffff;
+  --success: #3dd68c;
+  --danger: #f87171;
+  --fact: #ffe7a3;
+  --news: #ffc83d;
+  --opinion: #c5cad0;
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-body: var(--font-source-sans), system-ui, sans-serif;
+}
+
+[data-theme="monsoon"] {
+  --background: #e8f1f2;
+  --foreground: #0b3d4a;
+  --navy: #0b3d4a;
+  --navy-mid: #145566;
+  --chrome: #0b3d4a;
+  --chrome-mid: #145566;
+  --amber: #2a9d8f;
+  --amber-bright: #3db8a8;
+  --on-amber: #02274b;
+  --link: #0d5c52;
+  --saffron: #6b5410;
+  --sand: #d4e8ea;
+  --cream: #f3f9f9;
+  --muted: #3d555c;
+  --line: #b7cfd3;
+  --white: #ffffff;
+  --on-chrome: #f3f9f9;
+  --success: #1f6b4a;
+  --danger: #9b2c2c;
+  --fact: #1a6b7a;
+  --news: #8a6a12;
+  --opinion: #3d5a5c;
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-body: var(--font-nunito), system-ui, sans-serif;
+}
+
+[data-theme="ember-graphite"] {
+  --background: #1c1917;
+  --foreground: #fafaf9;
+  --navy: #fafaf9;
+  --navy-mid: #e7e5e4;
+  --chrome: #292524;
+  --chrome-mid: #44403c;
+  --amber: #ea580c;
+  --amber-bright: #f97316;
+  --on-amber: #0c0a09;
+  --link: #fb923c;
+  --saffron: #fb923c;
+  --sand: #292524;
+  --cream: #231f1e;
+  --muted: #a8a29e;
+  --line: #57534e;
+  --white: #292524;
+  --on-chrome: #fafaf9;
+  --success: #4ade80;
+  --danger: #f87171;
+  --fact: #fdba74;
+  --news: #fbbf24;
+  --opinion: #d6d3d1;
+  --font-display: var(--font-outfit), system-ui, sans-serif;
+  --font-body: var(--font-source-sans), system-ui, sans-serif;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-navy: var(--navy);
+  --color-navy-mid: var(--navy-mid);
+  --color-chrome: var(--chrome);
+  --color-chrome-mid: var(--chrome-mid);
+  --color-amber: var(--amber);
+  --color-amber-bright: var(--amber-bright);
+  --color-on-amber: var(--on-amber);
+  --color-link: var(--link);
+  --color-saffron: var(--saffron);
+  --color-sand: var(--sand);
+  --color-cream: var(--cream);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-white: var(--white);
+  --color-on-chrome: var(--on-chrome);
+  --color-fact: var(--fact);
+  --color-news: var(--news);
+  --color-opinion: var(--opinion);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html {
+  overflow-x: hidden;
+  color-scheme: light;
+  --font-scale: 1;
+  font-size: calc(100% * var(--font-scale));
+}
+
+[data-font-scale="sm"] {
+  --font-scale: 0.92;
+}
+
+[data-font-scale="md"] {
+  --font-scale: 1;
+}
+
+[data-font-scale="lg"] {
+  --font-scale: 1.12;
+}
+
+[data-reduce-motion="1"] *,
+[data-reduce-motion="1"] *::before,
+[data-reduce-motion="1"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+[data-theme="brand-night"],
+[data-theme="ember-graphite"] {
+  color-scheme: dark;
+}
+
+/* Comfortable tap targets on touch devices */
+@media (pointer: coarse) {
+  button,
+  a,
+  [role="button"],
+  summary,
+  select,
+  input[type="checkbox"],
+  input[type="radio"] {
+    touch-action: manipulation;
+  }
+}
+
+img,
+video,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+.font-display {
+  font-family: var(--font-display);
+  overflow-wrap: break-word;
+}
+
+.hero-atmosphere {
+  background:
+    radial-gradient(
+      ellipse 80% 60% at 70% 20%,
+      color-mix(in srgb, var(--amber) 35%, transparent),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 60% 50% at 15% 80%,
+      color-mix(in srgb, var(--chrome-mid) 45%, transparent),
+      transparent 50%
+    ),
+    linear-gradient(160deg, var(--chrome) 0%, var(--chrome-mid) 45%, var(--chrome) 100%);
+}
+
+.surface-grain {
+  background-image:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--background) 92%, transparent),
+      color-mix(in srgb, var(--background) 96%, transparent)
+    ),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes soft-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes bar-grow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+.animate-rise {
+  animation: rise-in 0.7s ease-out both;
+}
+
+.animate-rise-delay {
+  animation: rise-in 0.8s ease-out 0.15s both;
+}
+
+.animate-rise-delay-2 {
+  animation: rise-in 0.85s ease-out 0.3s both;
+}
+
+.animate-pulse-soft {
+  animation: soft-pulse 3s ease-in-out infinite;
+}
+
+.bar-fill {
+  transform-origin: left;
+  animation: bar-grow 0.9s ease-out both;
+}

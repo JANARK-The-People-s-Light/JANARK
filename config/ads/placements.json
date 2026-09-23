@@ -1,0 +1,50 @@
+{
+  "home-top": {
+    "enabled": true,
+    "provider": "adsense",
+    "format": "leaderboard",
+    "slotIdEnv": "NEXT_PUBLIC_ADSENSE_SLOT_HOME_TOP",
+    "labelKey": "sponsored",
+    "reservedHeight": 90
+  },
+  "feed-top": {
+    "enabled": true,
+    "provider": "adsense",
+    "format": "responsive",
+    "slotIdEnv": "NEXT_PUBLIC_ADSENSE_SLOT_FEED_TOP",
+    "labelKey": "advertisement",
+    "reservedHeight": 100
+  },
+  "feed-middle": {
+    "enabled": true,
+    "provider": "adsense",
+    "format": "rectangle",
+    "slotIdEnv": "NEXT_PUBLIC_ADSENSE_SLOT_FEED_MIDDLE",
+    "labelKey": "advertisement",
+    "reservedHeight": 250
+  },
+  "post-bottom": {
+    "enabled": true,
+    "provider": "adsense",
+    "format": "responsive",
+    "slotIdEnv": "NEXT_PUBLIC_ADSENSE_SLOT_POST_BOTTOM",
+    "labelKey": "advertisement",
+    "reservedHeight": 100
+  },
+  "sidebar": {
+    "enabled": true,
+    "provider": "adsense",
+    "format": "rectangle",
+    "slotIdEnv": "NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR",
+    "labelKey": "sponsoredArea",
+    "reservedHeight": 250
+  },
+  "mobile-bottom": {
+    "enabled": false,
+    "provider": "adsense",
+    "format": "responsive",
+    "slotIdEnv": "NEXT_PUBLIC_ADSENSE_SLOT_MOBILE_BOTTOM",
+    "labelKey": "advertisement",
+    "reservedHeight": 100
+  }
+}

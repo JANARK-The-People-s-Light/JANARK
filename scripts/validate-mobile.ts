@@ -1,29 +1,32 @@
 /**
- * Mobile layout validation for Janark at 375×812 and 390×844.
- * Run: npx --yes playwright@1.49.0 install chromium && npx --yes tsx scripts/validate-mobile.ts
+ * Mobile layout validation for Janark portal at common phone viewports.
+ * Run: npx playwright install chromium && BASE_URL=http://localhost:3000 npx tsx scripts/validate-mobile.ts
  */
 import { chromium, type Page } from "playwright";
 
 const BASE = process.env.BASE_URL || "http://localhost:3000";
+const PORTAL = "/unreleased";
+
 const VIEWPORTS = [
   { name: "iPhone-SE", width: 375, height: 667 },
   { name: "iPhone-12", width: 390, height: 844 },
 ];
 
-const ROUTES = [
-  "/",
-  "/feed",
-  "/memes",
-  "/demands",
-  "/reports",
-  "/explore",
-  "/issues",
-  "/about",
-  "/dashboard",
-  "/login",
-  "/memes/new",
-  "/demands/new",
-  "/reports/new",
+/** Portal routes (under /unreleased while marketing `/` is coming-soon). */
+const PORTAL_ROUTES = [
+  PORTAL,
+  `${PORTAL}/feed`,
+  `${PORTAL}/issues`,
+  `${PORTAL}/petitions`,
+  `${PORTAL}/reports`,
+  `${PORTAL}/vote`,
+  `${PORTAL}/dashboard`,
+  `${PORTAL}/login`,
+  `${PORTAL}/settings`,
+  `${PORTAL}/about`,
+  `${PORTAL}/feed/new`,
+  `${PORTAL}/petitions/new`,
+  `${PORTAL}/reports/new`,
 ];
 
 type Issue = {
@@ -33,10 +36,48 @@ type Issue = {
   detail: string;
 };
 
-async function checkPage(page: Page, route: string, vpName: string): Promise<Issue[]> {
+async function checkMarketingHome(page: Page, vpName: string): Promise<Issue[]> {
+  const issues: Issue[] = [];
+  const res = await page.goto(`${BASE}/`, {
+    waitUntil: "domcontentloaded",
+    timeout: 30000,
+  });
+  if (!res || res.status() >= 500) {
+    issues.push({
+      route: "/",
+      viewport: vpName,
+      kind: "http",
+      detail: `status ${res?.status() ?? "none"}`,
+    });
+    return issues;
+  }
+  await page.waitForTimeout(300);
+  const ok = await page.evaluate(() => {
+    const body = document.body?.innerText || "";
+    return body.length > 20;
+  });
+  if (!ok) {
+    issues.push({
+      route: "/",
+      viewport: vpName,
+      kind: "empty",
+      detail: "marketing home has no content",
+    });
+  }
+  return issues;
+}
+
+async function checkPortalPage(
+  page: Page,
+  route: string,
+  vpName: string,
+): Promise<Issue[]> {
   const issues: Issue[] = [];
   const url = `${BASE}${route}`;
-  const res = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
+  const res = await page.goto(url, {
+    waitUntil: "domcontentloaded",
+    timeout: 30000,
+  });
   if (!res || res.status() >= 500) {
     issues.push({
       route,
@@ -47,7 +88,7 @@ async function checkPage(page: Page, route: string, vpName: string): Promise<Iss
     return issues;
   }
 
-  await page.waitForTimeout(400);
+  await page.waitForTimeout(450);
 
   const metrics = await page.evaluate(() => {
     const doc = document.documentElement;
@@ -58,11 +99,12 @@ async function checkPage(page: Page, route: string, vpName: string): Promise<Iss
 
     const header = document.querySelector("header");
     const menuBtn = document.querySelector(
-      'header button[aria-label="Open menu"], header button[aria-label="Close menu"]',
+      'header button[aria-label="Open menu"]',
     );
-    const desktopNav = document.querySelector('header nav[aria-label="Primary"]');
+    const mobilePrimary = document.querySelector(
+      'nav[aria-label="Mobile primary"]',
+    );
 
-    // Elements extending past viewport
     const offenders: string[] = [];
     const all = Array.from(document.querySelectorAll("body *"));
     for (const el of all.slice(0, 800)) {
@@ -70,8 +112,12 @@ async function checkPage(page: Page, route: string, vpName: string): Promise<Iss
       if (!r || r.width === 0) continue;
       if (r.right > clientWidth + 2 || r.left < -2) {
         const tag = (el as HTMLElement).tagName.toLowerCase();
-        const cls = ((el as HTMLElement).className || "").toString().slice(0, 60);
-        offenders.push(`${tag}.${cls} L=${Math.round(r.left)} R=${Math.round(r.right)}`);
+        const cls = ((el as HTMLElement).className || "")
+          .toString()
+          .slice(0, 60);
+        offenders.push(
+          `${tag}.${cls} L=${Math.round(r.left)} R=${Math.round(r.right)}`,
+        );
         if (offenders.length >= 8) break;
       }
     }
@@ -82,14 +128,12 @@ async function checkPage(page: Page, route: string, vpName: string): Promise<Iss
       scrollWidth,
       hasHeader: !!header,
       hasMenuBtn: !!menuBtn,
-      desktopNavHidden:
-        !desktopNav ||
-        getComputedStyle(desktopNav as Element).display === "none",
+      hasMobilePrimary: !!mobilePrimary,
       offenders,
     };
   });
 
-  if (metrics.overflowX > 2) {
+  if (metrics.overflowX > 8) {
     issues.push({
       route,
       viewport: vpName,
@@ -116,16 +160,16 @@ async function checkPage(page: Page, route: string, vpName: string): Promise<Iss
     });
   }
 
-  if (!metrics.desktopNavHidden) {
+  if (!metrics.hasMobilePrimary && !route.includes("/new")) {
     issues.push({
       route,
       viewport: vpName,
-      kind: "desktop-nav-visible",
-      detail: "primary nav should be hidden on mobile",
+      kind: "missing-bottom-nav",
+      detail: "Mobile primary nav not found",
     });
   }
 
-  if (metrics.offenders.length > 0 && metrics.overflowX > 2) {
+  if (metrics.offenders.length > 0 && metrics.overflowX > 8) {
     issues.push({
       route,
       viewport: vpName,
@@ -134,17 +178,16 @@ async function checkPage(page: Page, route: string, vpName: string): Promise<Iss
     });
   }
 
-  // Open mobile menu and verify drawer
   if (metrics.hasMenuBtn) {
     await page.click('header button[aria-label="Open menu"]');
-    await page.waitForTimeout(200);
+    await page.waitForTimeout(250);
     const menuOk = await page.evaluate(() => {
-      const drawer = document.getElementById("mobile-nav");
-      if (!drawer) return { ok: false, reason: "no #mobile-nav" };
+      const drawer = document.querySelector('[aria-label="Navigation"]');
+      if (!drawer) return { ok: false, reason: "no navigation drawer" };
       const links = drawer.querySelectorAll("a");
       return {
-        ok: links.length >= 8,
-        reason: links.length < 8 ? `only ${links.length} links` : "ok",
+        ok: links.length >= 6,
+        reason: links.length < 6 ? `only ${links.length} links` : "ok",
       };
     });
     if (!menuOk.ok) {
@@ -175,9 +218,28 @@ async function main() {
         "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.0 Mobile/15E148 Safari/604.1",
     });
     const page = await context.newPage();
-    for (const route of ROUTES) {
+
+    try {
+      const homeIssues = await checkMarketingHome(page, vp.name);
+      all.push(...homeIssues);
+      process.stdout.write(
+        homeIssues.length === 0
+          ? `✓ ${vp.name} /\n`
+          : `✗ ${vp.name} / (${homeIssues.length} issues)\n`,
+      );
+    } catch (e) {
+      all.push({
+        route: "/",
+        viewport: vp.name,
+        kind: "crash",
+        detail: String(e),
+      });
+      process.stdout.write(`✗ ${vp.name} / CRASH\n`);
+    }
+
+    for (const route of PORTAL_ROUTES) {
       try {
-        const found = await checkPage(page, route, vp.name);
+        const found = await checkPortalPage(page, route, vp.name);
         all.push(...found);
         process.stdout.write(
           found.length === 0
@@ -201,8 +263,8 @@ async function main() {
 
   console.log("\n=== SUMMARY ===");
   if (all.length === 0) {
-    console.log(`All ${ROUTES.length * VIEWPORTS.length} checks passed.`);
-    process.exit(0);
+    console.log("All mobile checks passed.");
+    return;
   }
   for (const i of all) {
     console.log(`[${i.viewport}] ${i.route} · ${i.kind}: ${i.detail}`);

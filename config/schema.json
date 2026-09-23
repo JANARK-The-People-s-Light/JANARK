@@ -1,0 +1,16 @@
+{
+  "configPillars": {
+    "sys": { "file": "sys.json", "required": true },
+    "rules": { "file": "rules.json", "required": true },
+    "templates": { "file": "templates.json", "required": true },
+    "schema": { "file": "schema.json", "required": true },
+    "fallbacks": { "file": "fallbacks.json", "required": true }
+  },
+  "refs": {
+    "prismaSchema": { "$ref": "sys.paths.prismaSchema" },
+    "civicEntities": "Defined in prisma/schema.prisma — do not duplicate models in application code"
+  },
+  "apiPayloads": {
+    "note": "Route handlers validate against Prisma + rules.json bounds; OpenAPI export planned"
+  }
+}

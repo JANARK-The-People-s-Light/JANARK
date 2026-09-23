@@ -1,0 +1,17 @@
+{
+  "leaderboard": {
+    "name": "Leaderboard",
+    "desktop": { "width": 728, "height": 90 },
+    "mobile": { "width": 320, "height": 100 }
+  },
+  "rectangle": {
+    "name": "Medium Rectangle",
+    "desktop": { "width": 300, "height": 250 },
+    "mobile": { "width": 300, "height": 250 }
+  },
+  "responsive": {
+    "name": "Responsive Display",
+    "desktop": { "width": "100%", "height": "auto" },
+    "mobile": { "width": "100%", "height": "auto" }
+  }
+}

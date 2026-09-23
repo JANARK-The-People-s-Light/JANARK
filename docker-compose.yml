@@ -34,7 +34,7 @@ services:
       EXPOSE_DEV_OTP: ${DOCKER_EXPOSE_DEV_OTP:-1}
     volumes:
       - janark_sqlite:/data
-      - janark_uploads:/app/public/uploads
+      - janark_uploads:/app/apps/web/public/uploads
     depends_on:
       mongo:
         condition: service_healthy

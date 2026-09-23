@@ -1,0 +1,7 @@
+-keepattributes *Annotation*, InnerClasses, Signature, Exception
+-keep class kotlinx.serialization.** { *; }
+-keepclassmembers class kotlinx.serialization.json.** { *; }
+-keepclassmembers class org.janark.app.data.net.** { *; }
+-dontwarn okhttp3.**
+-dontwarn okio.**
+-dontwarn retrofit2.**

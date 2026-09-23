@@ -8,15 +8,15 @@ import "dotenv/config";
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
-import { PrismaClient } from "../src/generated/prisma/client";
-import { connectMongo } from "../src/lib/mongo";
+import { PrismaClient } from "../apps/web/src/generated/prisma/client";
+import { connectMongo } from "../apps/web/src/lib/mongo";
 import {
   Activity,
   Discussion,
   FeedPost,
   PlatformStats,
   Trend,
-} from "../src/lib/mongo-models";
+} from "../apps/web/src/lib/mongo-models";
 
 const dbUrl = process.env.DATABASE_URL ?? "file:./prisma/dev.db";
 const filePath = dbUrl.startsWith("file:") ? dbUrl.replace(/^file:/, "") : dbUrl;

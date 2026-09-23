@@ -6,7 +6,7 @@ import "dotenv/config";
 import path from "node:path";
 import mongoose from "mongoose";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
-import { PrismaClient } from "../src/generated/prisma/client";
+import { PrismaClient } from "../apps/web/src/generated/prisma/client";
 
 const dbUrl = process.env.DATABASE_URL ?? "file:./prisma/dev.db";
 const filePath = dbUrl.startsWith("file:") ? dbUrl.replace(/^file:/, "") : dbUrl;

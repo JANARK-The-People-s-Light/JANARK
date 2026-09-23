@@ -24,31 +24,34 @@ Prefer changes that:
 2. Keep the platform non-partisan and civic-oriented.
 3. Stay transparent about ranking, moderation, and terms.
 4. Keep live civic pages dynamic (no stale static civic data).
+5. Put new copy, metrics, and flags in `config/` ([docs/configuration.md](docs/configuration.md)), not hardcoded in UI.
 
 ## Development setup
 
-Follow the Quick start in [README.md](README.md):
+Follow [README.md](README.md) and [docs/development.md](docs/development.md):
 
 ```bash
 npm run db:mongo
 cp .env.example .env
 npm install
-npx prisma db push
-npx prisma generate
+npm run db:push
 npm run db:clear && npm run db:demo   # optional
-npm run dev
+npm run dev:web
 ```
 
-Local `npm run dev` is non-production use under BSL 1.1.
+Local `npm run dev:web` is non-production use under BSL 1.1.
+
+Docs index: [docs/README.md](docs/README.md) · config: [docs/configuration.md](docs/configuration.md) · ads: [docs/ads.md](docs/ads.md).
 
 Before opening a PR:
 
 ```bash
-npx tsc --noEmit
+npm run typecheck
 npm run lint
 npm run build
-# optional mobile checks (dev server running):
+# optional (dev server running):
 npm run validate:mobile
+npm run validate:native
 ```
 
 ## Pull requests

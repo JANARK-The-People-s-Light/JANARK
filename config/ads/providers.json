@@ -1,0 +1,23 @@
+{
+  "adsense": {
+    "enabled": true,
+    "name": "Google AdSense",
+    "type": "programmatic",
+    "scriptUrlTemplate": "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client={publisherId}"
+  },
+  "gam": {
+    "enabled": false,
+    "name": "Google Ad Manager",
+    "type": "ad-server"
+  },
+  "direct": {
+    "enabled": false,
+    "name": "Direct Sponsors",
+    "type": "direct"
+  },
+  "house": {
+    "enabled": true,
+    "name": "JANARK House Ads",
+    "type": "internal"
+  }
+}

@@ -62,7 +62,7 @@ Before exposing Janark on the public internet:
 6. Enable Cloudflare Turnstile (`NEXT_PUBLIC_TURNSTILE_SITE_KEY` +
    `TURNSTILE_SECRET_KEY`) for OTP abuse resistance.
 7. Keep `ALLOW_CITIZEN_SOCIAL_PUBLISH` unset unless you intentionally want
-   citizen shares to post to your Meta/WhatsApp channels.
+   citizen shares to post to your configured outbound channels.
 8. Use a managed database (Postgres recommended over SQLite) for multi-instance
    deploys; SQLite file paths are fine only for single-node demos.
 

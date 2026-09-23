@@ -1,0 +1,164 @@
+{
+  "path": "/maintainers",
+  "metaTitle": "Become a repository maintainer · {name}",
+  "metaDescription": "Apply to help maintain the {name} repository — an open, independent civic platform.",
+  "pageTitle": "Become a {name} Repository Maintainer",
+  "pageIntro": "Help maintain the {name} repository and build an open, independent civic platform. You can apply with just the essentials — tell us more only if you want to.",
+  "basicHeading": "Basic information",
+  "backHome": "← Back to home",
+  "submitLabel": "Submit application",
+  "submittingLabel": "Submitting…",
+  "successTitle": "Application received",
+  "successBody": "Thanks — we will review your repository maintainer application and reach out by email if there is a fit.",
+  "errorGeneric": "Could not submit. Check the form and try again.",
+  "honeypotField": "_hp",
+  "motivationMaxLength": 500,
+  "core": {
+    "fullName": {
+      "label": "Full name",
+      "placeholder": "",
+      "autoComplete": "name"
+    },
+    "email": {
+      "label": "Email address",
+      "placeholder": "",
+      "autoComplete": "email"
+    },
+    "githubUrl": {
+      "label": "GitHub profile",
+      "placeholder": "https://github.com/username"
+    },
+    "whyJanark": {
+      "label": "Why do you want to maintain the {name} repository?",
+      "placeholder": "Tell us briefly…"
+    }
+  },
+  "addMenu": {
+    "closedLabel": "+ Add information",
+    "openLabel": "Add information",
+    "dismissHint": "Close"
+  },
+  "sections": [
+    {
+      "id": "oss",
+      "menuLabel": "Open-source experience",
+      "title": "Open-source experience"
+    },
+    {
+      "id": "skills",
+      "menuLabel": "Technical skills",
+      "title": "Technical skills"
+    },
+    {
+      "id": "education",
+      "menuLabel": "Education",
+      "title": "Education"
+    },
+    {
+      "id": "work",
+      "menuLabel": "Work experience",
+      "title": "Work experience"
+    },
+    {
+      "id": "profiles",
+      "menuLabel": "Social / professional profiles",
+      "title": "Other profiles & links"
+    },
+    {
+      "id": "availability",
+      "menuLabel": "Availability",
+      "title": "Availability"
+    },
+    {
+      "id": "extra",
+      "menuLabel": "Other relevant information",
+      "title": "Other relevant information"
+    }
+  ],
+  "oss": {
+    "significantRepo": {
+      "label": "Most significant repository",
+      "placeholder": "https://github.com/…"
+    },
+    "projectsLabel": "Open-source projects",
+    "addProject": "+ Add project",
+    "projectName": "Project name",
+    "projectUrl": "Repository URL",
+    "projectRole": "Your role",
+    "removeProject": "Remove",
+    "roles": ["Maintainer", "Core contributor", "Contributor", "Docs", "Other"],
+    "notes": {
+      "label": "Additional open-source experience",
+      "placeholder": "Tell us more…"
+    }
+  },
+  "skills": {
+    "chipsLabel": "Skills / technologies",
+    "chipPlaceholder": "+ Add",
+    "suggestions": [
+      "TypeScript",
+      "Python",
+      "Kotlin",
+      "Swift",
+      "Next.js",
+      "React",
+      "Node.js",
+      "PostgreSQL",
+      "MongoDB",
+      "Kubernetes",
+      "Docker",
+      "DevOps"
+    ],
+    "yearsLabel": "Years of software experience",
+    "yearsOptions": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20]
+  },
+  "education": {
+    "addEntry": "+ Add education",
+    "removeEntry": "Remove",
+    "school": { "label": "School / university", "placeholder": "e.g. IIT Bombay" },
+    "degree": { "label": "Degree / program", "placeholder": "e.g. B.Tech Computer Science" },
+    "years": { "label": "Years", "placeholder": "e.g. 2018 – 2022" },
+    "notes": { "label": "Notes", "placeholder": "Optional" }
+  },
+  "work": {
+    "addEntry": "+ Add role",
+    "removeEntry": "Remove",
+    "org": { "label": "Organization", "placeholder": "Company or org" },
+    "title": { "label": "Role / title", "placeholder": "e.g. Software engineer" },
+    "years": { "label": "Years", "placeholder": "e.g. 2022 – present" },
+    "notes": { "label": "What you worked on", "placeholder": "Optional brief note" }
+  },
+  "profiles": {
+    "linkedin": { "label": "LinkedIn", "placeholder": "https://linkedin.com/in/…" },
+    "bitbucket": { "label": "Bitbucket", "placeholder": "https://bitbucket.org/…" },
+    "website": { "label": "Personal website", "placeholder": "https://" },
+    "addLink": "+ Add another link",
+    "extraLabel": "Label",
+    "extraUrl": "URL",
+    "removeLink": "Remove"
+  },
+  "availability": {
+    "hoursLabel": "Hours you can contribute per week",
+    "hoursOptions": [
+      { "id": "1-3", "label": "1–3" },
+      { "id": "4-7", "label": "4–7" },
+      { "id": "8-15", "label": "8–15" },
+      { "id": "15+", "label": "15+" }
+    ],
+    "location": {
+      "label": "Location / timezone",
+      "placeholder": "Bengaluru, India · IST"
+    },
+    "notes": {
+      "label": "Anything else about your availability?",
+      "placeholder": "Optional"
+    }
+  },
+  "extra": {
+    "notes": {
+      "label": "Anything else we should know?",
+      "placeholder": "Communities, talks, publications, or other context…"
+    }
+  },
+  "removeSection": "Remove section"
+}

@@ -1,7 +1,7 @@
 // Janark civic platform schema
 generator client {
   provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  output   = "../apps/web/src/generated/prisma"
 }
 
 datasource db {
@@ -128,7 +128,7 @@ model Comment {
 
 model SocialShareEvent {
   id        String   @id @default(cuid())
-  platform  String // facebook | twitter | whatsapp | instagram | linkedin | copy | native
+  platform  String // share destination id (e.g. copy | native | chat | feed)
   path      String
   title     String?
   createdAt DateTime @default(now())
@@ -246,7 +246,19 @@ model PhoneIdentity {
   createdAt    DateTime @default(now())
 }
 
-/// Instagram-style follow between public anonymity IDs (never phone hashes)
+/// Per-user Settings (theme + preferences), keyed by phoneHash
+model PhoneSettings {
+  id        String   @id @default(cuid())
+  phoneHash String   @unique
+  /// JSON: { preferences: UserPreferences, themeId: ThemeId }
+  prefsJson String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([phoneHash])
+}
+
+/// Follow between public anonymity IDs (never phone hashes)
 model AnonFollow {
   id          String   @id @default(cuid())
   /// Follower's public anonId (jn-…)
@@ -416,7 +428,7 @@ model MemeVote {
   @@index([memeId])
 }
 
-/// Unified Reddit-style vote across all post kinds (and comments)
+/// Unified civic vote across all post kinds (and comments)
 model EngagementVote {
   id         String   @id @default(cuid())
   /// meme | report | demand | notice | feed | issue | proposal | comment
@@ -561,4 +573,33 @@ model VisitorPhoneLink {
   @@unique([visitorId, phoneHash])
   @@index([phoneHash])
   @@index([visitorId])
+}
+
+/// Open-source maintainer interest applications (public form on /maintainers)
+model MaintainerApplication {
+  id          String   @id @default(cuid())
+  fullName    String
+  email       String
+  githubUrl   String
+  whyJanark   String
+  /// Optional sections as JSON (oss, skills, profiles, availability, extra)
+  detailsJson String?
+  status      String   @default("pending")
+  createdAt   DateTime @default(now())
+
+  @@index([email])
+  @@index([status, createdAt])
+  @@index([createdAt])
+}
+
+/// Public landing-page feedback (modal on /)
+model LandingFeedback {
+  id        String   @id @default(cuid())
+  message   String
+  email     String?
+  status    String   @default("new")
+  createdAt DateTime @default(now())
+
+  @@index([status, createdAt])
+  @@index([createdAt])
 }

@@ -1,0 +1,133 @@
+{
+  "brand": {
+    "name": "Janark",
+    "nameNative": "जनार्क",
+    "tagline": "India's first open source social platform",
+    "support": "Independent civic discussion, petitions, reports, and community voting — built in the open."
+  },
+  "landing": {
+    "metaTitle": "Coming soon · {name}",
+    "metaDescription": "{tagline}. Opens {launchLabel}.",
+    "navAriaLabel": "Site",
+    "openSourceBadge": "Open Source",
+    "githubAriaLabel": "View on GitHub",
+    "launchBadge": "Public launch · {launchLabel}",
+    "heroDescription": "{support} Opens {launchLabel}.",
+    "previewCta": "Preview the portal",
+    "earlyAccess": "Early access · Work in progress",
+    "logoAriaLabel": "{name} logo",
+    "featuresHeading": "What you can do",
+    "features": [
+      {
+        "id": "discuss",
+        "icon": "chat",
+        "title": "Discuss",
+        "body": "Start open conversations on public issues with fellow citizens."
+      },
+      {
+        "id": "issues",
+        "icon": "mapPin",
+        "title": "Raise issues",
+        "body": "Document civic problems with context, location, and evidence."
+      },
+      {
+        "id": "petitions",
+        "icon": "megaphone",
+        "title": "Create petitions",
+        "body": "Rally signatures for demands that serve the public interest."
+      },
+      {
+        "id": "reports",
+        "icon": "flag",
+        "title": "Report problems",
+        "body": "Flag hazards, gaps, and local concerns so they can be seen."
+      },
+      {
+        "id": "vote",
+        "icon": "ballot",
+        "title": "Vote & participate",
+        "body": "Cast ballots on proposals and shape shared civic outcomes."
+      },
+      {
+        "id": "discover",
+        "icon": "search",
+        "title": "Discover",
+        "body": "Explore trending topics, places, and conversations worth your time."
+      }
+    ],
+    "contribute": {
+      "title": "Help build {name}",
+      "body": "JANARK is built in the open. Code, issues, and feedback all move the civic square forward.",
+      "actions": [
+        { "id": "contribute", "label": "Contribute", "kind": "link", "linkKey": "github" },
+        { "id": "raiseIssue", "label": "Raise issue", "kind": "link", "linkKey": "feedback" },
+        { "id": "feedback", "label": "Feedback", "kind": "modal", "modal": "feedback" }
+      ],
+      "feedbackModal": {
+        "title": "Send feedback",
+        "intro": "Tell us what works, what doesn’t, or what you’d like next. We read every note.",
+        "messageLabel": "Your feedback",
+        "messagePlaceholder": "Write a short note…",
+        "emailLabel": "Email (optional)",
+        "emailPlaceholder": "so we can follow up if needed",
+        "submitLabel": "Send feedback",
+        "submittingLabel": "Sending…",
+        "cancelLabel": "Cancel",
+        "successTitle": "Thanks",
+        "successBody": "Your feedback was received. We appreciate you helping build {name}.",
+        "closeLabel": "Close",
+        "errorGeneric": "Could not send feedback. Try again.",
+        "honeypotField": "_hp",
+        "messageMaxLength": 2000
+      }
+    },
+    "maintainers": {
+      "title": "Become a {name} Repository Maintainer",
+      "body": "Help maintain the {name} repository and build an open, independent civic platform. Apply with the essentials — tell us more only if you want to.",
+      "cta": "Apply as repository maintainer",
+      "href": "/maintainers"
+    },
+    "footer": {
+      "launchLine": "Public launch · {launchLabel}",
+      "support": "A non-partisan civic square for citizens — browse free, act with phone OTP."
+    }
+  },
+  "portal": {
+    "navAriaLabel": "Primary",
+    "siteNavAriaLabel": "Site navigation",
+    "trendingAriaLabel": "Trending today",
+    "mobileNavAriaLabel": "Mobile primary",
+    "drawerAriaLabel": "Navigation",
+    "closeMenuAriaLabel": "Close menu",
+    "openMenuAriaLabel": "Open menu",
+    "homeAriaLabel": "Janark home",
+    "about": "About",
+    "termsShort": "Terms",
+    "termsLong": "Terms & Conditions",
+    "logIn": "Log in",
+    "logOut": "Log out",
+    "loginReason": "use {name}",
+    "signedInAs": "Signed in as {anonId}",
+    "loginHint": "Log in from the header to post and follow.",
+    "trendingTitle": "Trending today",
+    "trendingSubtitle": "What citizens are tagging",
+    "trendingLoading": "Loading…",
+    "trendingEmpty": "As people add topics to posts, the strongest ones rise here.",
+    "seeActivity": "See Pulse →",
+    "pulseNav": "Pulse",
+    "pulseEyebrow": "Near you · across the country",
+    "pulseTitle": "Pulse",
+    "pulseIntro": "What people near you — and across the country — are elevating.",
+    "pulseSearchAria": "Search pulse",
+    "pulseChronologicalLabel": "Prefer chronological Pulse",
+    "pulseChronologicalHint": "Pulse page leans newest-first when available.",
+    "activityPosts": "{count} posts",
+    "activityActive": "{count} active",
+    "activityOnePost": "1 post",
+    "settings": "Settings",
+    "soonSuffix": "(soon)"
+  },
+  "launch": {
+    "publicLaunchLabel": "26 January 2027"
+  }
+}

@@ -3,7 +3,7 @@
  * Run: npx tsx scripts/validate-telemetry.ts
  */
 import { createHash } from "node:crypto";
-import { prisma } from "../src/lib/db";
+import { prisma } from "../apps/web/src/lib/db";
 import {
   hashIp,
   isValidVisitorId,
@@ -11,7 +11,7 @@ import {
   sanitizeClientSnapshot,
   sanitizeEventData,
   upsertVisitSession,
-} from "../src/lib/telemetry";
+} from "../apps/web/src/lib/telemetry";
 
 let failed = 0;
 function assert(cond: boolean, msg: string) {
@@ -34,7 +34,7 @@ async function main() {
     keystrokes: "password123",
     cookieNames: ["janark_sid", "theme", "_ga"],
     mouseMovement: [{ x: 10.2, y: 20.8, t: 1 }],
-    utm: { utm_source: "twitter", evil: "drop" },
+    utm: { utm_source: "campaign", evil: "drop" },
   };
   const clean = sanitizeClientSnapshot(dirty);
   assert(!("phone" in clean), "sanitize drops phone");
@@ -48,7 +48,7 @@ async function main() {
     "sanitize strips session cookie name",
   );
   assert(
-    (clean.utm as Record<string, string>)?.utm_source === "twitter",
+    (clean.utm as Record<string, string>)?.utm_source === "campaign",
     "sanitize keeps utm_source",
   );
 

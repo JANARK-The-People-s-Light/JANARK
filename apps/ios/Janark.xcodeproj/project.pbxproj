@@ -1,0 +1,554 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		5422DFA470CE33A29B3D2021 /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C61275B5655096F8EB9492C /* AppContainer.swift */; };
+		25C5B27A12B9B9B4A7C0793E /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 117C66091FB73D4D9AC3E62D /* Constants.swift */; };
+		FE99ACE912D48E8A04C9CF62 /* Href.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8BEE23DA660988DF95F6329C /* Href.swift */; };
+		B41727D06D9D6C30683159A1 /* Outcome.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75E8236A73B2AE09B777DC8E /* Outcome.swift */; };
+		1DD588B6472BF7A90EFE46E7 /* Time.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B271F5EE6CF9363C760B37D /* Time.swift */; };
+		B479D9154108508379F6A7F6 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7BAEC721DCD4A486EC13D1E5 /* APIClient.swift */; };
+		BC099EB586735361C463D537 /* DefaultCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 364AE55AC58A55E33E8D5CAA /* DefaultCodable.swift */; };
+		F8912594067CDBC2ECE2BAB6 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7F3673FB238E9EB989F6FB7 /* Models.swift */; };
+		5A94F845356881BE4C8494C3 /* JanarkRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B141ED00937CEE48B7E65E /* JanarkRepository.swift */; };
+		7F94B7FC045D4EA67B371625 /* SessionStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1EDA6B9A8D474CA2D303A06E /* SessionStore.swift */; };
+		433E7A525199EEC7E669F9E8 /* FeedKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0956CA3D06CE80CD262E7B3C /* FeedKind.swift */; };
+		CCB8972CF7ACF8BACA8CB675 /* PetitionActors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36366730BD91367AD3957A13 /* PetitionActors.swift */; };
+		5C94F0F673075786D3899DFE /* Terms.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029CADC756F7AEFF60735128 /* Terms.swift */; };
+		7BE4F33025FF4F6065CF4ABA /* JanarkApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2185B0B7E4F103CCB6B2D8B4 /* JanarkApp.swift */; };
+		3F6E83B82851232A70A8AB64 /* AboutScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A085BD65169F55104AF9B3C /* AboutScreen.swift */; };
+		86C1DC666C3FA4FED03F172D /* ActivityScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1201B14E8375A1BEE7731919 /* ActivityScreen.swift */; };
+		4B71BED54E8EC1FDCDA8C08B /* AuthController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C53C48D93ED8E51ED6CCDA24 /* AuthController.swift */; };
+		AC9F7B0FE8C02DCCEB7FC6A2 /* LoginScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 782F98671B6A3A3649B9FD9E /* LoginScreen.swift */; };
+		DD6A33F4443D916EEB1639E8 /* BrowseScreens.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DF6B50E5A7E13EBE2962665 /* BrowseScreens.swift */; };
+		B2BBA5148B66E00CFD45EFF7 /* Comments.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8EA3EDA5FD447E40CD72FAA /* Comments.swift */; };
+		4EA7B82C065DF60B16FBC6C2 /* Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57EB5C373C09E80748D0E582 /* Common.swift */; };
+		13F0C5F8F7814509C46B195F /* EngageBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFB0635B19E01A5E9D57DECF /* EngageBar.swift */; };
+		0CFEB884911375F135BAB1A7 /* FeedCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB9712597D262809061E926E /* FeedCard.swift */; };
+		C0192CEA5F39102E81AF4A5E /* Media.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B58994F8F096D7B642AE0BA /* Media.swift */; };
+		8E1D235475373012D1316F01 /* TermsAccept.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFADCD3DAFD251018547DE72 /* TermsAccept.swift */; };
+		0148EF614E1DF34F0F89CB8B /* CreateScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4EED2651491323E969C94F2E /* CreateScreen.swift */; };
+		8319BC2E901114C60C034D28 /* DetailScreens.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBCE1EA1C73AF5D077344F8F /* DetailScreens.swift */; };
+		8704D2C0E0F555CE3AD64E36 /* HomeScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5AC5A9F1E7261DA80AD96E49 /* HomeScreen.swift */; };
+		41ED2AF9B190CCD98F47828D /* JanarkNav.swift in Sources */ = {isa = PBXBuildFile; fileRef = C83C4BAD5A5393872294BCDD /* JanarkNav.swift */; };
+		4EFCCB14B89302343D192D34 /* Routes.swift in Sources */ = {isa = PBXBuildFile; fileRef = A282CDBC26E2DA6571BFBBA5 /* Routes.swift */; };
+		EA21BC404F9063361A2D95FE /* ProfileScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9037BFA41EF898EB50E8D983 /* ProfileScreen.swift */; };
+		3230538B7D46ED416E4ECFD3 /* SettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 262DD7E48BD26CC63CCE6031 /* SettingsScreen.swift */; };
+		E9B10A8EB9F6890D231B6BD8 /* JanarkScaffold.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63F4EF7F9728FE3B5D293363 /* JanarkScaffold.swift */; };
+		1FDC46993F364B86AC087112 /* TermsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C7DB142113B7B6D2024EC6F /* TermsScreen.swift */; };
+		0FE45233309ECD4C4B4EC5F0 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F84560689EBA395ABE1ED99 /* Theme.swift */; };
+		2C310E1F9CA42B9F92EF2172 /* ThemeId.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC203A8BCE71564B96DFE9D8 /* ThemeId.swift */; };
+		49C8EC0F3CF56355D42BEF8E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5826D0F5FADB6E16485D18C5 /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		2544E5B1E7659A7BA6F06444 /* Janark.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Janark.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3C61275B5655096F8EB9492C /* AppContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppContainer.swift; sourceTree = "<group>"; };
+		117C66091FB73D4D9AC3E62D /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		8BEE23DA660988DF95F6329C /* Href.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Href.swift; sourceTree = "<group>"; };
+		75E8236A73B2AE09B777DC8E /* Outcome.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Outcome.swift; sourceTree = "<group>"; };
+		0B271F5EE6CF9363C760B37D /* Time.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Time.swift; sourceTree = "<group>"; };
+		7BAEC721DCD4A486EC13D1E5 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
+		364AE55AC58A55E33E8D5CAA /* DefaultCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultCodable.swift; sourceTree = "<group>"; };
+		F7F3673FB238E9EB989F6FB7 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		84B141ED00937CEE48B7E65E /* JanarkRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JanarkRepository.swift; sourceTree = "<group>"; };
+		1EDA6B9A8D474CA2D303A06E /* SessionStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStore.swift; sourceTree = "<group>"; };
+		0956CA3D06CE80CD262E7B3C /* FeedKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedKind.swift; sourceTree = "<group>"; };
+		36366730BD91367AD3957A13 /* PetitionActors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PetitionActors.swift; sourceTree = "<group>"; };
+		029CADC756F7AEFF60735128 /* Terms.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Terms.swift; sourceTree = "<group>"; };
+		2185B0B7E4F103CCB6B2D8B4 /* JanarkApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JanarkApp.swift; sourceTree = "<group>"; };
+		0A085BD65169F55104AF9B3C /* AboutScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutScreen.swift; sourceTree = "<group>"; };
+		1201B14E8375A1BEE7731919 /* ActivityScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivityScreen.swift; sourceTree = "<group>"; };
+		C53C48D93ED8E51ED6CCDA24 /* AuthController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthController.swift; sourceTree = "<group>"; };
+		782F98671B6A3A3649B9FD9E /* LoginScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginScreen.swift; sourceTree = "<group>"; };
+		7DF6B50E5A7E13EBE2962665 /* BrowseScreens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BrowseScreens.swift; sourceTree = "<group>"; };
+		D8EA3EDA5FD447E40CD72FAA /* Comments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comments.swift; sourceTree = "<group>"; };
+		57EB5C373C09E80748D0E582 /* Common.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Common.swift; sourceTree = "<group>"; };
+		CFB0635B19E01A5E9D57DECF /* EngageBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EngageBar.swift; sourceTree = "<group>"; };
+		CB9712597D262809061E926E /* FeedCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedCard.swift; sourceTree = "<group>"; };
+		1B58994F8F096D7B642AE0BA /* Media.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Media.swift; sourceTree = "<group>"; };
+		BFADCD3DAFD251018547DE72 /* TermsAccept.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsAccept.swift; sourceTree = "<group>"; };
+		4EED2651491323E969C94F2E /* CreateScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateScreen.swift; sourceTree = "<group>"; };
+		FBCE1EA1C73AF5D077344F8F /* DetailScreens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailScreens.swift; sourceTree = "<group>"; };
+		5AC5A9F1E7261DA80AD96E49 /* HomeScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreen.swift; sourceTree = "<group>"; };
+		C83C4BAD5A5393872294BCDD /* JanarkNav.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JanarkNav.swift; sourceTree = "<group>"; };
+		A282CDBC26E2DA6571BFBBA5 /* Routes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Routes.swift; sourceTree = "<group>"; };
+		9037BFA41EF898EB50E8D983 /* ProfileScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileScreen.swift; sourceTree = "<group>"; };
+		262DD7E48BD26CC63CCE6031 /* SettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsScreen.swift; sourceTree = "<group>"; };
+		63F4EF7F9728FE3B5D293363 /* JanarkScaffold.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JanarkScaffold.swift; sourceTree = "<group>"; };
+		7C7DB142113B7B6D2024EC6F /* TermsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsScreen.swift; sourceTree = "<group>"; };
+		6F84560689EBA395ABE1ED99 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		FC203A8BCE71564B96DFE9D8 /* ThemeId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeId.swift; sourceTree = "<group>"; };
+		5826D0F5FADB6E16485D18C5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		56D9DEB7209CC2B39E593F03 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		88932FD6DD0EDC80FBF1C921 = {
+			isa = PBXGroup;
+			children = (
+				71B182006206F44AF74B9E61 /* Janark */,
+				D71BD8A0B6A6AA54EDBA6454 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		D71BD8A0B6A6AA54EDBA6454 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				2544E5B1E7659A7BA6F06444 /* Janark.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		71B182006206F44AF74B9E61 /* Janark */ = {
+			isa = PBXGroup;
+			children = (
+				13350961E7CA032ABDDF4F6E,
+				0C65D7C788A4EBA4BCAB9F59,
+				D291A13377AD946C20D7A246,
+				623F33D3195C271E322CD5FB,
+				3C61275B5655096F8EB9492C,
+				2185B0B7E4F103CCB6B2D8B4,
+				5826D0F5FADB6E16485D18C5,
+			);
+			path = Janark;
+			sourceTree = "<group>";
+		};
+		13350961E7CA032ABDDF4F6E /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				117C66091FB73D4D9AC3E62D,
+				8BEE23DA660988DF95F6329C,
+				75E8236A73B2AE09B777DC8E,
+				0B271F5EE6CF9363C760B37D,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		0C65D7C788A4EBA4BCAB9F59 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				5C9A6E5F7EAFB7BA02E68485,
+				B7F1C8E1B8BBBDB72AC598AC,
+				937FFC5D7002F9042C0B122E,
+			);
+			path = Data;
+			sourceTree = "<group>";
+		};
+		5C9A6E5F7EAFB7BA02E68485 /* Net */ = {
+			isa = PBXGroup;
+			children = (
+				7BAEC721DCD4A486EC13D1E5,
+				364AE55AC58A55E33E8D5CAA,
+				F7F3673FB238E9EB989F6FB7,
+			);
+			path = Net;
+			sourceTree = "<group>";
+		};
+		B7F1C8E1B8BBBDB72AC598AC /* Repo */ = {
+			isa = PBXGroup;
+			children = (
+				84B141ED00937CEE48B7E65E,
+			);
+			path = Repo;
+			sourceTree = "<group>";
+		};
+		937FFC5D7002F9042C0B122E /* Session */ = {
+			isa = PBXGroup;
+			children = (
+				1EDA6B9A8D474CA2D303A06E,
+			);
+			path = Session;
+			sourceTree = "<group>";
+		};
+		D291A13377AD946C20D7A246 /* Domain */ = {
+			isa = PBXGroup;
+			children = (
+				0956CA3D06CE80CD262E7B3C,
+				36366730BD91367AD3957A13,
+				029CADC756F7AEFF60735128,
+			);
+			path = Domain;
+			sourceTree = "<group>";
+		};
+		623F33D3195C271E322CD5FB /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				42BFF5F6CCBDA1ACB1F6088D,
+				2BF9549270E9055373CC2291,
+				8FF52A624D01023FCC62F66A,
+				67FDC6471617538F8FB71964,
+				268411AE73DBB30F8A8BA029,
+				EF6699DA13A83206307166F2,
+				63211F0D4F4413B1DE1552FE,
+				02258B7402F20ED6CCFB9473,
+				426B18D640A557029947A093,
+				3191B4DCE1AC22D0A83EC786,
+				9D29A0E543735E1B3F188DF1,
+				4329476DCEED0EE26C1BC08E,
+				AD9A08FAF8FE5E5C0CBE5840,
+				869A5AF67AA7C8DD942AE75E,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		42BFF5F6CCBDA1ACB1F6088D /* About */ = {
+			isa = PBXGroup;
+			children = (
+				0A085BD65169F55104AF9B3C,
+			);
+			path = About;
+			sourceTree = "<group>";
+		};
+		2BF9549270E9055373CC2291 /* Activity */ = {
+			isa = PBXGroup;
+			children = (
+				1201B14E8375A1BEE7731919,
+			);
+			path = Activity;
+			sourceTree = "<group>";
+		};
+		8FF52A624D01023FCC62F66A /* Auth */ = {
+			isa = PBXGroup;
+			children = (
+				C53C48D93ED8E51ED6CCDA24,
+				782F98671B6A3A3649B9FD9E,
+			);
+			path = Auth;
+			sourceTree = "<group>";
+		};
+		67FDC6471617538F8FB71964 /* Browse */ = {
+			isa = PBXGroup;
+			children = (
+				7DF6B50E5A7E13EBE2962665,
+			);
+			path = Browse;
+			sourceTree = "<group>";
+		};
+		268411AE73DBB30F8A8BA029 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				D8EA3EDA5FD447E40CD72FAA,
+				57EB5C373C09E80748D0E582,
+				CFB0635B19E01A5E9D57DECF,
+				CB9712597D262809061E926E,
+				1B58994F8F096D7B642AE0BA,
+				BFADCD3DAFD251018547DE72,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		EF6699DA13A83206307166F2 /* Create */ = {
+			isa = PBXGroup;
+			children = (
+				4EED2651491323E969C94F2E,
+			);
+			path = Create;
+			sourceTree = "<group>";
+		};
+		63211F0D4F4413B1DE1552FE /* Detail */ = {
+			isa = PBXGroup;
+			children = (
+				FBCE1EA1C73AF5D077344F8F,
+			);
+			path = Detail;
+			sourceTree = "<group>";
+		};
+		02258B7402F20ED6CCFB9473 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				5AC5A9F1E7261DA80AD96E49,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		426B18D640A557029947A093 /* Nav */ = {
+			isa = PBXGroup;
+			children = (
+				C83C4BAD5A5393872294BCDD,
+				A282CDBC26E2DA6571BFBBA5,
+			);
+			path = Nav;
+			sourceTree = "<group>";
+		};
+		3191B4DCE1AC22D0A83EC786 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				9037BFA41EF898EB50E8D983,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+		9D29A0E543735E1B3F188DF1 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				262DD7E48BD26CC63CCE6031,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		4329476DCEED0EE26C1BC08E /* Shell */ = {
+			isa = PBXGroup;
+			children = (
+				63F4EF7F9728FE3B5D293363,
+			);
+			path = Shell;
+			sourceTree = "<group>";
+		};
+		AD9A08FAF8FE5E5C0CBE5840 /* Terms */ = {
+			isa = PBXGroup;
+			children = (
+				7C7DB142113B7B6D2024EC6F,
+			);
+			path = Terms;
+			sourceTree = "<group>";
+		};
+		869A5AF67AA7C8DD942AE75E /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				6F84560689EBA395ABE1ED99,
+				FC203A8BCE71564B96DFE9D8,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		730950AD798A77AD508AA9E2 /* Janark */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 55C9043A875577041B72C464 /* Build configuration list for PBXNativeTarget "Janark" */;
+			buildPhases = (
+				678DFDA984997D39267CB7FC /* Sources */,
+				56D9DEB7209CC2B39E593F03 /* Frameworks */,
+				85132AF6B5F14319CB4C91EC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Janark;
+			productName = Janark;
+			productReference = 2544E5B1E7659A7BA6F06444 /* Janark.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		1781F676DEDF5767F3243DB0 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+			};
+			buildConfigurationList = F75AE1A8C6DE8A79FE559AAF /* Build configuration list for PBXProject "Janark" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 88932FD6DD0EDC80FBF1C921;
+			productRefGroup = D71BD8A0B6A6AA54EDBA6454 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				730950AD798A77AD508AA9E2 /* Janark */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		85132AF6B5F14319CB4C91EC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				49C8EC0F3CF56355D42BEF8E /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		678DFDA984997D39267CB7FC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5422DFA470CE33A29B3D2021 /* AppContainer.swift in Sources */,
+				25C5B27A12B9B9B4A7C0793E /* Constants.swift in Sources */,
+				FE99ACE912D48E8A04C9CF62 /* Href.swift in Sources */,
+				B41727D06D9D6C30683159A1 /* Outcome.swift in Sources */,
+				1DD588B6472BF7A90EFE46E7 /* Time.swift in Sources */,
+				B479D9154108508379F6A7F6 /* APIClient.swift in Sources */,
+				BC099EB586735361C463D537 /* DefaultCodable.swift in Sources */,
+				F8912594067CDBC2ECE2BAB6 /* Models.swift in Sources */,
+				5A94F845356881BE4C8494C3 /* JanarkRepository.swift in Sources */,
+				7F94B7FC045D4EA67B371625 /* SessionStore.swift in Sources */,
+				433E7A525199EEC7E669F9E8 /* FeedKind.swift in Sources */,
+				CCB8972CF7ACF8BACA8CB675 /* PetitionActors.swift in Sources */,
+				5C94F0F673075786D3899DFE /* Terms.swift in Sources */,
+				7BE4F33025FF4F6065CF4ABA /* JanarkApp.swift in Sources */,
+				3F6E83B82851232A70A8AB64 /* AboutScreen.swift in Sources */,
+				86C1DC666C3FA4FED03F172D /* ActivityScreen.swift in Sources */,
+				4B71BED54E8EC1FDCDA8C08B /* AuthController.swift in Sources */,
+				AC9F7B0FE8C02DCCEB7FC6A2 /* LoginScreen.swift in Sources */,
+				DD6A33F4443D916EEB1639E8 /* BrowseScreens.swift in Sources */,
+				B2BBA5148B66E00CFD45EFF7 /* Comments.swift in Sources */,
+				4EA7B82C065DF60B16FBC6C2 /* Common.swift in Sources */,
+				13F0C5F8F7814509C46B195F /* EngageBar.swift in Sources */,
+				0CFEB884911375F135BAB1A7 /* FeedCard.swift in Sources */,
+				C0192CEA5F39102E81AF4A5E /* Media.swift in Sources */,
+				8E1D235475373012D1316F01 /* TermsAccept.swift in Sources */,
+				0148EF614E1DF34F0F89CB8B /* CreateScreen.swift in Sources */,
+				8319BC2E901114C60C034D28 /* DetailScreens.swift in Sources */,
+				8704D2C0E0F555CE3AD64E36 /* HomeScreen.swift in Sources */,
+				41ED2AF9B190CCD98F47828D /* JanarkNav.swift in Sources */,
+				4EFCCB14B89302343D192D34 /* Routes.swift in Sources */,
+				EA21BC404F9063361A2D95FE /* ProfileScreen.swift in Sources */,
+				3230538B7D46ED416E4ECFD3 /* SettingsScreen.swift in Sources */,
+				E9B10A8EB9F6890D231B6BD8 /* JanarkScaffold.swift in Sources */,
+				1FDC46993F364B86AC087112 /* TermsScreen.swift in Sources */,
+				0FE45233309ECD4C4B4EC5F0 /* Theme.swift in Sources */,
+				2C310E1F9CA42B9F92EF2172 /* ThemeId.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		EE459825F37DFF8E5B80EC00 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		1EEF377D1515B41718031CAC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				SDKROOT = iphoneos;
+				SWIFT_VERSION = 5.0;
+
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		43E0B563508608DABE5FBCC7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Janark/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.janark.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				TARGETED_DEVICE_FAMILY = "1,2";
+
+			};
+			name = Debug;
+		};
+		49CA6581C85126C6DC37F784 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Janark/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.janark.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_STRICT_CONCURRENCY = minimal;
+				TARGETED_DEVICE_FAMILY = "1,2";
+
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		F75AE1A8C6DE8A79FE559AAF /* Build configuration list for PBXProject "Janark" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EE459825F37DFF8E5B80EC00 /* Debug */,
+				1EEF377D1515B41718031CAC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		55C9043A875577041B72C464 /* Build configuration list for PBXNativeTarget "Janark" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				43E0B563508608DABE5FBCC7 /* Debug */,
+				49CA6581C85126C6DC37F784 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 1781F676DEDF5767F3243DB0 /* Project object */;
+}

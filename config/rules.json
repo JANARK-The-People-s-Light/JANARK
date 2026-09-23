@@ -1,0 +1,40 @@
+{
+  "auth": {
+    "browseRequiresLogin": false,
+    "writeRequiresOtp": true
+  },
+  "portal": {
+    "hideRightRailOnCompose": true,
+    "hideRailsOnDocumentFocus": true,
+    "composePathPattern": "/(share|vote|issues|reports|petitions|feed|notice|memes)/new$",
+    "documentFocusPathPattern": "/terms$"
+  },
+  "launch": {
+    "publicLaunchIsoDate": "2027-01-26"
+  },
+  "feed": {
+    "hashtagMinTagLength": 3,
+    "hashtagMinCount": 1,
+    "trendingStrongMinCount": 2,
+    "trendingMaxTopics": 8,
+    "hashtagPollIntervalMs": 30000,
+    "activityPostsLabelMinCount": 50,
+    "activityActiveLabelMinCount": 10
+  },
+  "features": {
+    "memes": true,
+    "notices": true,
+    "nativeClients": true,
+    "maintainerApplications": true,
+    "landingFeedback": true
+  },
+  "maintainerApply": {
+    "rateLimit": 5,
+    "windowMs": 3600000
+  },
+  "landingFeedback": {
+    "rateLimit": 8,
+    "windowMs": 3600000,
+    "messageMaxLength": 2000
+  }
+}

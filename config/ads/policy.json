@@ -1,0 +1,19 @@
+{
+  "enabledEnv": "NEXT_PUBLIC_ADS_ENABLED",
+  "publisherIdEnv": "NEXT_PUBLIC_ADSENSE_PUBLISHER_ID",
+  "loadScriptInDev": false,
+  "showPlaceholdersInDev": true,
+  "showOnComingSoon": false,
+  "feedMiddleAfterIndex": 3,
+  "adsTxt": {
+    "linesEnv": "ADS_TXT_LINES",
+    "defaultLines": [
+      "google.com, {publisherId}, DIRECT, f08c47fec0942fa0"
+    ]
+  },
+  "house": {
+    "hrefKey": "github",
+    "titleKey": "houseTitle",
+    "bodyKey": "houseBody"
+  }
+}

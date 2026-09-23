@@ -1,0 +1,55 @@
+{
+  "portal": {
+    "maxWidthPx": 1380,
+    "headerHeightRem": 3.5,
+    "leftRailWidthPx": 280,
+    "rightRailWidthPx": 272,
+    "mobileNavHeightRem": 3.5,
+    "drawerMaxWidthRem": 18.5,
+    "shellHeight": "100dvh"
+  },
+  "landing": {
+    "maxWidthPx": 1120,
+    "headerHeightRem": 4,
+    "heroMinHeightRem": 22,
+    "featureIconSizeRem": 2.75,
+    "heroLogoSize": "hero",
+    "footerPaddingYRem": 1,
+    "footerGapRem": 0.75
+  },
+  "envKeys": {
+    "databaseUrl": "DATABASE_URL",
+    "mongodbUri": "MONGODB_URI",
+    "siteUrl": "NEXT_PUBLIC_SITE_URL",
+    "githubUrl": "NEXT_PUBLIC_GITHUB_URL",
+    "adsEnabled": "NEXT_PUBLIC_ADS_ENABLED",
+    "adsensePublisherId": "NEXT_PUBLIC_ADSENSE_PUBLISHER_ID",
+    "phoneHashSalt": "PHONE_HASH_SALT",
+    "humanTokenSecret": "HUMAN_TOKEN_SECRET",
+    "ipHashSalt": "IP_HASH_SALT",
+    "exposeDevOtp": "EXPOSE_DEV_OTP",
+    "storageProvider": "STORAGE_PROVIDER"
+  },
+  "links": {
+    "github": "https://github.com/JANARK-The-People-s-Light/JANARK",
+    "feedback": "https://github.com/JANARK-The-People-s-Light/JANARK/issues",
+    "share": "https://github.com/JANARK-The-People-s-Light/JANARK"
+  },
+  "paths": {
+    "configDir": "config",
+    "prismaSchema": "prisma/schema.prisma",
+    "uploadsPublicPrefix": "/uploads",
+    "portalPreview": "/unreleased",
+    "brandLogo": "/logo/janark.png",
+    "brandLogoSolid": "/logo/janark-solid.png",
+    "maintainersApply": "/maintainers"
+  },
+  "publicMarketingPaths": ["/", "/maintainers"],
+  "session": {
+    "cookieName": "janark_sid"
+  },
+  "userAgents": {
+    "androidPrefix": "Janark-Android/",
+    "iosPrefix": "Janark-iOS/"
+  }
+}

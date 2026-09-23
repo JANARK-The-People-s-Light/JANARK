@@ -1,0 +1,50 @@
+{
+  "portal": {
+    "maxWidthPx": 1200,
+    "headerHeightRem": 3.5,
+    "leftRailWidthPx": 240,
+    "rightRailWidthPx": 240,
+    "shellHeight": "100vh"
+  },
+  "landing": {
+    "maxWidthPx": 960,
+    "headerHeightRem": 3.5,
+    "heroMinHeightRem": 18,
+    "featureIconSizeRem": 2.5,
+    "heroLogoSize": "lg",
+    "footerPaddingYRem": 1,
+    "footerGapRem": 0.75
+  },
+  "publicMarketingPaths": ["/", "/maintainers"],
+  "paths": {
+    "brandLogo": "/logo/janark.png",
+    "brandLogoSolid": "/logo/janark-solid.png",
+    "maintainersApply": "/maintainers"
+  },
+  "links": {
+    "github": "",
+    "feedback": "",
+    "share": ""
+  },
+  "brand": {
+    "tagline": "",
+    "support": ""
+  },
+  "portalCopy": {
+    "trendingTitle": "Trending",
+    "trendingSubtitle": "",
+    "trendingLoading": "…",
+    "trendingEmpty": "",
+    "seeActivity": "Pulse",
+    "pulseNav": "Pulse",
+    "pulseEyebrow": "Near you · across the country",
+    "pulseTitle": "Pulse",
+    "pulseIntro": "What people near you — and across the country — are elevating.",
+    "pulseSearchAria": "Search pulse"
+  },
+  "feed": {
+    "hashtagMinTagLength": 1,
+    "trendingMaxTopics": 5,
+    "hashtagPollIntervalMs": 60000
+  }
+}

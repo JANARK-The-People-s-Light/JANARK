@@ -1,6 +1,6 @@
 # Dependencies and build artifacts that should not bloat the image
 node_modules
-.next
+**/.next
 .git
 .gitignore
 *.md
@@ -10,8 +10,8 @@ node_modules
 !.env.example
 prisma/dev.db
 prisma/dev.db-journal
-public/uploads/*
-!public/uploads/.gitkeep
+apps/web/public/uploads/*
+!apps/web/public/uploads/.gitkeep
 coverage
 .playwright
 playwright-report
@@ -22,3 +22,8 @@ test-results
 .cursor
 agent-transcripts
 janark-tmp
+packages
+docs
+.agents
+.claude
+.windsurf
