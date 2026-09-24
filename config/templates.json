@@ -91,9 +91,12 @@
     "openMenuAriaLabel": "Open menu",
     "homeAriaLabel": "Janark portal home",
     "backToLanding": "← Landing",
+    "backToLandingShort": "←",
     "backToLandingAriaLabel": "Back to {name} landing page",
     "about": "About",
+    "aboutShort": "A",
     "termsShort": "Terms",
+    "termsAbbrev": "T&C",
     "termsLong": "Terms & Conditions",
     "logIn": "Log in",
     "logOut": "Log out",
@@ -128,7 +131,10 @@
     "whoToFollowAuthReason": "follow this citizen",
     "headerSearchPlaceholder": "Search…",
     "headerSearchAria": "Search the civic feed",
-    "headerSearchClearAria": "Clear search"
+    "headerSearchClearAria": "Clear search",
+    "headerSearchDialogTitle": "Search",
+    "headerSearchCloseAria": "Close search",
+    "headerSearchSubmit": "Search"
   },
   "launch": {
     "publicLaunchLabel": "26 January 2027"

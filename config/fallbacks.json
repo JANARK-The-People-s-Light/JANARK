@@ -59,7 +59,13 @@
     "pulseIntro": "What people near you — and across the country — are elevating.",
     "pulseSearchAria": "Search pulse",
     "backToLanding": "← Landing",
+    "backToLandingShort": "←",
     "backToLandingAriaLabel": "Back to landing page",
+    "about": "About",
+    "aboutShort": "A",
+    "termsShort": "Terms",
+    "termsAbbrev": "T&C",
+    "termsLong": "Terms & Conditions",
     "homeAriaLabel": "Portal home",
     "whoToFollowTitle": "Rising voices",
     "whoToFollowAriaLabel": "Rising voices to follow",
@@ -72,7 +78,10 @@
     "whoToFollowAuthReason": "follow",
     "headerSearchPlaceholder": "Search…",
     "headerSearchAria": "Search the civic feed",
-    "headerSearchClearAria": "Clear search"
+    "headerSearchClearAria": "Clear search",
+    "headerSearchDialogTitle": "Search",
+    "headerSearchCloseAria": "Close search",
+    "headerSearchSubmit": "Search"
   },
   "feed": {
     "hashtagMinTagLength": 1,

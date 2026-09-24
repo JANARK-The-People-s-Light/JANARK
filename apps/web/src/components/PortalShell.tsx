@@ -303,6 +303,7 @@ export function PortalShell({ children }: { children: ReactNode }) {
             <BrandLogo
               size="sm"
               withWordmark
+              wordmarkClassName="hidden lg:inline"
               onDark
               className="transition group-hover:opacity-90 [&_span.font-display]:text-lg sm:[&_span.font-display]:text-xl"
               priority
@@ -314,23 +315,27 @@ export function PortalShell({ children }: { children: ReactNode }) {
           <div className="ml-auto flex min-w-0 shrink items-center gap-0.5 sm:gap-2">
             <Link
               href={sys.paths().landingHome}
-              className="shrink-0 rounded-lg border border-white/20 px-2 py-1.5 text-xs font-medium text-on-chrome/90 transition hover:border-amber-bright/40 hover:bg-white/10 hover:text-amber-bright sm:px-2.5 sm:text-sm"
+              className="inline-flex shrink-0 items-center justify-center rounded-lg border border-white/20 px-2 py-1.5 text-xs font-medium text-on-chrome/90 transition hover:border-amber-bright/40 hover:bg-white/10 hover:text-amber-bright sm:px-2.5 sm:text-sm"
               aria-label={fill(copy.backToLandingAriaLabel, { name: brand.name })}
             >
-              {copy.backToLanding}
+              <span className="lg:hidden">{copy.backToLandingShort}</span>
+              <span className="hidden lg:inline">{copy.backToLanding}</span>
             </Link>
             <Link
               href={portalHref("/about")}
-              className="hidden rounded-lg px-2.5 py-2 text-sm text-on-chrome/90 transition hover:bg-white/10 hover:text-amber-bright sm:inline-flex"
+              className="inline-flex shrink-0 items-center justify-center rounded-lg px-2 py-2 text-sm text-on-chrome/90 transition hover:bg-white/10 hover:text-amber-bright sm:px-2.5"
+              aria-label={copy.about}
             >
-              {copy.about}
+              <span className="lg:hidden">{copy.aboutShort}</span>
+              <span className="hidden lg:inline">{copy.about}</span>
             </Link>
             <Link
               href={portalHref("/terms")}
-              className="hidden rounded-lg px-2.5 py-2 text-sm text-on-chrome/90 transition hover:bg-white/10 hover:text-amber-bright sm:inline-flex"
+              className="inline-flex shrink-0 items-center justify-center rounded-lg px-2 py-2 text-sm text-on-chrome/90 transition hover:bg-white/10 hover:text-amber-bright sm:px-2.5"
+              aria-label={copy.termsLong}
             >
-              <span className="md:hidden">{copy.termsShort}</span>
-              <span className="hidden md:inline">{copy.termsLong}</span>
+              <span className="lg:hidden">{copy.termsAbbrev}</span>
+              <span className="hidden lg:inline">{copy.termsLong}</span>
             </Link>
             {/* Auth chrome only after mount — avoids SSR/client session mismatch */}
             {!mounted ? (

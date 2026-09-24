@@ -8,6 +8,8 @@ type Props = {
   size?: LogoSize;
   /** Show wordmark next to the mark */
   withWordmark?: boolean;
+  /** Extra classes on the wordmark (e.g. hide below a breakpoint) */
+  wordmarkClassName?: string;
   /** Light text for navy backgrounds */
   onDark?: boolean;
   className?: string;
@@ -34,6 +36,7 @@ const SIZES: Record<
 export function BrandLogo({
   size = "md",
   withWordmark = false,
+  wordmarkClassName = "",
   onDark = true,
   className = "",
   priority = false,
@@ -70,7 +73,7 @@ export function BrandLogo({
         <span
           className={`font-display tracking-tight ${s.wordmark} ${
             onDark ? "text-on-chrome" : "text-navy"
-          }`}
+          } ${wordmarkClassName}`}
         >
           {brand.name}
         </span>
