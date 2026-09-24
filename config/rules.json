@@ -13,6 +13,7 @@
       "candidatePool": 32,
       "pollIntervalMs": 120000,
       "postsMax": 10,
+      "postsFetchMultiplier": 2,
       "postsVisible": 2,
       "directoryPageSize": 24,
       "directoryCandidatePool": 200

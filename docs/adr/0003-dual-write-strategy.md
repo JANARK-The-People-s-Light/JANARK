@@ -21,6 +21,7 @@ Janark dual-writes civic creates to SQLite (canonical) and Mongo `FeedPost` (pub
 - Medium-term: Meilisearch reduces reliance on `$regex` and tag scans in Mongo.
 - Long-term: evaluate deleting Mongo to cut RAM and dual-write drift risk.
 - Product analytics (`InteractionEvent`, visit telemetry) stay on **SQLite only** — do not add a Mongo analytics collection.
+- Drift risk: rebuild / re-mirror can leave **duplicate `FeedPost` docs** for the same `publicId`. Read paths that list posts by author (e.g. Rising voices carousels via `popularPostsByAuthor`) must **dedupe by `publicId`**, not assume one doc per civic row.
 
 ## Alternatives considered
 

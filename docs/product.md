@@ -43,6 +43,7 @@ Copy/metrics: `config/templates.json` · `config/sys.json` (landing) · `config/
 
 - Fixed header; left nav + scrollable center + right trends (rails stay put).
 - Header search; create / browse / detail / profile / settings / about / terms; Pulse (`/dashboard`).
+- **Rising voices** — left-rail suggestions with landscape post carousels; **See more** → `/voices` directory (search + pagination). Config: `rules.portal.followSuggestions`.
 - Terms before write paths that require them.
 - Optional ads when monetization env is enabled ([handbook § Ads](./handbook.md#7-ads)).
 - Natives mirror capability, not pixel-perfect web chrome.
@@ -62,6 +63,7 @@ Copy/metrics: `config/templates.json` · `config/sys.json` (landing) · `config/
 - External `config/` pillars + zero-hardcoding
 - Marketing `/` vs portal `/unreleased`
 - Ads framework + `/ads.txt` (**off by default**)
+- Rising voices rail + `/voices` directory (`/api/follow/suggestions`, `/api/voices`)
 
 ### Current stack (facts)
 

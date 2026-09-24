@@ -51,7 +51,7 @@ Technical source of truth for Janark. Product intent and roadmap: [product.md](.
 | `/api/*` | Shared JSON API |
 | `/ads.txt` | Ad sellers list (when configured) |
 
-**Web chrome:** landing is `LandingPage` (config-driven). Portal shell: fixed header; left nav + scrollable center + right trends; rails do not scroll with the feed.
+**Web chrome:** landing is `LandingPage` (config-driven). Portal shell: fixed header; left nav + scrollable center + right trends; rails do not scroll with the feed. Left rail **Rising voices** (`WhoToFollow`) shows up to `rules.portal.followSuggestions.maxPeople` profiles with popular-post carousels; **See more** opens `/unreleased/voices` (search + pagination).
 
 ---
 
@@ -70,7 +70,7 @@ Civic entities, auth, engagement, flags, telemetry. Examples: issues, petitions 
 | `Activity` | Pulse / dashboard stream |
 | `Discussion` | Discussion projection where used |
 
-Creates: **Prisma first**, then best-effort `mirrorFeedCard`. Mirror failure must not undo SQLite. Helpers also exist to project feed cards from SQLite when Mongo is empty (`feed-from-sqlite.ts`).
+Creates: **Prisma first**, then best-effort `mirrorFeedCard`. Mirror failure must not undo SQLite. Helpers also exist to project feed cards from SQLite when Mongo is empty (`feed-from-sqlite.ts`). Author carousels (`popularPostsByAuthor` in `follow-posts.ts`) **dedupe by `publicId`** — mirror/rebuild can leave duplicate `FeedPost` docs.
 
 ### Object storage ([ADR-0001](./adr/0001-storage-provider.md))
 
@@ -128,7 +128,7 @@ One public HTTP API under `apps/web/src/app/api/**`. Do not add a parallel civic
 | Discussions | `/api/discussions` |
 | Engage | `/api/engage`, `/api/comments`, `/api/comments/[id]` |
 | Flags | `/api/flags` |
-| Social | `/api/follow`, `/api/profiles/[anonId]` |
+| Social | `/api/follow`, `/api/follow/suggestions`, `/api/profiles/[anonId]`, `/api/voices` |
 | Discovery | `/api/hashtags`, `/api/explore`, `/api/dashboard` |
 | Prefs / media | `/api/preferences`, `/api/upload`, `/api/uploads/[filename]` |
 | Telemetry / share | `/api/telemetry/visit`, `/api/telemetry/interaction`, `/api/social/share` |
@@ -161,7 +161,7 @@ Loader: `apps/web/src/lib/config` (`cfg`, `fill`). Ads runtime: `apps/web/src/co
 | File | Holds |
 |------|--------|
 | `sys.json` | Layout metrics, env key **names**, public links, paths, session/UA |
-| `rules.json` | Feature flags, portal rails, feed thresholds, launch ISO date, **interactions** allowlist / limits |
+| `rules.json` | Feature flags, portal rails (`followSuggestions`, trending), feed thresholds, launch ISO date, **interactions** allowlist / limits |
 | `templates.json` | Brand, landing, portal copy |
 | `schema.json` | Config shape refs (incl. interaction payload) |
 | `fallbacks.json` | Values only when a primary path is missing |
@@ -237,6 +237,6 @@ Thin clients against `/api/*`. Platform open steps: [Android README](../apps/and
 | Session | OkHttp cookie jar | `HTTPCookieStorage` |
 | Default API | Emulator `http://10.0.2.2:3000` | Simulator `http://127.0.0.1:3000` |
 
-**Parity:** home feed, issues / petitions / reports / votes / shares / memes / notices, create (+ terms), engage, follow, profile, preferences, about, terms, OTP.
+**Parity:** home feed, issues / petitions / reports / votes / shares / memes / notices, create (+ terms), engage, follow, profile, preferences, about, terms, OTP. Thin clients also expose `GET /api/voices` (Android `voices` / iOS `voices`); Rising voices UI remains web-first this cut.
 
 **Rules:** cookie auth after OTP; always send `Origin` / `Referer` matching API base (emulator → localhost for allowlist); no invented endpoints; upload then attach URL; UA `Janark-Android/…` / `Janark-iOS/…`.

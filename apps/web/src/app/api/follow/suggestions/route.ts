@@ -2,23 +2,12 @@ import { prisma } from "@/lib/db";
 import { liveJson } from "@/lib/http";
 import { displayAnonLabel } from "@/lib/identity";
 import { resolveSessionFromRequest } from "@/lib/session";
-import { connectMongo } from "@/lib/mongo";
-import { FeedPost } from "@/lib/mongo-models";
+import { popularPostsByAuthor } from "@/lib/follow-posts";
 import { rules } from "@/lib/config";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const fetchCache = "force-no-store";
-
-type SuggestionPost = {
-  id: string;
-  title: string;
-  href: string;
-  votes: number;
-  type: string;
-  mediaUrl: string | null;
-  mediaType: string | null;
-};
 
 async function viewerAnonId(req: Request): Promise<string | null> {
   const session = await resolveSessionFromRequest(req);
@@ -28,42 +17,6 @@ async function viewerAnonId(req: Request): Promise<string | null> {
     select: { anonId: true },
   });
   return identity?.anonId ?? null;
-}
-
-async function popularPostsByAuthor(
-  anonIds: string[],
-  postsMax: number,
-): Promise<Map<string, SuggestionPost[]>> {
-  const out = new Map<string, SuggestionPost[]>();
-  if (anonIds.length === 0 || postsMax <= 0) return out;
-
-  try {
-    await connectMongo();
-    await Promise.all(
-      anonIds.map(async (anonId) => {
-        const docs = await FeedPost.find({ authorAnonId: anonId })
-          .sort({ votes: -1, hot: -1, createdAt: -1 })
-          .limit(postsMax)
-          .select("title href votes mediaUrl mediaType type publicId")
-          .lean();
-        out.set(
-          anonId,
-          docs.map((d) => ({
-            id: String(d.publicId || d._id),
-            title: String(d.title || ""),
-            href: String(d.href || "/"),
-            votes: Number(d.votes ?? 0),
-            type: String(d.type || ""),
-            mediaUrl: d.mediaUrl ? String(d.mediaUrl) : null,
-            mediaType: d.mediaType ? String(d.mediaType) : null,
-          })),
-        );
-      }),
-    );
-  } catch {
-    /* leave empty — rail still shows people */
-  }
-  return out;
 }
 
 /**

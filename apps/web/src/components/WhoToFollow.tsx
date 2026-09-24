@@ -194,7 +194,7 @@ export function WhoToFollow({ onNavigate }: { onNavigate?: () => void }) {
                   >
                     {p.posts.map((post) => (
                       <Link
-                        key={post.id}
+                        key={`${p.anonId}:${post.id}`}
                         href={portalHref(post.href)}
                         onClick={onNavigate}
                         className="relative shrink-0 snap-start overflow-hidden rounded-md border border-line/70 bg-sand/40 transition hover:border-line hover:bg-sand/60"
