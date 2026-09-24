@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { FeedCard } from "@/components/Ui";
-import { AdSlot } from "@/components/ads/AdSlot";
+import {
+  FeedAdBreak,
+  useFeedAdBreakIndexes,
+} from "@/components/ads/FeedAdBreak";
 import { FeedEngage } from "@/components/FeedEngage";
-import { AD_CONFIG } from "@/config/ads";
 import { portalHref } from "@/lib/paths";
 
 type Post = {
@@ -48,21 +50,12 @@ export default function FeedPage() {
     return () => clearInterval(t);
   }, [load]);
 
+  const adBreaks = useFeedAdBreakIndexes(posts.length);
+
   return (
-    <div className="px-4 py-10 sm:px-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-muted">
-            Open square
-          </p>
-          <h1 className="font-display mt-2 text-3xl text-navy sm:text-4xl">
-            Discussions
-          </h1>
-          <p className="mt-3 max-w-2xl text-muted">
-            Upvote, downvote, comment, and reply — same simple controls
-            everywhere. Login only when you engage; anonymity ID only.
-          </p>
-        </div>
+    <div className="px-4 py-6 sm:px-6 sm:py-8">
+      <h1 className="sr-only">Discussions</h1>
+      <div className="flex flex-wrap items-center justify-end gap-2">
         <Link
           href={portalHref("/feed/new")}
           className="bg-amber px-4 py-2.5 text-sm font-semibold text-on-amber"
@@ -71,11 +64,9 @@ export default function FeedPage() {
         </Link>
       </div>
 
-      {error && <p className="mt-6 text-sm text-danger">{error}</p>}
+      {error && <p className="mt-4 text-sm text-danger">{error}</p>}
 
-      <AdSlot placement="feed-top" />
-
-      <div className="mt-10">
+      <div className="mt-4">
         {loading && posts.length === 0 && (
           <p className="border-t border-line py-8 text-sm text-muted">
             Loading discussions…
@@ -96,9 +87,7 @@ export default function FeedPage() {
         <div className="divide-y divide-line border-t border-line">
           {posts.map((item, index) => (
             <div key={item.id}>
-              {index === AD_CONFIG.feedMiddleAfterIndex ? (
-                <AdSlot placement="feed-middle" />
-              ) : null}
+              <FeedAdBreak index={index} breakIndexes={adBreaks} />
               <div className="py-4">
                 <FeedCard {...item} />
                 <div className="mt-2">

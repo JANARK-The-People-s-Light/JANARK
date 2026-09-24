@@ -37,16 +37,9 @@ export function NoticesBrowse() {
   }, [load]);
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-display text-3xl text-navy sm:text-4xl">
-            Notices
-          </h1>
-          <p className="mt-2 text-sm text-muted">
-            Public civic notices people can acknowledge.
-          </p>
-        </div>
+    <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
+      <h1 className="sr-only">Notices</h1>
+      <div className="flex flex-wrap items-center justify-end gap-2">
         <Link
           href={portalHref("/notice/new")}
           className="inline-flex bg-amber px-4 py-2.5 text-sm font-semibold text-on-amber hover:bg-amber-bright"
@@ -55,13 +48,13 @@ export function NoticesBrowse() {
         </Link>
       </div>
       {loading ? (
-        <p className="mt-10 text-sm text-muted">Loading…</p>
+        <p className="mt-6 text-sm text-muted">Loading…</p>
       ) : error ? (
-        <p className="mt-10 text-sm text-danger">{error}</p>
+        <p className="mt-6 text-sm text-danger">{error}</p>
       ) : notices.length === 0 ? (
-        <p className="mt-10 text-sm text-muted">No notices yet.</p>
+        <p className="mt-6 text-sm text-muted">No notices yet.</p>
       ) : (
-        <ul className="mt-8 divide-y divide-line border-t border-line">
+        <ul className="mt-4 divide-y divide-line border-t border-line">
           {notices.map((n) => (
             <li key={n.id} className="py-5">
               <Link

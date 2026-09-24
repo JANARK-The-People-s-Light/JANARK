@@ -3,6 +3,10 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { NonBindingLabel } from "@/components/Ui";
+import {
+  FeedAdBreak,
+  useFeedAdBreakIndexes,
+} from "@/components/ads/FeedAdBreak";
 import { portalHref } from "@/lib/paths";
 
 type Proposal = {
@@ -56,22 +60,16 @@ export default function VotesPage() {
     void load();
   }, [load]);
 
+  const adBreaks = useFeedAdBreakIndexes(
+    proposals.length,
+    `${voteType}|${q}`,
+  );
+
   return (
-    <div className="px-4 py-10 sm:px-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-xs uppercase tracking-wider text-muted">
-            Open mandate · non-binding
-          </p>
-          <h1 className="font-display mt-1 text-3xl text-navy sm:text-4xl">
-            Votes
-          </h1>
-          <p className="mt-3 max-w-2xl text-muted">
-            Create or cast votes on reforms and civic questions. Results are
-            public signals — not government decisions.
-          </p>
-          <NonBindingLabel className="mt-3" />
-        </div>
+    <div className="px-4 py-6 sm:px-6 sm:py-8">
+      <h1 className="sr-only">Votes</h1>
+      <div className="flex flex-wrap items-center justify-end gap-3">
+        <NonBindingLabel />
         <Link
           href={portalHref("/vote/new")}
           className="bg-amber px-4 py-2.5 text-sm font-semibold text-on-amber"
@@ -80,7 +78,7 @@ export default function VotesPage() {
         </Link>
       </div>
 
-      <div className="mt-8 flex flex-wrap gap-2">
+      <div className="mt-4 flex flex-wrap gap-2">
         <select
           value={voteType}
           onChange={(e) => setVoteType(e.target.value)}
@@ -120,8 +118,10 @@ export default function VotesPage() {
             .
           </p>
         )}
-        {proposals.map((p) => (
-          <article key={p.id} className="py-5">
+        {proposals.map((p, index) => (
+          <div key={p.id}>
+            <FeedAdBreak index={index} breakIndexes={adBreaks} />
+          <article className="py-5">
             <Link
               href={portalHref(`/vote/${p.id}`)}
               className="block transition hover:opacity-90"
@@ -141,6 +141,7 @@ export default function VotesPage() {
               </p>
             </Link>
           </article>
+          </div>
         ))}
       </div>
     </div>

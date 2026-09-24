@@ -16,9 +16,46 @@ type AdSlotProps = {
   className?: string;
 };
 
+function AdPlaceholder({
+  placement,
+  className,
+  reservedHeight,
+}: {
+  placement: AdPlacementKey;
+  className: string;
+  reservedHeight: number;
+}) {
+  const copy = AD_CONFIG.copy;
+  const config = AD_PLACEMENTS[placement];
+  return (
+    <div
+      className={`ad-placeholder my-4 flex w-full flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-amber bg-amber/10 px-3 py-4 text-center text-xs text-navy ${className}`}
+      style={{ minHeight: `${reservedHeight}px` }}
+      data-placement={placement}
+      data-ad-preview="true"
+      role="note"
+      aria-label={copy.devPlaceholderTitle}
+    >
+      <span className="text-sm font-semibold tracking-wide">
+        {copy.devPlaceholderTitle}
+      </span>
+      <span className="font-mono text-[11px] text-muted">
+        {fill(copy.devPlacement, { placement })}
+      </span>
+      {config ? (
+        <span className="text-[11px] text-muted">
+          {fill(copy.devFormat, {
+            format: config.format,
+            height: reservedHeight,
+          })}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
 export function AdSlot({ placement, className = "" }: AdSlotProps) {
   const config = AD_PLACEMENTS[placement];
-  const copy = AD_CONFIG.copy;
 
   // Hooks must run unconditionally (stable call order).
   useEffect(() => {
@@ -42,6 +79,21 @@ export function AdSlot({ placement, className = "" }: AdSlotProps) {
     }
   }, [config]);
 
+  // Dev layout markers — visible even when NEXT_PUBLIC_ADS_ENABLED is off
+  if (
+    config?.enabled &&
+    AD_CONFIG.isDev &&
+    AD_CONFIG.showPlaceholdersInDev
+  ) {
+    return (
+      <AdPlaceholder
+        placement={placement}
+        className={className}
+        reservedHeight={config.reservedHeight}
+      />
+    );
+  }
+
   if (!AD_CONFIG.enabled || !config || !config.enabled) {
     return null;
   }
@@ -51,30 +103,9 @@ export function AdSlot({ placement, className = "" }: AdSlotProps) {
     return null;
   }
 
-  if (AD_CONFIG.isDev && AD_CONFIG.showPlaceholdersInDev) {
-    return (
-      <div
-        className={`ad-placeholder my-4 flex flex-col items-center justify-center rounded-xl border border-dashed border-line bg-cream/50 p-2 text-xs text-muted ${className}`}
-        style={{ minHeight: `${config.reservedHeight}px` }}
-        data-placement={placement}
-      >
-        <span className="font-semibold">{copy.devPlaceholderTitle}</span>
-        <span>
-          {fill(copy.devPlacement, { placement })}
-        </span>
-        <span>
-          {fill(copy.devFormat, {
-            format: config.format,
-            height: config.reservedHeight,
-          })}
-        </span>
-      </div>
-    );
-  }
-
   return (
     <div
-      className={`ad-slot my-4 flex w-full flex-col items-center justify-center overflow-hidden ${className}`}
+      className={`ad-slot my-4 flex w-full flex-col items-center justify-center overflow-hidden rounded-lg border border-line ${className}`}
       data-placement={placement}
       style={{ minHeight: `${config.reservedHeight}px` }}
     >

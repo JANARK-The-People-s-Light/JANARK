@@ -117,7 +117,19 @@
     "activityActive": "{count} active",
     "activityOnePost": "1 post",
     "settings": "Settings",
-    "soonSuffix": "(soon)"
+    "soonSuffix": "(soon)",
+    "whoToFollowTitle": "Rising voices",
+    "whoToFollowAriaLabel": "Rising voices to follow",
+    "whoToFollowLoading": "Loading…",
+    "whoToFollowEmpty": "More citizens will show up here as people join.",
+    "whoToFollowFollow": "Follow",
+    "whoToFollowFollowing": "Following",
+    "whoToFollowUnfollow": "Unfollow",
+    "whoToFollowBusy": "…",
+    "whoToFollowAuthReason": "follow this citizen",
+    "headerSearchPlaceholder": "Search…",
+    "headerSearchAria": "Search the civic feed",
+    "headerSearchClearAria": "Clear search"
   },
   "launch": {
     "publicLaunchLabel": "26 January 2027"

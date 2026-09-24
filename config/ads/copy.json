@@ -2,9 +2,9 @@
   "sponsored": "Sponsored",
   "advertisement": "Advertisement",
   "sponsoredArea": "Sponsored Area",
-  "devPlaceholderTitle": "[Dev Ad Placeholder]",
-  "devPlacement": "Placement: {placement}",
-  "devFormat": "Format: {format} ({height}px)",
+  "devPlaceholderTitle": "Ads here",
+  "devPlacement": "{placement}",
+  "devFormat": "{format} · {height}px",
   "houseTitle": "Build with JANARK",
   "houseBody": "Open source civic software — contribute on GitHub."
 }

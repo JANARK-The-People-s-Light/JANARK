@@ -5,6 +5,7 @@
   "showPlaceholdersInDev": true,
   "showOnComingSoon": false,
   "feedMiddleAfterIndex": 3,
+  "feedAdIntervalChoices": [2, 3, 5, 9],
   "adsTxt": {
     "linesEnv": "ADS_TXT_LINES",
     "defaultLines": [

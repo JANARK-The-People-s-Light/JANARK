@@ -57,6 +57,7 @@ export const AD_CONFIG: AdRuntimeConfig = {
   showPlaceholdersInDev: policyJson.showPlaceholdersInDev,
   showOnComingSoon: policyJson.showOnComingSoon,
   feedMiddleAfterIndex: policyJson.feedMiddleAfterIndex,
+  feedAdIntervalChoices: policyJson.feedAdIntervalChoices,
   providers: providersJson as Record<AdProviderType, ProviderConfig>,
   placements,
   formats: formatsJson,

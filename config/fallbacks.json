@@ -2,9 +2,15 @@
   "portal": {
     "maxWidthPx": 1200,
     "headerHeightRem": 3.5,
-    "leftRailWidthPx": 240,
-    "rightRailWidthPx": 240,
-    "shellHeight": "100vh"
+    "leftRailWidthPx": 300,
+    "rightRailWidthPx": 300,
+    "shellHeight": "100vh",
+    "headerSearchMaxWidthPx": 360,
+    "followSuggestions": {
+      "maxPeople": 3,
+      "candidatePool": 24,
+      "pollIntervalMs": 120000
+    }
   },
   "landing": {
     "maxWidthPx": 860,
@@ -54,7 +60,19 @@
     "pulseSearchAria": "Search pulse",
     "backToLanding": "← Landing",
     "backToLandingAriaLabel": "Back to landing page",
-    "homeAriaLabel": "Portal home"
+    "homeAriaLabel": "Portal home",
+    "whoToFollowTitle": "Rising voices",
+    "whoToFollowAriaLabel": "Rising voices to follow",
+    "whoToFollowLoading": "…",
+    "whoToFollowEmpty": "",
+    "whoToFollowFollow": "Follow",
+    "whoToFollowFollowing": "Following",
+    "whoToFollowUnfollow": "Unfollow",
+    "whoToFollowBusy": "…",
+    "whoToFollowAuthReason": "follow",
+    "headerSearchPlaceholder": "Search…",
+    "headerSearchAria": "Search the civic feed",
+    "headerSearchClearAria": "Clear search"
   },
   "feed": {
     "hashtagMinTagLength": 1,

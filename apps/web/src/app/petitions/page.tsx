@@ -4,6 +4,10 @@ import Link from "next/link";
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { SignPetitionButton } from "@/components/SignPetitionButton";
+import {
+  FeedAdBreak,
+  useFeedAdBreakIndexes,
+} from "@/components/ads/FeedAdBreak";
 import { portalHref } from "@/lib/paths";
 
 type Petition = {
@@ -58,21 +62,15 @@ function PetitionsInner() {
     router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
   }
 
+  const adBreaks = useFeedAdBreakIndexes(
+    petitions.length,
+    `${liveOnly}|${level}|${q}`,
+  );
+
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-xs uppercase tracking-wider text-muted">
-            Collective will · live
-          </p>
-          <h1 className="font-display mt-1 text-3xl text-navy sm:text-4xl">
-            Petitions
-          </h1>
-          <p className="mt-3 max-w-2xl text-muted">
-            Sign with your full name, ZIP / postal code, and verified phone —
-            so every signature carries geographic relevance.
-          </p>
-        </div>
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+      <h1 className="sr-only">Petitions</h1>
+      <div className="flex flex-wrap items-center justify-end gap-2">
         <Link
           href={portalHref("/petitions/new")}
           className="bg-amber px-4 py-2.5 text-sm font-semibold text-on-amber"
@@ -82,7 +80,7 @@ function PetitionsInner() {
       </div>
 
       <div
-        className="mt-8 flex flex-wrap gap-2 border-b border-line pb-0"
+        className="mt-4 flex flex-wrap gap-2 border-b border-line pb-0"
         role="tablist"
         aria-label="Petition filters"
       >
@@ -156,10 +154,12 @@ function PetitionsInner() {
             .
           </p>
         )}
-        {petitions.map((p) => {
+        {petitions.map((p, index) => {
           const isLive = p.status === "open" || p.status === "gathering";
           return (
-            <article key={p.id} className="py-5">
+            <div key={p.id}>
+              <FeedAdBreak index={index} breakIndexes={adBreaks} />
+            <article className="py-5">
               <Link
                 href={portalHref(`/petitions/${p.id}`)}
                 className="block transition hover:opacity-90"
@@ -223,6 +223,7 @@ function PetitionsInner() {
                 </p>
               )}
             </article>
+            </div>
           );
         })}
       </div>

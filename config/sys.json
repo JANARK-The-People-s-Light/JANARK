@@ -2,11 +2,12 @@
   "portal": {
     "maxWidthPx": 1380,
     "headerHeightRem": 3.5,
-    "leftRailWidthPx": 280,
-    "rightRailWidthPx": 272,
+    "leftRailWidthPx": 340,
+    "rightRailWidthPx": 340,
     "mobileNavHeightRem": 3.5,
     "drawerMaxWidthRem": 18.5,
-    "shellHeight": "100dvh"
+    "shellHeight": "100dvh",
+    "headerSearchMaxWidthPx": 420
   },
   "landing": {
     "maxWidthPx": 860,

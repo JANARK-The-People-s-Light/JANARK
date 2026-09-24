@@ -2,6 +2,10 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import {
+  FeedAdBreak,
+  useFeedAdBreakIndexes,
+} from "@/components/ads/FeedAdBreak";
 import { portalHref } from "@/lib/paths";
 
 type Report = {
@@ -40,22 +44,12 @@ export default function ReportsPage() {
     load();
   }, [load]);
 
+  const adBreaks = useFeedAdBreakIndexes(reports.length, `${type}|${level}|${q}`);
+
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-xs uppercase tracking-wider text-muted">
-            Village → country · live
-          </p>
-          <h1 className="font-display mt-1 text-3xl text-navy sm:text-4xl">
-            Citizen reports
-          </h1>
-          <p className="mt-3 max-w-2xl text-muted">
-            Post issues, crimes, and problems from your village to the whole
-            country. React, upvote, and share — vote anonymously with your
-            phone.
-          </p>
-        </div>
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+      <h1 className="sr-only">Citizen reports</h1>
+      <div className="flex flex-wrap items-center justify-end gap-2">
         <Link
           href={portalHref("/reports/new")}
           className="bg-amber px-4 py-2.5 text-sm font-semibold text-on-amber"
@@ -64,7 +58,7 @@ export default function ReportsPage() {
         </Link>
       </div>
 
-      <div className="mt-8 flex flex-wrap gap-2">
+      <div className="mt-4 flex flex-wrap gap-2">
         <select
           value={type}
           onChange={(e) => setType(e.target.value)}
@@ -113,9 +107,10 @@ export default function ReportsPage() {
             No reports yet. Be the first from your village.
           </p>
         )}
-        {reports.map((r) => (
+        {reports.map((r, index) => (
+          <div key={r.id}>
+            <FeedAdBreak index={index} breakIndexes={adBreaks} />
           <Link
-            key={r.id}
             href={portalHref(`/reports/${r.id}`)}
             className="block py-5 transition hover:bg-sand/40"
           >
@@ -131,6 +126,7 @@ export default function ReportsPage() {
               {String(r.createdAt).slice(0, 10)}
             </p>
           </Link>
+          </div>
         ))}
       </div>
     </div>

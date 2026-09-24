@@ -43,6 +43,7 @@ export interface AdRuntimeConfig {
   showPlaceholdersInDev: boolean;
   showOnComingSoon: boolean;
   feedMiddleAfterIndex: number;
+  feedAdIntervalChoices: number[];
   providers: Record<AdProviderType, ProviderConfig>;
   placements: Record<AdPlacementKey, PlacementConfig>;
   formats: Record<string, AdFormat>;

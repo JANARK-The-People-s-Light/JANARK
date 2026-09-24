@@ -14,6 +14,8 @@ import { useAuth } from "@/components/AuthModal";
 import { BrandLogo } from "@/components/BrandLogo";
 import { IconMenu, IconX } from "@/components/Icons";
 import { PortalRightPanel } from "@/components/PortalRightPanel";
+import { PortalHeaderSearch } from "@/components/PortalHeaderSearch";
+import { WhoToFollow } from "@/components/WhoToFollow";
 import { clearPhoneSession } from "@/lib/client-id";
 import { fill, rules, sys, templates, isPublicMarketingPath } from "@/lib/config";
 import {
@@ -126,7 +128,7 @@ export function PortalShell({ children }: { children: ReactNode }) {
 
   const navItems = useMemo(() => {
     return getPortalNav().map((item) => {
-      if (item.id === "profile" && session?.anonId) {
+      if (item.id === "profile" && mounted && session?.anonId) {
         return {
           ...item,
           href: portalHref(`/u/${session.anonId}`),
@@ -136,7 +138,7 @@ export function PortalShell({ children }: { children: ReactNode }) {
       }
       return item;
     });
-  }, [session]);
+  }, [session, mounted]);
 
   const mobileItems = useMemo(
     () => navItems.filter((i) => i.mobile),
@@ -179,10 +181,15 @@ export function PortalShell({ children }: { children: ReactNode }) {
             </div>
           ))}
         </nav>
+        <WhoToFollow onNavigate={() => setDrawerOpen(false)} />
       </div>
 
       <div className="shrink-0 border-t border-line/80 px-3 py-3">
-        {session?.anonId ? (
+        {!mounted ? (
+          <p className="text-[11px] leading-relaxed text-muted" aria-hidden>
+            {copy.loginHint}
+          </p>
+        ) : session?.anonId ? (
           <p className="truncate font-mono text-[11px] text-muted">
             {fill(copy.signedInAs, { anonId: session.anonId })}
           </p>
@@ -301,6 +308,8 @@ export function PortalShell({ children }: { children: ReactNode }) {
               priority
             />
           </Link>
+
+          <PortalHeaderSearch />
 
           <div className="ml-auto flex min-w-0 shrink items-center gap-0.5 sm:gap-2">
             <Link

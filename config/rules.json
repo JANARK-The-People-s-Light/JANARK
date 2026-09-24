@@ -7,7 +7,12 @@
     "hideRightRailOnCompose": true,
     "hideRailsOnDocumentFocus": true,
     "composePathPattern": "/(share|vote|issues|reports|petitions|feed|notice|memes)/new$",
-    "documentFocusPathPattern": "/terms$"
+    "documentFocusPathPattern": "/terms$",
+    "followSuggestions": {
+      "maxPeople": 3,
+      "candidatePool": 32,
+      "pollIntervalMs": 120000
+    }
   },
   "launch": {
     "publicLaunchIsoDate": "2027-01-26"

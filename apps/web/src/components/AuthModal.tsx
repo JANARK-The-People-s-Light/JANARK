@@ -37,6 +37,8 @@ const Ctx = createContext<AuthCtx | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<PhoneSession | null>(null);
+  /** Keep session null until after mount so SSR HTML matches the first client paint. */
+  const [sessionReady, setSessionReady] = useState(false);
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("post or react");
   const [onSuccess, setOnSuccess] = useState<
@@ -50,6 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const local = getPhoneSession();
     setSession(local);
+    setSessionReady(true);
     // Reconcile UI session with httpOnly cookie
     fetch("/api/auth/me", { cache: "no-store", credentials: "same-origin" })
       .then(async (r) => {
@@ -110,7 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <Ctx.Provider
       value={{
-        session,
+        session: sessionReady ? session : null,
         openLogin,
         closeLogin,
         ensureAuth,

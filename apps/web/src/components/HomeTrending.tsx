@@ -4,13 +4,15 @@ import Link from "next/link";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { FeedCard } from "@/components/Ui";
-import { AdSlot } from "@/components/ads/AdSlot";
+import {
+  FeedAdBreak,
+  useFeedAdBreakIndexes,
+} from "@/components/ads/FeedAdBreak";
 import { FeedEngage } from "@/components/FeedEngage";
 import { HashtagFilter, InlineTags } from "@/components/HashtagFilter";
-import { IconFilter, IconSearch, IconX } from "@/components/Icons";
+import { IconFilter, IconX } from "@/components/Icons";
 import { SearchableSelect } from "@/components/SearchableSelect";
 import { usePreferences } from "@/components/PreferencesProvider";
-import { AD_CONFIG } from "@/config/ads";
 import { resolveFeedKind } from "@/lib/feed-kind";
 import { portalHref } from "@/lib/paths";
 
@@ -91,7 +93,6 @@ function HomeTrendingInner() {
   const district = searchParams.get("district") || "";
   const city = searchParams.get("city") || "";
 
-  const [q, setQ] = useState(qParam);
   const [posts, setPosts] = useState<Post[]>([]);
   const [hashtags, setHashtags] = useState<Hashtag[]>([]);
   const [typeCounts, setTypeCounts] = useState<Record<string, number>>({});
@@ -99,10 +100,6 @@ function HomeTrendingInner() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filterOpen, setFilterOpen] = useState(false);
-
-  useEffect(() => {
-    setQ(qParam);
-  }, [qParam]);
 
   const queryString = useMemo(() => {
     const p = new URLSearchParams();
@@ -206,6 +203,11 @@ function HomeTrendingInner() {
     return posts.filter((p) => p.type !== "share");
   }, [posts, prefs.showSharesInFeed, type]);
 
+  const adBreaks = useFeedAdBreakIndexes(
+    visiblePosts.length,
+    queryString,
+  );
+
   /** Tab badge for All — exclude shares when that pref hides them. */
   const allTabCount = useMemo(() => {
     const all = typeCounts.all;
@@ -214,11 +216,6 @@ function HomeTrendingInner() {
     const shares = typeCounts.share ?? 0;
     return Math.max(0, all - shares);
   }, [typeCounts.all, typeCounts.share, prefs.showSharesInFeed]);
-
-  function submitSearch(e: React.FormEvent) {
-    e.preventDefault();
-    setParam("q", q.trim() || null);
-  }
 
   function toggleTag(t: string) {
     setParam("tag", tag === t ? null : t);
@@ -531,64 +528,11 @@ function HomeTrendingInner() {
   );
 
   return (
-    <section className="px-4 py-7 sm:px-8 sm:py-9">
-      <AdSlot placement="home-top" />
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <h1 className="font-display text-3xl tracking-tight text-navy sm:text-4xl">
-          Community Feed
-        </h1>
-        <div className="flex items-center gap-2">
-          <form
-            onSubmit={submitSearch}
-            className="flex min-w-0 flex-1 items-center gap-1.5 rounded-lg border border-line bg-white sm:min-w-[16rem] sm:flex-none"
-          >
-            <IconSearch className="ml-3 h-4 w-4 shrink-0 text-muted" />
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Search…"
-              className="min-h-10 min-w-0 flex-1 bg-transparent py-2 pr-2 text-sm outline-none placeholder:text-muted"
-              aria-label="Search feed"
-            />
-            {q ? (
-              <button
-                type="button"
-                onClick={() => {
-                  setQ("");
-                  setParam("q", null);
-                }}
-                className="px-2.5 text-muted hover:text-navy"
-                aria-label="Clear search"
-              >
-                <IconX className="h-3.5 w-3.5" />
-              </button>
-            ) : null}
-          </form>
-          <button
-            type="button"
-            onClick={() => setFilterOpen(true)}
-            className={`inline-flex h-10 shrink-0 items-center gap-1.5 rounded-lg px-3 text-sm transition ${
-              hasFilters
-                ? "bg-amber/15 font-medium text-link"
-                : "text-muted hover:bg-sand/70 hover:text-navy"
-            }`}
-            aria-haspopup="dialog"
-            aria-expanded={filterOpen}
-            aria-label="Open filters and sort"
-          >
-            <IconFilter className="h-4 w-4" />
-            Filter
-            {hasFilters ? (
-              <span className="tabular-nums text-xs opacity-80">
-                {filterSummary.length}
-              </span>
-            ) : null}
-          </button>
-        </div>
-      </div>
+    <section className="px-4 py-4 sm:px-8 sm:py-5">
+      <h1 className="sr-only">Community Feed</h1>
 
       {filterSummary.length > 0 ? (
-        <div className="mt-3 flex flex-wrap items-center gap-2">
+        <div className="mb-3 flex flex-wrap items-center gap-2">
           {filterSummary.slice(0, 4).map((s) => (
             <button
               key={s}
@@ -667,10 +611,10 @@ function HomeTrendingInner() {
         </div>
       )}
 
-      {error && <p className="mt-6 text-sm text-danger">{error}</p>}
+      {error && <p className="mt-2 text-sm text-danger">{error}</p>}
 
       <div
-        className="-mx-4 mt-5 flex gap-1 overflow-x-auto overscroll-x-contain px-4 pb-2 sm:mx-0 sm:mt-6 sm:overflow-visible sm:px-0"
+        className="-mx-4 flex items-center gap-1 overflow-x-auto overscroll-x-contain px-4 pb-2 sm:mx-0 sm:overflow-visible sm:px-0"
         role="tablist"
         aria-label="Community feed"
       >
@@ -702,8 +646,27 @@ function HomeTrendingInner() {
             </button>
           );
         })}
-        {/* Trailing space so the last tab can scroll fully into view on mobile */}
         <span className="w-6 shrink-0 sm:hidden" aria-hidden />
+        <button
+          type="button"
+          onClick={() => setFilterOpen(true)}
+          className={`ml-auto inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg px-3 text-sm transition ${
+            hasFilters
+              ? "bg-amber/15 font-medium text-link"
+              : "text-muted hover:bg-sand/70 hover:text-navy"
+          }`}
+          aria-haspopup="dialog"
+          aria-expanded={filterOpen}
+          aria-label="Open filters and sort"
+        >
+          <IconFilter className="h-4 w-4" />
+          Filter
+          {hasFilters ? (
+            <span className="tabular-nums text-xs opacity-80">
+              {filterSummary.length}
+            </span>
+          ) : null}
+        </button>
       </div>
 
       <div className="mt-2 divide-y divide-line/70">
@@ -732,9 +695,7 @@ function HomeTrendingInner() {
         )}
         {visiblePosts.map((item, index) => (
           <div key={item.id}>
-            {index === AD_CONFIG.feedMiddleAfterIndex ? (
-              <AdSlot placement="feed-middle" className="border-y border-line/50 py-2" />
-            ) : null}
+            <FeedAdBreak index={index} breakIndexes={adBreaks} />
             <article className="min-w-0">
             <FeedCard
               {...item}

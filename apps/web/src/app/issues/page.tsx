@@ -31,34 +31,21 @@ export default async function IssuesPage() {
   ).sort((a, b) => b.voteCount - a.voteCount);
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <p className="text-xs uppercase tracking-wider text-muted">
-            National issues
-          </p>
-          <h1 className="font-display mt-1 text-3xl text-navy sm:text-4xl">
-            National issues
-          </h1>
-          <p className="mt-3 max-w-2xl text-muted">
-            Every issue follows the same structure — updated as citizens vote
-            and discuss.
-          </p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <Link
-            href={portalHref("/vote/new")}
-            className="border border-navy px-4 py-2 text-sm font-medium text-navy hover:bg-cream"
-          >
-            Start a vote
-          </Link>
-          <Link
-            href={portalHref("/issues/new")}
-            className="bg-chrome px-4 py-2 text-sm font-medium text-on-chrome hover:bg-chrome-mid"
-          >
-            Raise new issue
-          </Link>
-        </div>
+    <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+      <h1 className="sr-only">National issues</h1>
+      <div className="flex flex-wrap items-center justify-end gap-2">
+        <Link
+          href={portalHref("/vote/new")}
+          className="border border-navy px-4 py-2 text-sm font-medium text-navy hover:bg-cream"
+        >
+          Start a vote
+        </Link>
+        <Link
+          href={portalHref("/issues/new")}
+          className="bg-chrome px-4 py-2 text-sm font-medium text-on-chrome hover:bg-chrome-mid"
+        >
+          Raise new issue
+        </Link>
       </div>
 
       <IssuesBrowse

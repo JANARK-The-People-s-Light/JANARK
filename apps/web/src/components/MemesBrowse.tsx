@@ -3,6 +3,10 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { MemeCard, type MemeCardData } from "@/components/MemeCard";
+import {
+  FeedAdBreak,
+  useFeedAdBreakIndexes,
+} from "@/components/ads/FeedAdBreak";
 import { portalHref } from "@/lib/paths";
 
 export function MemesBrowse() {
@@ -33,15 +37,12 @@ export function MemesBrowse() {
     void load();
   }, [load]);
 
+  const adBreaks = useFeedAdBreakIndexes(memes.length, `${sort}|${q}`);
+
   return (
-    <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-display text-3xl text-navy sm:text-4xl">Memes</h1>
-          <p className="mt-2 text-sm text-muted">
-            Civic humor and awareness — share what needs saying.
-          </p>
-        </div>
+    <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-8">
+      <h1 className="sr-only">Memes</h1>
+      <div className="flex flex-wrap items-center justify-end gap-2">
         <Link
           href={portalHref("/memes/new")}
           className="inline-flex bg-amber px-4 py-2.5 text-sm font-semibold text-on-amber hover:bg-amber-bright"
@@ -50,7 +51,7 @@ export function MemesBrowse() {
         </Link>
       </div>
 
-      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
@@ -91,8 +92,11 @@ export function MemesBrowse() {
         </div>
       ) : (
         <div className="mt-4">
-          {memes.map((m) => (
-            <MemeCard key={m.id} meme={m} onTagClick={(tag) => setQ(tag)} />
+          {memes.map((m, index) => (
+            <div key={m.id}>
+              <FeedAdBreak index={index} breakIndexes={adBreaks} />
+              <MemeCard meme={m} onTagClick={(tag) => setQ(tag)} />
+            </div>
           ))}
         </div>
       )}

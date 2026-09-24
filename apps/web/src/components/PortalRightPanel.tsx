@@ -75,6 +75,8 @@ export function PortalRightPanel() {
       style={{ width: layout.rightRailWidthPx }}
       aria-label={copy.trendingAriaLabel}
     >
+      <AdSlot placement="sidebar" className="mb-6 mt-0" />
+
       <p className="font-display text-lg tracking-tight text-navy">
         {copy.trendingTitle}
       </p>
@@ -92,16 +94,16 @@ export function PortalRightPanel() {
             <li key={t.tag}>
               <Link
                 href={portalHref(`/?tag=${encodeURIComponent(t.tag)}`)}
-                className="group flex items-start gap-3 rounded-lg px-2 py-2.5 transition hover:bg-sand/50"
+                className="group flex items-center gap-3 rounded-lg px-2 py-2.5 transition hover:bg-sand/50"
               >
-                <span className="mt-0.5 w-4 shrink-0 text-xs tabular-nums text-muted">
+                <span className="w-4 shrink-0 text-xs tabular-nums text-muted">
                   {i + 1}
                 </span>
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-[15px] font-medium text-navy group-hover:text-navy-mid">
+                <span className="flex min-w-0 flex-1 items-baseline justify-between gap-3">
+                  <span className="truncate text-[15px] font-medium text-navy group-hover:text-navy-mid">
                     #{t.tag}
                   </span>
-                  <span className="mt-0.5 block text-xs text-muted">
+                  <span className="shrink-0 text-right text-xs tabular-nums text-muted">
                     {activityLabel(t.count)}
                   </span>
                 </span>
@@ -110,8 +112,6 @@ export function PortalRightPanel() {
           ))}
         </ul>
       )}
-
-      <AdSlot placement="sidebar" className="mt-6" />
 
       <Link
         href={portalHref("/dashboard")}

@@ -2,6 +2,10 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
+import {
+  FeedAdBreak,
+  useFeedAdBreakIndexes,
+} from "@/components/ads/FeedAdBreak";
 import { Stars } from "@/components/Ui";
 import { IconSearch, IconX } from "@/components/Icons";
 import { portalHref } from "@/lib/paths";
@@ -36,9 +40,14 @@ export function IssuesBrowse({ issues }: { issues: IssueListItem[] }) {
     });
   }, [issues, q, category]);
 
+  const adBreaks = useFeedAdBreakIndexes(
+    filtered.length,
+    `${category}|${q.trim().toLowerCase()}`,
+  );
+
   return (
     <>
-      <div className="mt-8 flex flex-wrap gap-2">
+      <div className="mt-4 flex flex-wrap gap-2">
         <div className="flex min-w-0 flex-1 items-center gap-1 border border-line bg-white sm:min-w-[16rem]">
           <IconSearch className="ml-2.5 h-4 w-4 shrink-0 text-muted" />
           <input
@@ -94,7 +103,7 @@ export function IssuesBrowse({ issues }: { issues: IssueListItem[] }) {
       </div>
 
       {filtered.length === 0 ? (
-        <p className="mt-12 text-muted">
+        <p className="mt-6 text-muted">
           {issues.length === 0 ? (
             <>
               No issues yet.{" "}
@@ -111,13 +120,14 @@ export function IssuesBrowse({ issues }: { issues: IssueListItem[] }) {
           )}
         </p>
       ) : (
-        <div className="mt-12 divide-y divide-line border-y border-line">
-          {filtered.map((issue) => (
-            <Link
-              key={issue.slug}
-              href={portalHref(`/issues/${issue.slug}`)}
-              className="block py-5 transition hover:bg-sand/30"
-            >
+        <div className="mt-6 divide-y divide-line border-y border-line">
+          {filtered.map((issue, index) => (
+            <div key={issue.slug}>
+              <FeedAdBreak index={index} breakIndexes={adBreaks} />
+              <Link
+                href={portalHref(`/issues/${issue.slug}`)}
+                className="block py-5 transition hover:bg-sand/30"
+              >
               <p className="text-xs uppercase tracking-wider text-muted">
                 {issue.category}
               </p>
@@ -137,7 +147,8 @@ export function IssuesBrowse({ issues }: { issues: IssueListItem[] }) {
                   ? `${issue.voteCount.toLocaleString("en-IN")} citizen signals`
                   : "No signals yet"}
               </p>
-            </Link>
+              </Link>
+            </div>
           ))}
         </div>
       )}

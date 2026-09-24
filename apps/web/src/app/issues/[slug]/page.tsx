@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { prisma } from "@/lib/db";
 import { computeIssueLiveMetrics, mapIssue, mapProposal } from "@/lib/services";
-import { AdSlot } from "@/components/ads/AdSlot";
 import { Stars } from "@/components/Ui";
 import { EngageBar } from "@/components/EngageBar";
 import { MediaViewer } from "@/components/MediaViewer";
@@ -236,7 +235,6 @@ export default async function IssueDetailPage({ params }: Props) {
           ))}
         </ul>
       </section>
-      <AdSlot placement="post-bottom" />
     </div>
   );
 }

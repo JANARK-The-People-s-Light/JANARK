@@ -1,6 +1,6 @@
 {
   "home-top": {
-    "enabled": true,
+    "enabled": false,
     "provider": "adsense",
     "format": "leaderboard",
     "slotIdEnv": "NEXT_PUBLIC_ADSENSE_SLOT_HOME_TOP",
@@ -8,7 +8,7 @@
     "reservedHeight": 90
   },
   "feed-top": {
-    "enabled": true,
+    "enabled": false,
     "provider": "adsense",
     "format": "responsive",
     "slotIdEnv": "NEXT_PUBLIC_ADSENSE_SLOT_FEED_TOP",
