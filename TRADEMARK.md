@@ -6,7 +6,6 @@ The Business Source License (see [LICENSE](LICENSE)) does **not** grant trademar
 ## Reserved marks
 
 - **JANARK**
-- **जनार्क**
 - **The People's Light** (when used with JANARK)
 - The JANARK logo and wordmark artwork in this repository (including
   `public/logo` and related brand assets)
@@ -19,7 +18,7 @@ The Business Source License (see [LICENSE](LICENSE)) does **not** grant trademar
 
 ## What requires written permission
 
-- Using JANARK / जनार्क / the logo in a product name, domain, app store listing,
+- Using JANARK / the logo in a product name, domain, app store listing,
   or marketing as if you are the official Janark service.
 - Hosting a public Janark instance under the JANARK brand.
 - Commercial use of the marks.

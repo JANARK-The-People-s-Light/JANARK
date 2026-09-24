@@ -1,4 +1,4 @@
-# Janark (जनार्क)
+# Janark
 
 > India's first open source social platform. Independent civic discussion, petitions, reports, and community voting — built in the open.
 
