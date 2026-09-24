@@ -289,6 +289,10 @@ actor APIClient {
         await post("api/follow", body: body, fallback: "Could not follow")
     }
 
+    func voices(params: [String: String] = [:]) async -> Outcome<VoicesResponse> {
+        await get("api/voices", query: params, fallback: "Could not load voices")
+    }
+
     func profile(anonId: String) async -> Outcome<ProfileResponse> {
         await get("api/profiles/\(anonId)", fallback: "Profile not found")
     }

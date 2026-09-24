@@ -10,7 +10,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 export const fetchCache = "force-no-store";
 
-type SuggestionPost = {
+type DirectoryPost = {
   id: string;
   title: string;
   href: string;
@@ -33,10 +33,9 @@ async function viewerAnonId(req: Request): Promise<string | null> {
 async function popularPostsByAuthor(
   anonIds: string[],
   postsMax: number,
-): Promise<Map<string, SuggestionPost[]>> {
-  const out = new Map<string, SuggestionPost[]>();
+): Promise<Map<string, DirectoryPost[]>> {
+  const out = new Map<string, DirectoryPost[]>();
   if (anonIds.length === 0 || postsMax <= 0) return out;
-
   try {
     await connectMongo();
     await Promise.all(
@@ -61,24 +60,24 @@ async function popularPostsByAuthor(
       }),
     );
   } catch {
-    /* leave empty — rail still shows people */
+    /* empty posts ok */
   }
   return out;
 }
 
 /**
- * GET — recommended people to follow for the left-rail section.
- * Ranks by follower count, then fills with recently active identities.
- * Excludes the viewer and accounts they already follow.
- * Each person includes up to `postsMax` popular FeedPosts for a carousel.
+ * GET /api/voices?q=&page=1 — paginated popular profiles for the Rising voices directory.
  */
 export async function GET(req: Request) {
   const cfg = rules.portal().followSuggestions;
-  const maxPeople = Number(cfg.maxPeople);
-  const pool = Number(cfg.candidatePool);
+  const pageSize = Math.max(1, Number(cfg.directoryPageSize));
+  const pool = Math.max(pageSize, Number(cfg.directoryCandidatePool));
   const postsMax = Number(cfg.postsMax);
-  const viewer = await viewerAnonId(req);
+  const { searchParams } = new URL(req.url);
+  const qRaw = (searchParams.get("q") || "").trim().toLowerCase().replace(/^#/, "");
+  const page = Math.max(1, Number(searchParams.get("page") || "1") || 1);
 
+  const viewer = await viewerAnonId(req);
   const alreadyFollowing = viewer
     ? (
         await prisma.anonFollow.findMany({
@@ -87,10 +86,7 @@ export async function GET(req: Request) {
         })
       ).map((r) => r.followingId)
     : [];
-  const exclude = new Set<string>([
-    ...(viewer ? [viewer] : []),
-    ...alreadyFollowing,
-  ]);
+  const followingSet = new Set(alreadyFollowing);
 
   const popular = await prisma.anonFollow.groupBy({
     by: ["followingId"],
@@ -100,27 +96,24 @@ export async function GET(req: Request) {
   });
 
   const ranked: Array<{ anonId: string; followers: number }> = [];
+  const seen = new Set<string>();
   for (const row of popular) {
-    if (exclude.has(row.followingId)) continue;
-    ranked.push({
-      anonId: row.followingId,
-      followers: row._count.followingId,
-    });
-    if (ranked.length >= maxPeople) break;
+    const id = row.followingId;
+    if (!id || seen.has(id)) continue;
+    if (viewer && id === viewer) continue;
+    seen.add(id);
+    ranked.push({ anonId: id, followers: row._count.followingId });
   }
 
-  if (ranked.length < maxPeople) {
-    const have = new Set(ranked.map((r) => r.anonId));
+  if (ranked.length < pool) {
     const recent = await prisma.phoneIdentity.findMany({
       orderBy: { lastSeenAt: "desc" },
       take: pool,
       select: { anonId: true },
     });
     const fillIds = recent
-      .map((id) => id.anonId)
-      .filter((id) => id && !exclude.has(id) && !have.has(id))
-      .slice(0, maxPeople - ranked.length);
-
+      .map((r) => r.anonId)
+      .filter((id) => id && !seen.has(id) && id !== viewer);
     if (fillIds.length > 0) {
       const counts = await prisma.anonFollow.groupBy({
         by: ["followingId"],
@@ -131,29 +124,50 @@ export async function GET(req: Request) {
         counts.map((c) => [c.followingId, c._count.followingId]),
       );
       for (const anonId of fillIds) {
+        if (ranked.length >= pool) break;
         ranked.push({
           anonId,
           followers: countMap.get(anonId) ?? 0,
         });
+        seen.add(anonId);
       }
     }
   }
 
+  const filtered = qRaw
+    ? ranked.filter((r) => r.anonId.toLowerCase().includes(qRaw))
+    : ranked;
+
+  filtered.sort(
+    (a, b) => b.followers - a.followers || a.anonId.localeCompare(b.anonId),
+  );
+
+  const total = filtered.length;
+  const pages = Math.max(1, Math.ceil(total / pageSize));
+  const safePage = Math.min(page, pages);
+  const start = (safePage - 1) * pageSize;
+  const slice = filtered.slice(start, start + pageSize);
+
   const postsByAuthor = await popularPostsByAuthor(
-    ranked.map((r) => r.anonId),
+    slice.map((r) => r.anonId),
     postsMax,
   );
 
-  const people = ranked.map((r) => ({
+  const people = slice.map((r) => ({
     anonId: r.anonId,
     label: displayAnonLabel(r.anonId),
     followers: r.followers,
-    viewerFollows: false,
+    viewerFollows: followingSet.has(r.anonId),
     posts: postsByAuthor.get(r.anonId) ?? [],
   }));
 
   return liveJson({
     people,
+    page: safePage,
+    pageSize,
+    total,
+    pages,
+    q: qRaw,
     viewerAnonId: viewer,
   });
 }

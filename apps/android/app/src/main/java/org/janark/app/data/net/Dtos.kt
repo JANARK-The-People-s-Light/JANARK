@@ -492,6 +492,38 @@ data class FollowResponse(
 data class FollowPersonDto(val anonId: String, val label: String? = null)
 
 @Serializable
+data class VoicesPostDto(
+    val id: String? = null,
+    val title: String? = null,
+    val href: String? = null,
+    val votes: Int = 0,
+    val type: String? = null,
+    val mediaUrl: String? = null,
+    val mediaType: String? = null,
+)
+
+@Serializable
+data class VoicesPersonDto(
+    val anonId: String,
+    val label: String? = null,
+    val followers: Int = 0,
+    val viewerFollows: Boolean = false,
+    val posts: List<VoicesPostDto> = emptyList(),
+)
+
+@Serializable
+data class VoicesResponse(
+    val people: List<VoicesPersonDto> = emptyList(),
+    val page: Int = 1,
+    val pageSize: Int = 0,
+    val total: Int = 0,
+    val pages: Int = 1,
+    val q: String? = null,
+    val viewerAnonId: String? = null,
+    val error: String? = null,
+)
+
+@Serializable
 data class UploadResponse(
     val ok: Boolean = false,
     val url: String? = null,

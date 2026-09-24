@@ -90,6 +90,7 @@ const REQUIRED_API_SNIPPETS = [
   "api/comments",
   "api/flags",
   "api/follow",
+  "api/voices",
   "api/profiles",
   "api/dashboard",
   "api/social/share",

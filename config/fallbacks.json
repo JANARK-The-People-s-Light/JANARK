@@ -6,12 +6,19 @@
     "rightRailWidthPx": 300,
     "trendingTopicRowHeightPx": 44,
     "trendingTopicGapPx": 2,
+    "followPostCardWidthPx": 140,
+    "followPostCardGapPx": 6,
+    "followPostCardHeightPx": 78,
     "shellHeight": "100vh",
     "headerSearchMaxWidthPx": 360,
     "followSuggestions": {
       "maxPeople": 3,
       "candidatePool": 24,
-      "pollIntervalMs": 120000
+      "pollIntervalMs": 120000,
+      "postsMax": 10,
+      "postsVisible": 2,
+      "directoryPageSize": 24,
+      "directoryCandidatePool": 200
     }
   },
   "landing": {
@@ -39,7 +46,8 @@
     "brandLogoSolid": "/logo/janark-solid.png",
     "brandFavicon": "/logo/janark-favicon.png",
     "maintainersApply": "/maintainers",
-    "landingHome": "/"
+    "landingHome": "/",
+    "voices": "/voices"
   },
   "links": {
     "github": "",
@@ -79,6 +87,19 @@
     "whoToFollowUnfollow": "Unfollow",
     "whoToFollowBusy": "…",
     "whoToFollowAuthReason": "follow",
+    "whoToFollowPostsAria": "Posts by {anonId}",
+    "whoToFollowSeeMore": "See more",
+    "voicesPageTitle": "Rising voices",
+    "voicesPageSubtitle": "",
+    "voicesSearchPlaceholder": "Search…",
+    "voicesSearchAria": "Search",
+    "voicesSearchClearAria": "Clear",
+    "voicesLoading": "…",
+    "voicesEmpty": "",
+    "voicesPrev": "Previous",
+    "voicesNext": "Next",
+    "voicesPageLabel": "Page {page}",
+    "voicesFollowersLabel": "{count}",
     "headerSearchPlaceholder": "Search…",
     "headerSearchAria": "Search the civic feed",
     "headerSearchClearAria": "Clear search",

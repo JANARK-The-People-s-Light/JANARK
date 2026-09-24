@@ -21,6 +21,7 @@ const PORTAL_ROUTES = [
   `${PORTAL}/reports`,
   `${PORTAL}/vote`,
   `${PORTAL}/dashboard`,
+  `${PORTAL}/voices`,
   `${PORTAL}/login`,
   `${PORTAL}/settings`,
   `${PORTAL}/about`,

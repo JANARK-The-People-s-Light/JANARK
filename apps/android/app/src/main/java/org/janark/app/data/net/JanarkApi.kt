@@ -177,6 +177,9 @@ interface JanarkApi {
     @POST("api/follow")
     suspend fun follow(@Body body: JsonObject): Response<FollowResponse>
 
+    @GET("api/voices")
+    suspend fun voices(@QueryMap params: Map<String, String> = emptyMap()): Response<VoicesResponse>
+
     @GET("api/profiles/{anonId}")
     suspend fun profile(@Path("anonId") anonId: String): Response<ProfileResponse>
 

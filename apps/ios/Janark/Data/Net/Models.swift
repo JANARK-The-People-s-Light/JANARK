@@ -582,6 +582,35 @@ struct FollowResponse: Codable, Sendable {
     var error: String?
 }
 
+struct VoicesPostDto: Codable, Sendable {
+    var id: String?
+    var title: String?
+    var href: String?
+    var votes: Int?
+    var type: String?
+    var mediaUrl: String?
+    var mediaType: String?
+}
+
+struct VoicesPersonDto: Codable, Sendable {
+    var anonId: String
+    var label: String?
+    @DefaultZero var followers: Int
+    @DefaultFalse var viewerFollows: Bool
+    @DefaultEmptyArray var posts: [VoicesPostDto]
+}
+
+struct VoicesResponse: Codable, Sendable {
+    @DefaultEmptyArray var people: [VoicesPersonDto]
+    @DefaultZero var page: Int
+    @DefaultZero var pageSize: Int
+    @DefaultZero var total: Int
+    @DefaultZero var pages: Int
+    var q: String?
+    var viewerAnonId: String?
+    var error: String?
+}
+
 struct ProfilePostItem: Codable, Sendable {
     var id: String?
     var title: String?

@@ -19,6 +19,7 @@ const PORTAL_ROOTS = new Set([
   "p",
   "settings",
   "share",
+  "voices",
 ]);
 
 /** True when the path is part of the civic portal (not the public coming-soon page). */
