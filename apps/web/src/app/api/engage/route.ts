@@ -89,5 +89,15 @@ export async function POST(req: Request) {
     targetId,
     voterKey,
   );
+
+  const { trackInteraction } = await import("@/lib/interactions");
+  trackInteraction({
+    name: "engage.vote",
+    req,
+    targetType,
+    targetId,
+    props: { choice, value },
+  });
+
   return liveJson({ ok: true, ...counts, myVote, targetType, targetId });
 }

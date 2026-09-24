@@ -11,6 +11,16 @@
     "civicEntities": "Defined in prisma/schema.prisma — do not duplicate models in application code"
   },
   "apiPayloads": {
-    "note": "Route handlers validate against Prisma + rules.json bounds; OpenAPI export planned"
+    "note": "Route handlers validate against Prisma + rules.json bounds; OpenAPI export planned",
+    "interactionEvent": {
+      "name": "string — must be in rules.interactions.names",
+      "surface": "web | ios | android",
+      "visitorId": "opaque client id (optional)",
+      "sessionId": "visit session id (optional)",
+      "path": "relative path (optional)",
+      "targetType": "engage target type (optional)",
+      "targetId": "entity id (optional)",
+      "props": "object — sanitized; no phone/otp/clipboard/keystrokes"
+    }
   }
 }

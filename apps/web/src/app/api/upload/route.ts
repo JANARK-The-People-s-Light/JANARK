@@ -142,6 +142,15 @@ export async function POST(req: Request) {
       body: buf,
       contentType: mime,
     });
+    const { trackInteraction } = await import("@/lib/interactions");
+    trackInteraction({
+      name: "upload.complete",
+      req,
+      props: {
+        mediaType: mapped.mediaType,
+        size: stored.size,
+      },
+    });
     return NextResponse.json({
       ok: true,
       url: stored.publicUrl,

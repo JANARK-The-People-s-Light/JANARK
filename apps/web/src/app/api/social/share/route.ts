@@ -95,6 +95,14 @@ export async function POST(req: Request) {
   });
   await bumpMongoStats({ citizens: 1 });
 
+  const { trackInteraction } = await import("@/lib/interactions");
+  trackInteraction({
+    name: "social.share",
+    req,
+    path,
+    props: { platform, title },
+  });
+
   const publishResults: Record<string, unknown> = {};
   if (process.env.ALLOW_CITIZEN_SOCIAL_PUBLISH === "1") {
     const site =

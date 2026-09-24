@@ -12,6 +12,8 @@ export async function POST(req: Request) {
   if (!origin.ok) {
     return NextResponse.json({ error: origin.error }, { status: 403 });
   }
+  const { trackInteraction } = await import("@/lib/interactions");
+  trackInteraction({ name: "auth.logout", req });
   const res = NextResponse.json({ ok: true });
   await destroySession(res);
   return res;

@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import {
   AD_CONFIG,
   AD_PLACEMENTS,
   type AdPlacementKey,
 } from "@/config/ads";
 import { fill } from "@/lib/config";
+import { trackClientInteraction } from "@/lib/track-client";
 import { AdSenseProvider } from "@/components/ads/providers/AdSenseProvider";
 import { DirectAdProvider } from "@/components/ads/providers/DirectAdProvider";
 import { HouseAdProvider } from "@/components/ads/providers/HouseAdProvider";
@@ -56,6 +57,7 @@ function AdPlaceholder({
 
 export function AdSlot({ placement, className = "" }: AdSlotProps) {
   const config = AD_PLACEMENTS[placement];
+  const impressed = useRef(false);
 
   // Hooks must run unconditionally (stable call order).
   useEffect(() => {
@@ -78,6 +80,25 @@ export function AdSlot({ placement, className = "" }: AdSlotProps) {
       console.error("AdSense delivery error:", error);
     }
   }, [config]);
+
+  useEffect(() => {
+    if (!config?.enabled || impressed.current) return;
+    if (AD_CONFIG.isDev && AD_CONFIG.showPlaceholdersInDev && !AD_CONFIG.enabled) {
+      return;
+    }
+    if (!AD_CONFIG.enabled && !(AD_CONFIG.isDev && AD_CONFIG.showPlaceholdersInDev)) {
+      return;
+    }
+    impressed.current = true;
+    trackClientInteraction("ad.impression", {
+      props: {
+        placement,
+        provider: config.provider,
+        format: config.format,
+        preview: Boolean(AD_CONFIG.isDev && AD_CONFIG.showPlaceholdersInDev),
+      },
+    });
+  }, [config, placement]);
 
   // Dev layout markers — visible even when NEXT_PUBLIC_ADS_ENABLED is off
   if (
@@ -108,6 +129,11 @@ export function AdSlot({ placement, className = "" }: AdSlotProps) {
       className={`ad-slot my-4 flex w-full flex-col items-center justify-center overflow-hidden rounded-lg border border-line ${className}`}
       data-placement={placement}
       style={{ minHeight: `${config.reservedHeight}px` }}
+      onClick={() => {
+        trackClientInteraction("ad.click", {
+          props: { placement, provider: config.provider },
+        });
+      }}
     >
       {config.label ? (
         <span className="mb-1 self-start text-[10px] uppercase tracking-wider text-muted">

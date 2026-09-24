@@ -14,7 +14,7 @@ Stack: **Next.js** (App Router) · **SQLite / Prisma** · **MongoDB / Mongoose**
 
 | Doc | Purpose |
 |-----|---------|
-| [docs/handbook.md](docs/handbook.md) | Architecture, data, auth, API, config, ads, local run, mobile contract |
+| [docs/handbook.md](docs/handbook.md) | Architecture, data, auth, API, telemetry, config, ads, local run, mobile contract |
 | [docs/product.md](docs/product.md) | Product intent + roadmap |
 | [docs/adr/](docs/adr/README.md) | Durable decisions |
 | [SECURITY.md](SECURITY.md) | Vulnerabilities + production checklist |

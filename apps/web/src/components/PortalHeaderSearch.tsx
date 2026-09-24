@@ -4,8 +4,9 @@ import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { IconSearch, IconX } from "@/components/Icons";
-import { sys, templates } from "@/lib/config";
+import { sys, templates, rules } from "@/lib/config";
 import { portalHref } from "@/lib/paths";
+import { trackClientInteraction } from "@/lib/track-client";
 
 /**
  * Portal header search — sits beside the brand mark.
@@ -50,6 +51,14 @@ export function PortalHeaderSearch() {
     const home = portalHref("/").replace(/\/$/, "") || "/unreleased";
     const pulse = portalHref("/dashboard").replace(/\/$/, "");
     const staysOnPage = base === home || base === pulse;
+
+    if (trimmed) {
+      const maxQ = rules.interactions().maxQueryChars;
+      trackClientInteraction("search.query", {
+        path: pathname,
+        props: { q: trimmed.slice(0, maxQ), source: "header" },
+      });
+    }
 
     if (staysOnPage) {
       const p = new URLSearchParams(searchParams.toString());

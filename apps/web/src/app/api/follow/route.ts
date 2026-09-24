@@ -174,6 +174,17 @@ export async function POST(req: Request) {
   }
 
   const counts = await followCounts(targetId);
+
+  const { trackInteraction } = await import("@/lib/interactions");
+  trackInteraction({
+    name: "follow.toggle",
+    req,
+    anonId: followerId,
+    targetType: "profile",
+    targetId,
+    props: { following, action: actionRaw },
+  });
+
   return liveJson({
     ok: true,
     anonId: targetId,

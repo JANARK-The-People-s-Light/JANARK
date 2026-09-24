@@ -183,5 +183,14 @@ export async function POST(req: Request) {
     }
   }
 
+  const { trackInteraction } = await import("@/lib/interactions");
+  trackInteraction({
+    name: "auth.verify",
+    req,
+    visitorId: visitorId || null,
+    anonId: identity.anonId,
+    props: { linkedVisitor: Boolean(visitorId) },
+  });
+
   return res;
 }

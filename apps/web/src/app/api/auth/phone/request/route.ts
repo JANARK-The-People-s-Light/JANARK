@@ -97,6 +97,13 @@ export async function POST(req: Request) {
     );
   }
 
+  const { trackInteraction } = await import("@/lib/interactions");
+  trackInteraction({
+    name: "auth.otp_request",
+    req,
+    props: { smsOk: true },
+  });
+
   return NextResponse.json({
     ok: true,
     hint: phoneHint(normalized),

@@ -57,6 +57,7 @@ Copy/metrics: `config/templates.json` · `config/sys.json` (landing) · `config/
 - Civic surfaces + Pulse + maintainer apply
 - Native parity (thin API clients)
 - Validators: `validate:smoke` / `features` / `telemetry` / `mobile` / `native`
+- Visit telemetry + product `InteractionEvent` store (SQLite; config `rules.interactions`)
 - Object-storage abstraction — local default, SeaweedFS-ready ([ADR-0001](./adr/0001-storage-provider.md))
 - External `config/` pillars + zero-hardcoding
 - Marketing `/` vs portal `/unreleased`
@@ -67,6 +68,7 @@ Copy/metrics: `config/templates.json` · `config/sys.json` (landing) · `config/
 | Concern | Today |
 |---------|--------|
 | Civic + auth SoT | SQLite via Prisma 7 |
+| Visit + product analytics | SQLite `VisitSession` / `VisitEvent` / `InteractionEvent` |
 | Feed / trends / Pulse | Mongo (dual-write after Prisma) |
 | Media | Local disk; SeaweedFS optional |
 | Search | `contains` / `$regex` — Meilisearch planned ([ADR-0002](./adr/0002-search-index.md)) |

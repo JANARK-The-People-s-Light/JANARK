@@ -101,6 +101,8 @@ export const rules = {
     cfg<typeof rulesJson.maintainerApply>("rules", "maintainerApply"),
   landingFeedback: () =>
     cfg<typeof rulesJson.landingFeedback>("rules", "landingFeedback"),
+  interactions: () =>
+    cfg<typeof rulesJson.interactions>("rules", "interactions"),
 };
 
 export const templates = {

@@ -210,6 +210,32 @@ export async function GET(req: Request) {
   const town = searchParams.get("town")?.trim() ?? "";
   const limit = Math.min(Number(searchParams.get("limit") ?? 40) || 40, 80);
 
+  if (q || tag || country || state || typeRaw !== "all") {
+    const {
+      trackInteraction,
+      shouldSampleSearch,
+      truncateSearchQuery,
+    } = await import("@/lib/interactions");
+    if (shouldSampleSearch()) {
+      trackInteraction({
+        name: q ? "search.query" : "explore.filter",
+        req,
+        path: "/api/feed",
+        props: {
+          q: q ? truncateSearchQuery(q) : undefined,
+          type: typeRaw,
+          sort,
+          tag: tag || undefined,
+          country: country || undefined,
+          state: state || undefined,
+          district: district || undefined,
+          city: city || undefined,
+          town: town || undefined,
+        },
+      });
+    }
+  }
+
   const andParts: Record<string, unknown>[] = [];
   if (hotFlag === "1") andParts.push({ hot: true });
   const typeClause = typeFilterClause(typeRaw);

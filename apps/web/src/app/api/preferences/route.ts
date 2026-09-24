@@ -76,5 +76,12 @@ export async function PATCH(req: Request) {
     },
   });
 
+  const { trackInteraction } = await import("@/lib/interactions");
+  trackInteraction({
+    name: "prefs.update",
+    req,
+    props: { keys: Object.keys(next) },
+  });
+
   return NextResponse.json({ settings: next });
 }

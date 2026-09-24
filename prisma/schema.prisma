@@ -562,6 +562,31 @@ model VisitEvent {
   @@index([kind, createdAt])
 }
 
+/// Discrete product interactions (search, vote, follow, ads, creates, …)
+/// Complements VisitEvent (low-level DOM signals). Never store phone / OTP / raw IP.
+model InteractionEvent {
+  id          String   @id @default(cuid())
+  /// Config allowlisted name, e.g. engage.vote, search.query, ad.impression
+  name        String
+  /// web | ios | android
+  surface     String   @default("web")
+  visitorId   String?
+  sessionId   String?
+  anonId      String?
+  path        String?
+  targetType  String?
+  targetId    String?
+  /// Sanitized JSON props (size-capped; no PII secrets)
+  propsJson   String?
+  createdAt   DateTime @default(now())
+
+  @@index([name, createdAt])
+  @@index([visitorId, createdAt])
+  @@index([anonId, createdAt])
+  @@index([targetType, targetId, createdAt])
+  @@index([createdAt])
+}
+
 /// Maps opaque visitorId → phoneHash after OTP (server-only; never public)
 model VisitorPhoneLink {
   id        String   @id @default(cuid())

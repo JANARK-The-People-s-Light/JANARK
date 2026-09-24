@@ -71,6 +71,12 @@ export async function POST(req: Request) {
         email: emailRaw || null,
       },
     });
+    const { trackInteraction } = await import("@/lib/interactions");
+    trackInteraction({
+      name: "feedback.submit",
+      req,
+      props: { id: row.id, hasEmail: Boolean(emailRaw) },
+    });
     return NextResponse.json({
       ok: true,
       id: row.id,

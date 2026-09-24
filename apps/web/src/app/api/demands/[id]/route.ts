@@ -143,6 +143,14 @@ export async function POST(
       summary: `Signed petition: ${demand.title}`,
       href: portalHref(`/petitions/${id}`),
     });
+    const { trackInteraction } = await import("@/lib/interactions");
+    trackInteraction({
+      name: "content.support",
+      req,
+      targetType: "demand",
+      targetId: id,
+      props: { kind: "petition_sign" },
+    });
     const { authorHash: _h, ...rest } = updated;
     return NextResponse.json({
       ok: true,

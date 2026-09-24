@@ -83,5 +83,14 @@ export async function POST(req: Request) {
     meta: { targetType, targetId, reason },
   });
 
+  const { trackInteraction } = await import("@/lib/interactions");
+  trackInteraction({
+    name: "content.flag",
+    req,
+    targetType,
+    targetId,
+    props: { reason },
+  });
+
   return liveJson({ ok: true, alreadyReported: false }, { status: 201 });
 }

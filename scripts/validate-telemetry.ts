@@ -143,7 +143,41 @@ async function main() {
   assert(linked?.phoneHash === phoneHash, "session phoneHash linked after OTP");
   assert(linked?.anonId === "jn-validate", "session anonId linked");
 
+  // --- product interactions ---
+  const {
+    recordInteraction,
+    sanitizeInteractionProps,
+    isAllowedInteractionName,
+  } = await import("../apps/web/src/lib/interactions");
+  assert(isAllowedInteractionName("search.query"), "search.query allowlisted");
+  assert(
+    !isAllowedInteractionName("evil.exfiltrate"),
+    "unknown interaction names rejected",
+  );
+  const dirtyProps = sanitizeInteractionProps(
+    { q: "roads", phone: "+91", otp: "123456", nested: { token: "x", ok: 1 } },
+    4000,
+  );
+  assert(Boolean(dirtyProps), "interaction props serialize");
+  assert(!dirtyProps!.includes("phone"), "interaction props drop phone");
+  assert(!dirtyProps!.includes("otp"), "interaction props drop otp");
+
+  const ix = await recordInteraction({
+    name: "search.query",
+    visitorId,
+    anonId: "jn-validate",
+    path: "/unreleased",
+    props: { q: "water", source: "validate" },
+  });
+  assert(ix.ok && Boolean(ix.id), "InteractionEvent persisted");
+  const ixRow = await prisma.interactionEvent.findUnique({
+    where: { id: ix.id! },
+  });
+  assert(ixRow?.name === "search.query", "interaction name stored");
+  assert(!ixRow?.propsJson?.includes("phone"), "stored props stay clean");
+
   // cleanup test rows
+  await prisma.interactionEvent.deleteMany({ where: { visitorId } });
   await prisma.visitEvent.deleteMany({ where: { visitorId } });
   await prisma.visitSession.deleteMany({ where: { visitorId } });
   await prisma.visitorPhoneLink.deleteMany({ where: { visitorId } });

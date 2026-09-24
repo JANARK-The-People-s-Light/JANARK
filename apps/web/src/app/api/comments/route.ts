@@ -102,6 +102,18 @@ export async function POST(req: Request) {
       mediaType: media.mediaType,
     });
     const comments = await listEngageComments(targetType, targetId, voterKey);
+    const { trackInteraction } = await import("@/lib/interactions");
+    trackInteraction({
+      name: "engage.comment",
+      req,
+      targetType,
+      targetId,
+      props: {
+        commentId: comment.id,
+        hasParent: Boolean(parentId),
+        hasMedia: Boolean(comment.mediaUrl),
+      },
+    });
     return liveJson({
       ok: true,
       comment: {

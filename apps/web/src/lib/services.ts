@@ -470,6 +470,15 @@ export async function recordActivity(input: {
 }) {
   await connectMongo();
   await Activity.create(input);
+  const { trackInteraction } = await import("@/lib/interactions");
+  trackInteraction({
+    name: `activity.${input.kind}`,
+    path: input.href,
+    props: {
+      summary: input.summary.slice(0, 200),
+      ...(input.meta ?? {}),
+    },
+  });
 }
 
 export async function bumpTrend(term: string, by = 1, category?: string) {

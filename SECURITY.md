@@ -80,6 +80,14 @@ resistance and product analytics. Rules:
 - Keystroke **content** and clipboard **text** are not collected — counts only.
 - Cookie **values** (including `janark_sid`) are not stored — names may be.
 
+## Product interactions
+
+Discrete product events (`InteractionEvent` in SQLite) record searchable actions
+such as votes, follows, search queries, ad impressions, auth, and creates.
+Same privacy rules: no phone, OTP, raw IP, clipboard, or keystroke content.
+Event names and limits live in `config/rules.json` → `interactions`.
+Ingest: `POST /api/telemetry/interaction` (client) and server `trackInteraction`.
+
 ### Auth model
 
 - Sessions are **httpOnly**, `Secure` (production), `SameSite=Lax` cookies.

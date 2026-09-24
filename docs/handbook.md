@@ -59,7 +59,7 @@ Technical source of truth for Janark. Product intent and roadmap: [product.md](.
 
 ### SQLite (Prisma) — SoT
 
-Civic entities, auth, engagement, flags, telemetry. Examples: issues, petitions (`PublicDemand`), reports, proposals/votes, notices, shares, memes, comments, flags, phone identity/OTP/sessions, follows, preferences, rate-limit buckets, visit sessions.
+Civic entities, auth, engagement, flags, telemetry. Examples: issues, petitions (`PublicDemand`), reports, proposals/votes, notices, shares, memes, comments, flags, phone identity/OTP/sessions, follows, preferences, rate-limit buckets, visit sessions, interaction events.
 
 ### Mongo — mirror ([ADR-0003](./adr/0003-dual-write-strategy.md))
 
@@ -131,9 +131,26 @@ One public HTTP API under `apps/web/src/app/api/**`. Do not add a parallel civic
 | Social | `/api/follow`, `/api/profiles/[anonId]` |
 | Discovery | `/api/hashtags`, `/api/explore`, `/api/dashboard` |
 | Prefs / media | `/api/preferences`, `/api/upload`, `/api/uploads/[filename]` |
-| Telemetry / share | `/api/telemetry/visit`, `/api/social/share` |
+| Telemetry / share | `/api/telemetry/visit`, `/api/telemetry/interaction`, `/api/social/share` |
 
 Writes: validate in route handlers → Prisma → best-effort Mongo mirror. Android `Dtos.kt` / iOS `Models.swift` track JSON; OpenAPI planned (M3). Prefer additive changes.
+
+### Telemetry & product interactions
+
+Two SQLite layers (never mirrored to Mongo; privacy rules in [SECURITY.md](../SECURITY.md)):
+
+| Model | Role |
+|-------|------|
+| `VisitSession` / `VisitEvent` | Opaque visitor sessions + low-level signals (pageview, click, scroll, heartbeat, …) via `VisitTelemetry` → `POST /api/telemetry/visit` |
+| `InteractionEvent` | Discrete product events (search, vote, follow, ads, auth, creates, …) |
+
+| Capture | How |
+|---------|-----|
+| Server writes | `trackInteraction()` from `apps/web/src/lib/interactions.ts` (engage, follow, flags, auth, prefs, upload, feedback, …); creates also emit `activity.*` via `recordActivity` |
+| Client | `trackClientInteraction()` → `POST /api/telemetry/interaction` (header search, ad impression/click) |
+| Feed filters | Sampled `search.query` / `explore.filter` on `GET /api/feed` when `q` / filters present |
+
+Allowlisted event names, batch limits, and retention days: `config/rules.json` → `interactions` (fallbacks in `config/fallbacks.json`). Payload shape ref: `config/schema.json` → `apiPayloads.interactionEvent`. Validate with `npm run validate:telemetry`.
 
 ---
 
@@ -144,9 +161,9 @@ Loader: `apps/web/src/lib/config` (`cfg`, `fill`). Ads runtime: `apps/web/src/co
 | File | Holds |
 |------|--------|
 | `sys.json` | Layout metrics, env key **names**, public links, paths, session/UA |
-| `rules.json` | Feature flags, portal rails, feed thresholds, launch ISO date |
+| `rules.json` | Feature flags, portal rails, feed thresholds, launch ISO date, **interactions** allowlist / limits |
 | `templates.json` | Brand, landing, portal copy |
-| `schema.json` | Config shape refs |
+| `schema.json` | Config shape refs (incl. interaction payload) |
 | `fallbacks.json` | Values only when a primary path is missing |
 | `maintainers.json` | Maintainer apply form |
 | `ads/*.json` | Providers, formats, placements, policy, copy |

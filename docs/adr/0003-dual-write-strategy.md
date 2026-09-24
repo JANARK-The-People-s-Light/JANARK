@@ -20,6 +20,7 @@ Janark dual-writes civic creates to SQLite (canonical) and Mongo `FeedPost` (pub
 - Short-term: keep existing mirror helpers (`FeedPost.create`, `updateFeedMirrors`, `deleteFeedMirrors`).
 - Medium-term: Meilisearch reduces reliance on `$regex` and tag scans in Mongo.
 - Long-term: evaluate deleting Mongo to cut RAM and dual-write drift risk.
+- Product analytics (`InteractionEvent`, visit telemetry) stay on **SQLite only** — do not add a Mongo analytics collection.
 
 ## Alternatives considered
 

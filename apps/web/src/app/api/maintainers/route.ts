@@ -94,6 +94,12 @@ export async function POST(req: Request) {
         detailsJson,
       },
     });
+    const { trackInteraction } = await import("@/lib/interactions");
+    trackInteraction({
+      name: "maintainer.apply",
+      req,
+      props: { id: row.id },
+    });
     return NextResponse.json({ ok: true, id: row.id });
   } catch (e) {
     console.error("maintainer apply failed", e);
