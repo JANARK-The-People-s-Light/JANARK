@@ -19,6 +19,7 @@ import {
   BRAND_TAGLINE,
   PUBLIC_LAUNCH_LABEL,
 } from "@/lib/launch";
+import { sys, templates } from "@/lib/config";
 import { DEFAULT_THEME_ID, THEME_STORAGE_KEY } from "@/lib/themes";
 import "./globals.css";
 
@@ -51,41 +52,47 @@ const site =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
   "http://localhost:3000";
 
+const brand = templates.brand();
+const paths = sys.paths();
+
 /** Apply saved theme before paint to avoid flash. */
 const themeBootScript = `(function(){try{var k=${JSON.stringify(THEME_STORAGE_KEY)};var d=${JSON.stringify(DEFAULT_THEME_ID)};var ok=["brand-day","brand-warm","brand-night","monsoon","ember-graphite"];var t=localStorage.getItem(k);document.documentElement.setAttribute("data-theme",ok.indexOf(t)>=0?t:d);}catch(e){document.documentElement.setAttribute("data-theme",${JSON.stringify(DEFAULT_THEME_ID)});}})();`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(site),
   title: {
-    default: "Janark",
-    template: "%s · Janark",
+    default: brand.name,
+    template: `%s · ${brand.name}`,
   },
   description: `${BRAND_TAGLINE}. ${BRAND_SUPPORT} Public launch ${PUBLIC_LAUNCH_LABEL}.`,
   icons: {
-    icon: [{ url: "/logo/janark.png", type: "image/png" }],
-    apple: [{ url: "/logo/janark.png" }],
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: paths.brandFavicon, type: "image/png", sizes: "192x192" },
+    ],
+    apple: [{ url: paths.brandFavicon, sizes: "180x180" }],
   },
   openGraph: {
-    title: "Janark",
+    title: brand.name,
     description: `${BRAND_TAGLINE}. ${BRAND_SUPPORT}`,
     url: site,
-    siteName: "Janark",
+    siteName: brand.name,
     locale: "en_IN",
     type: "website",
     images: [
       {
-        url: "/logo/janark-solid.png",
+        url: paths.brandLogoSolid,
         width: 1254,
         height: 1254,
-        alt: "Janark",
+        alt: brand.name,
       },
     ],
   },
   twitter: {
     card: "summary",
-    title: "Janark",
+    title: brand.name,
     description: `${BRAND_TAGLINE}. ${BRAND_SUPPORT}`,
-    images: ["/logo/janark-solid.png"],
+    images: [paths.brandLogoSolid],
   },
 };
 

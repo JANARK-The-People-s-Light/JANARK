@@ -53,6 +53,7 @@
     "portalPreview": "/unreleased",
     "brandLogo": "/logo/janark.png",
     "brandLogoSolid": "/logo/janark-solid.png",
+    "brandFavicon": "/logo/janark-favicon.png",
     "maintainersApply": "/maintainers",
     "landingHome": "/"
   },
