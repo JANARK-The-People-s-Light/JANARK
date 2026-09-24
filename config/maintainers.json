@@ -82,7 +82,6 @@
     },
     "projectsLabel": "Open-source projects",
     "addProject": "+ Add project",
-    "projectName": "Project name",
     "projectUrl": "Repository URL",
     "projectRole": "Your role",
     "removeProject": "Remove",

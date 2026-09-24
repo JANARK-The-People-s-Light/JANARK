@@ -11,7 +11,7 @@ import {
 } from "react";
 import { fill, getMaintainersForm, templates } from "@/lib/config";
 
-type ProjectEntry = { name: string; url: string; role: string };
+type ProjectEntry = { url: string; role: string };
 type ExtraLink = { label: string; url: string };
 type EducationEntry = {
   school: string;
@@ -61,7 +61,7 @@ const inputClass =
   "mt-1.5 w-full rounded-xl border border-line bg-white px-3.5 py-2.5 text-sm text-navy outline-none transition placeholder:text-muted/70 focus:border-amber/50 focus:ring-2 focus:ring-amber/20";
 
 function emptyProject(defaultRole: string): ProjectEntry {
-  return { name: "", url: "", role: defaultRole };
+  return { url: "", role: defaultRole };
 }
 
 function emptyEducation(): EducationEntry {
@@ -166,7 +166,7 @@ export function MaintainerApplyForm() {
     if (openSections.includes("oss")) {
       details.oss = {
         significantRepo: significantRepo.trim() || undefined,
-        projects: ossProjects.filter((p) => p.name || p.url),
+        projects: ossProjects.filter((p) => p.url.trim()),
         notes: ossNotes.trim() || undefined,
       };
     }
@@ -359,7 +359,6 @@ export function MaintainerApplyForm() {
             label={form.oss.projectsLabel}
             addLabel={form.oss.addProject}
             removeLabel={form.oss.removeProject}
-            nameLabel={form.oss.projectName}
             urlLabel={form.oss.projectUrl}
             roleLabel={form.oss.projectRole}
             roles={form.oss.roles}
@@ -945,7 +944,6 @@ function ProjectList({
   label,
   addLabel,
   removeLabel,
-  nameLabel,
   urlLabel,
   roleLabel,
   roles,
@@ -956,7 +954,6 @@ function ProjectList({
   label: string;
   addLabel: string;
   removeLabel: string;
-  nameLabel: string;
   urlLabel: string;
   roleLabel: string;
   roles: string[];
@@ -973,18 +970,6 @@ function ProjectList({
             key={i}
             className="rounded-xl border border-line bg-white p-3 space-y-2"
           >
-            <input
-              className={inputClass}
-              placeholder={nameLabel}
-              value={p.name}
-              onChange={(e) =>
-                onChange(
-                  projects.map((row, idx) =>
-                    idx === i ? { ...row, name: e.target.value } : row,
-                  ),
-                )
-              }
-            />
             <input
               type="url"
               className={inputClass}

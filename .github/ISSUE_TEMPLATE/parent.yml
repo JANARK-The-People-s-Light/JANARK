@@ -1,0 +1,66 @@
+---
+name: Parent issue
+description: Roadmap parent (GitHub Feature) that will hold sub-issues
+title: ""
+labels: ["roadmap"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Creates a **parent** issue. Add work as **sub-issues** (GitHub native hierarchy), not faux “epic/story” labels.
+        Set issue type to **Feature** in the UI (or via API) when creating from `gh`.
+  - type: dropdown
+    id: track
+    attributes:
+      label: Roadmap track
+      options:
+        - Search
+        - Storage ops
+        - Feed hardening
+        - M3 shared package
+        - Ads go-live
+        - Hardening
+        - Launch
+        - Postgres option
+        - Async projections
+        - Ephemeral cache/queue
+    validations:
+      required: true
+  - type: dropdown
+    id: horizon
+    attributes:
+      label: Horizon
+      options:
+        - Now
+        - Near-term
+        - Later
+        - Launch-critical
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+    validations:
+      required: true
+  - type: textarea
+    id: context
+    attributes:
+      label: Context / ADRs
+    validations:
+      required: true
+  - type: textarea
+    id: non_goals
+    attributes:
+      label: Non-goals
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Parent acceptance criteria
+      value: |
+        - [ ]
+    validations:
+      required: true
+---

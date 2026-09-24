@@ -327,3 +327,75 @@ svg {
   transform-origin: left;
   animation: bar-grow 0.9s ease-out both;
 }
+
+/* Marketing landing — stage behind centered card */
+.landing-stage {
+  background: #02274b;
+}
+
+.landing-hero-glow {
+  background:
+    radial-gradient(ellipse 70% 55% at 15% 20%, rgba(248, 158, 23, 0.28), transparent 58%),
+    radial-gradient(ellipse 45% 50% at 90% 80%, rgba(255, 200, 61, 0.1), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 60% 0%, rgba(255, 255, 255, 0.06), transparent 50%);
+}
+
+.landing-hero-grid {
+  background-image:
+    linear-gradient(rgba(255, 248, 232, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 248, 232, 0.045) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 45%, #000 15%, transparent 75%);
+}
+
+.landing-card {
+  overflow-y: auto;
+}
+
+@keyframes landing-sun {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
+}
+
+@keyframes landing-ray {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.landing-sun {
+  animation: landing-sun 8s ease-in-out infinite;
+}
+
+.landing-hero-copy {
+  animation: landing-ray 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.landing-pillar {
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.landing-pillar:hover {
+  transform: translateY(-2px);
+}
+
+.landing-cta {
+  transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.landing-cta:hover {
+  transform: translateY(-1px);
+}
+

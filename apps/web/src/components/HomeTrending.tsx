@@ -159,10 +159,24 @@ function HomeTrendingInner() {
     setError(null);
     try {
       const res = await fetch(`/api/feed?${queryString}`, { cache: "no-store" });
-      const data = await res.json();
+      const text = await res.text();
+      const data = text
+        ? (JSON.parse(text) as {
+            error?: string;
+            posts?: unknown[];
+            hashtags?: unknown[];
+            typeCounts?: Record<string, number>;
+            locations?: {
+              countries?: string[];
+              states?: string[];
+              districts?: string[];
+              cities?: string[];
+            };
+          })
+        : {};
       if (!res.ok) throw new Error(data.error ?? "Could not load trending");
-      setPosts(data.posts ?? []);
-      setHashtags(data.hashtags ?? []);
+      setPosts((data.posts as typeof posts) ?? []);
+      setHashtags((data.hashtags as typeof hashtags) ?? []);
       setTypeCounts(data.typeCounts ?? {});
       if (data.locations) {
         setLocations({

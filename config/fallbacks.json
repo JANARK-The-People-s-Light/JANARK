@@ -7,19 +7,30 @@
     "shellHeight": "100vh"
   },
   "landing": {
-    "maxWidthPx": 960,
-    "headerHeightRem": 3.5,
-    "heroMinHeightRem": 18,
+    "maxWidthPx": 860,
+    "headerHeightRem": 4,
+    "heroMinHeightRem": 0,
+    "sectionPaddingYRem": 3.5,
+    "sectionPaddingYSmRem": 4,
     "featureIconSizeRem": 2.5,
-    "heroLogoSize": "lg",
-    "footerPaddingYRem": 1,
-    "footerGapRem": 0.75
+    "heroLogoSize": "md",
+    "footerPaddingYRem": 1.25,
+    "footerGapRem": 0.75,
+    "cardMaxHeightVh": 92,
+    "cardRadiusRem": 1.25
+  },
+  "brandMark": {
+    "useSolidAsset": true,
+    "backdropPaddingRem": 0.2,
+    "backdropRadiusRem": 0.55,
+    "ringWidthPx": 1
   },
   "publicMarketingPaths": ["/", "/maintainers"],
   "paths": {
     "brandLogo": "/logo/janark.png",
     "brandLogoSolid": "/logo/janark-solid.png",
-    "maintainersApply": "/maintainers"
+    "maintainersApply": "/maintainers",
+    "landingHome": "/"
   },
   "links": {
     "github": "",
@@ -40,7 +51,10 @@
     "pulseEyebrow": "Near you · across the country",
     "pulseTitle": "Pulse",
     "pulseIntro": "What people near you — and across the country — are elevating.",
-    "pulseSearchAria": "Search pulse"
+    "pulseSearchAria": "Search pulse",
+    "backToLanding": "← Landing",
+    "backToLandingAriaLabel": "Back to landing page",
+    "homeAriaLabel": "Portal home"
   },
   "feed": {
     "hashtagMinTagLength": 1,

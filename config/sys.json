@@ -9,13 +9,23 @@
     "shellHeight": "100dvh"
   },
   "landing": {
-    "maxWidthPx": 1120,
+    "maxWidthPx": 860,
     "headerHeightRem": 4,
-    "heroMinHeightRem": 22,
-    "featureIconSizeRem": 2.75,
-    "heroLogoSize": "hero",
-    "footerPaddingYRem": 1,
-    "footerGapRem": 0.75
+    "heroMinHeightRem": 0,
+    "sectionPaddingYRem": 3.5,
+    "sectionPaddingYSmRem": 4,
+    "featureIconSizeRem": 2.5,
+    "heroLogoSize": "md",
+    "footerPaddingYRem": 1.25,
+    "footerGapRem": 0.75,
+    "cardMaxHeightVh": 92,
+    "cardRadiusRem": 1.25
+  },
+  "brandMark": {
+    "useSolidAsset": true,
+    "backdropPaddingRem": 0.2,
+    "backdropRadiusRem": 0.55,
+    "ringWidthPx": 1
   },
   "envKeys": {
     "databaseUrl": "DATABASE_URL",
@@ -42,7 +52,8 @@
     "portalPreview": "/unreleased",
     "brandLogo": "/logo/janark.png",
     "brandLogoSolid": "/logo/janark-solid.png",
-    "maintainersApply": "/maintainers"
+    "maintainersApply": "/maintainers",
+    "landingHome": "/"
   },
   "publicMarketingPaths": ["/", "/maintainers"],
   "session": {

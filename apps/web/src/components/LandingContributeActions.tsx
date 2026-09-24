@@ -25,18 +25,34 @@ function resolveActionHref(linkKey: string | undefined) {
   return publicLink("github");
 }
 
-export function LandingContributeActions({ actions }: { actions: Action[] }) {
+export function LandingContributeActions({
+  actions,
+  variant = "links",
+}: {
+  actions: Action[];
+  variant?: "links" | "buttons";
+}) {
   const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const isButtons = variant === "buttons";
+  const actionClass = isButtons
+    ? "inline-flex items-center justify-center rounded-md border border-navy/15 bg-white px-4 py-2.5 text-sm font-semibold text-navy transition hover:border-amber hover:bg-amber/10"
+    : "rounded-md px-3 py-2 text-sm font-medium text-link transition hover:bg-sand/60";
 
   return (
     <>
-      <div className="flex shrink-0 flex-wrap items-center gap-x-1 gap-y-2 sm:gap-0">
+      <div
+        className={
+          isButtons
+            ? "flex flex-wrap items-center gap-2"
+            : "flex shrink-0 flex-wrap items-center gap-x-1 gap-y-2 sm:gap-0"
+        }
+      >
         {actions.map((action, index) => {
           const isModal = action.kind === "modal";
           const href = isModal ? undefined : resolveActionHref(action.linkKey);
           return (
             <div key={action.id} className="flex items-center">
-              {index > 0 ? (
+              {!isButtons && index > 0 ? (
                 <>
                   <span
                     className="mx-2 h-3 w-px bg-line sm:hidden"
@@ -52,7 +68,7 @@ export function LandingContributeActions({ actions }: { actions: Action[] }) {
                 <button
                   type="button"
                   onClick={() => setFeedbackOpen(true)}
-                  className="rounded-lg px-3 py-2 text-sm font-medium text-link transition hover:bg-sand/60"
+                  className={actionClass}
                 >
                   {action.label}
                 </button>
@@ -61,7 +77,7 @@ export function LandingContributeActions({ actions }: { actions: Action[] }) {
                   href={href || undefined}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="rounded-lg px-3 py-2 text-sm font-medium text-link transition hover:bg-sand/60"
+                  className={actionClass}
                 >
                   {action.label}
                 </a>

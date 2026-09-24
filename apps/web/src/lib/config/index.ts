@@ -64,6 +64,7 @@ export function fill(
 export const sys = {
   portal: () => cfg<typeof sysJson.portal>("sys", "portal"),
   landing: () => cfg<typeof sysJson.landing>("sys", "landing"),
+  brandMark: () => cfg<typeof sysJson.brandMark>("sys", "brandMark"),
   links: () => cfg<typeof sysJson.links>("sys", "links"),
   envKeys: () => cfg<typeof sysJson.envKeys>("sys", "envKeys"),
   paths: () => cfg<typeof sysJson.paths>("sys", "paths"),

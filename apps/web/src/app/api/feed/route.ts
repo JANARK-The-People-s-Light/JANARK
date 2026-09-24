@@ -24,6 +24,10 @@ import { requireCivicPostTerms } from "@/lib/civic-post-terms";
 import { parseOptionalMedia } from "@/lib/media";
 import { publicAuthorFromVoterKey } from "@/lib/identity";
 import { allocatePublicPostId, publicPostHref } from "@/lib/public-id";
+import {
+  loadFeedFromSqlite,
+  sqliteFeedTypeCounts,
+} from "@/lib/feed-from-sqlite";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -171,7 +175,25 @@ async function loadCivicEngagement(posts: FeedCandidate[], since: Date) {
 }
 
 export async function GET(req: Request) {
-  await connectMongo();
+  try {
+    await connectMongo();
+  } catch {
+    return liveJson(
+      {
+        error: "Feed temporarily unavailable",
+        posts: [],
+        hashtags: [],
+        typeCounts: {},
+        locations: {
+          countries: [],
+          states: [],
+          districts: [],
+          cities: [],
+        },
+      },
+      { status: 503 },
+    );
+  }
   const { searchParams } = new URL(req.url);
   const hotFlag = searchParams.get("hot");
   const q = searchParams.get("q")?.trim() ?? "";
@@ -348,6 +370,23 @@ export async function GET(req: Request) {
   let rankedPosts = rawPosts as Ranked[];
   let civicMeta: { mode: CivicSortMode; scored: number } | null = null;
 
+  // Mongo mirror empty (e.g. in-memory fallback after Docker loss) → SQLite SoT
+  if (rankedPosts.length === 0) {
+    const fromSqlite = await loadFeedFromSqlite({
+      limit: candidateLimit,
+      typeRaw,
+      q,
+      tag,
+      country,
+      state,
+      district,
+      city,
+      town,
+      backfillMongo: true,
+    });
+    rankedPosts = fromSqlite as Ranked[];
+  }
+
   if (useCivic) {
     const mode = sort as CivicSortMode;
     const since = new Date(Date.now() - 72 * 3_600_000);
@@ -376,15 +415,19 @@ export async function GET(req: Request) {
     typeCounts[key] = b.count;
     typeCounts.all += b.count;
   }
-  const [petitionCount, reportCount, discussionPlain] = await Promise.all([
-    FeedPost.countDocuments(typeFilterClause("petition") ?? {}),
-    FeedPost.countDocuments(typeFilterClause("report") ?? {}),
-    FeedPost.countDocuments(typeFilterClause("discussion") ?? {}),
-  ]);
-  typeCounts.petition = petitionCount;
-  typeCounts.report = reportCount;
-  typeCounts.discussion = discussionPlain;
-  typeCounts.votes = typeCounts.proposal ?? 0;
+  if (typeCounts.all === 0) {
+    Object.assign(typeCounts, await sqliteFeedTypeCounts());
+  } else {
+    const [petitionCount, reportCount, discussionPlain] = await Promise.all([
+      FeedPost.countDocuments(typeFilterClause("petition") ?? {}),
+      FeedPost.countDocuments(typeFilterClause("report") ?? {}),
+      FeedPost.countDocuments(typeFilterClause("discussion") ?? {}),
+    ]);
+    typeCounts.petition = petitionCount;
+    typeCounts.report = reportCount;
+    typeCounts.discussion = discussionPlain;
+  }
+  typeCounts.votes = typeCounts.proposal ?? typeCounts.votes ?? 0;
 
   const hashtagMap = new Map<string, number>();
   for (const t of prismaTags) {

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/JANARK-The-People-s-Light/JANARK/blob/main/SECURITY.md
+    about: Do not file public issues for security reports — follow SECURITY.md.
+  - name: Roadmap
+    url: https://github.com/JANARK-The-People-s-Light/JANARK/blob/main/docs/roadmap.md
+    about: Near-term tracks, parent issues, and suggested order.

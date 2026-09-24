@@ -66,18 +66,22 @@ Where the repo is headed. Track near-term work here; durable decisions live in [
 
 ## Next
 
-| Track | Focus | Notes |
-|-------|--------|--------|
-| **M3 shared package** | Types / OpenAPI stubs under `packages/` | Clients stay thin; avoid premature microservices |
-| **Search** | Meilisearch ([ADR-0002](./adr/0002-search-index.md)) | Index *after* successful Prisma writes; never block civic posts |
-| **Storage ops** | Production SeaweedFS / CDN ([ADR-0001](./adr/0001-storage-provider.md)) | Keep `/uploads/{key}` URLs |
-| **Ads go-live** | Publisher approval, real slot IDs, production `ads.txt` | Master switch stays env-gated |
-| **Feed hardening** | Reduce dual-write drift; document rebuild-from-SQLite path | Mongo removal is **last** ([ADR-0003](./adr/0003-dual-write-strategy.md)) |
-| **Postgres option** | Multi-writer SoT **if** SQLite becomes a limit | Migrate via Prisma; do not claim Postgres is SoT today |
-| **Async projections (later)** | Outbox → worker → feed/search/notifications | Prefer this *over* expanding sync dual-writes; only when load justifies a worker |
-| **Ephemeral cache/queue (later)** | Valkey (or Redis-compatible) for rate limits / sessions cache / BullMQ | Not required for launch; SQLite rate buckets work locally |
-| **Hardening** | Real SMS OTP, Turnstile in prod, drop `EXPOSE_DEV_OTP` | |
-| **Launch** | Public `/` product surface for **26 Jan 2027** | Collapse `/unreleased` into `/` when ready |
+| Track | Focus | Notes | Parent |
+|-------|--------|--------|--------|
+| **M3 shared package** | Types / OpenAPI stubs under `packages/` | Clients stay thin; avoid premature microservices | [#31](https://github.com/JANARK-The-People-s-Light/JANARK/issues/31) |
+| **Search** | Meilisearch ([ADR-0002](./adr/0002-search-index.md)) | Index *after* successful Prisma writes; never block civic posts | [#28](https://github.com/JANARK-The-People-s-Light/JANARK/issues/28) |
+| **Storage ops** | Production SeaweedFS / CDN ([ADR-0001](./adr/0001-storage-provider.md)) | Keep `/uploads/{key}` URLs | [#29](https://github.com/JANARK-The-People-s-Light/JANARK/issues/29) |
+| **Ads go-live** | Publisher approval, real slot IDs, production `ads.txt` | Master switch stays env-gated | [#32](https://github.com/JANARK-The-People-s-Light/JANARK/issues/32) |
+| **Feed hardening** | Reduce dual-write drift; document rebuild-from-SQLite path | Mongo removal is **last** ([ADR-0003](./adr/0003-dual-write-strategy.md)) | [#30](https://github.com/JANARK-The-People-s-Light/JANARK/issues/30) |
+| **Postgres option** | Multi-writer SoT **if** SQLite becomes a limit | Migrate via Prisma; do not claim Postgres is SoT today | [#35](https://github.com/JANARK-The-People-s-Light/JANARK/issues/35) |
+| **Async projections (later)** | Outbox → worker → feed/search/notifications | Prefer this *over* expanding sync dual-writes; only when load justifies a worker | [#36](https://github.com/JANARK-The-People-s-Light/JANARK/issues/36) |
+| **Ephemeral cache/queue (later)** | Valkey (or Redis-compatible) for rate limits / sessions cache / BullMQ | Not required for launch; SQLite rate buckets work locally | [#37](https://github.com/JANARK-The-People-s-Light/JANARK/issues/37) |
+| **Hardening** | Real SMS OTP, Turnstile in prod, drop `EXPOSE_DEV_OTP` | | [#33](https://github.com/JANARK-The-People-s-Light/JANARK/issues/33) |
+| **Launch** | Public `/` product surface for **26 Jan 2027** | Collapse `/unreleased` into `/` when ready; blocked by Hardening | [#34](https://github.com/JANARK-The-People-s-Light/JANARK/issues/34) |
+
+GitHub structure: **Feature** parents + **Task** sub-issues (native hierarchy). Templates: [`.github/ISSUE_TEMPLATE/parent.yml`](../.github/ISSUE_TEMPLATE/parent.yml), [`task.yml`](../.github/ISSUE_TEMPLATE/task.yml). Filter: [`label:roadmap`](https://github.com/JANARK-The-People-s-Light/JANARK/issues?q=is%3Aissue+label%3Aroadmap).
+
+
 
 ### Suggested order (do not skip ahead)
 

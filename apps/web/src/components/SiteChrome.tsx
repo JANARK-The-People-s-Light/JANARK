@@ -14,7 +14,7 @@ import {
 import { useAuth } from "@/components/AuthModal";
 import { BrandLogo } from "@/components/BrandLogo";
 import { PORTAL_BASE, portalHref } from "@/lib/paths";
-import { templates } from "@/lib/config";
+import { fill, sys, templates } from "@/lib/config";
 
 const links = [
   { href: "/feed", label: "Feed" },
@@ -100,6 +100,15 @@ export function SiteHeader() {
           </div>
           <nav className="flex min-h-0 flex-1 flex-col overflow-y-auto">
             <ul className="flex flex-col p-2">
+              <li>
+                <Link
+                  href={sys.paths().landingHome}
+                  onClick={() => setMenuOpen(false)}
+                  className="block px-4 py-3.5 text-base text-amber-bright"
+                >
+                  {templates.portal().backToLanding}
+                </Link>
+              </li>
               {links.map((link) => (
                 <li key={link.href}>
                   <Link
@@ -156,7 +165,7 @@ export function SiteHeader() {
             href={PORTAL_BASE}
             className="group shrink-0"
             onClick={() => setMenuOpen(false)}
-            aria-label="Janark portal home"
+            aria-label={templates.portal().homeAriaLabel}
           >
             <BrandLogo
               size="sm"
@@ -168,9 +177,18 @@ export function SiteHeader() {
           </Link>
 
           <nav
-            className="hidden items-center justify-end gap-x-4 text-sm text-on-chrome/90 lg:flex"
+            className="hidden items-center justify-end gap-x-3 text-sm text-on-chrome/90 lg:flex"
             aria-label="Primary"
           >
+            <Link
+              href={sys.paths().landingHome}
+              className="rounded-lg border border-white/20 px-2.5 py-1.5 text-xs font-medium transition hover:border-amber-bright/40 hover:text-amber-bright sm:text-sm"
+              aria-label={fill(templates.portal().backToLandingAriaLabel, {
+                name: templates.brand().name,
+              })}
+            >
+              {templates.portal().backToLanding}
+            </Link>
             {links.map((link) => (
               <Link
                 key={link.href}

@@ -12,7 +12,7 @@ type Props = {
   onDark?: boolean;
   className?: string;
   priority?: boolean;
-  /** Override mark src (defaults to config paths.brandLogo) */
+  /** Override mark src (defaults to solid or primary path from config) */
   src?: string;
 };
 
@@ -21,11 +21,11 @@ const SIZES: Record<
   { px: number; className: string; wordmark: string }
 > = {
   sm: { px: 28, className: "h-7 w-7", wordmark: "text-xl sm:text-2xl" },
-  md: { px: 36, className: "h-9 w-9", wordmark: "text-xl sm:text-2xl" },
-  lg: { px: 48, className: "h-12 w-12", wordmark: "text-2xl" },
+  md: { px: 40, className: "h-10 w-10", wordmark: "text-xl sm:text-2xl" },
+  lg: { px: 56, className: "h-14 w-14", wordmark: "text-2xl" },
   hero: {
-    px: 96,
-    className: "h-20 w-20 sm:h-24 sm:w-24",
+    px: 120,
+    className: "h-[6.5rem] w-[6.5rem] sm:h-32 sm:w-32",
     wordmark: "text-3xl sm:text-5xl",
   },
 };
@@ -41,18 +41,31 @@ export function BrandLogo({
 }: Props) {
   const s = SIZES[size];
   const brand = templates.brand();
-  const markSrc = src ?? sys.paths().brandLogo;
+  const paths = sys.paths();
+  const mark = sys.brandMark();
+  const markSrc =
+    src ??
+    (mark.useSolidAsset ? paths.brandLogoSolid : paths.brandLogo);
 
   return (
     <span className={`inline-flex items-center gap-2.5 ${className}`}>
-      <Image
-        src={markSrc}
-        alt={brand.name}
-        width={s.px}
-        height={s.px}
-        priority={priority}
-        className={`${s.className} object-contain`}
-      />
+      <span
+        className={`${s.className} inline-flex shrink-0 items-center justify-center overflow-hidden bg-white shadow-[0_1px_0_rgba(2,39,75,0.06)]`}
+        style={{
+          padding: `${mark.backdropPaddingRem}rem`,
+          borderRadius: `${mark.backdropRadiusRem}rem`,
+          boxShadow: `0 0 0 ${mark.ringWidthPx}px rgba(2,39,75,0.08), 0 1px 0 rgba(2,39,75,0.06)`,
+        }}
+      >
+        <Image
+          src={markSrc}
+          alt={brand.name}
+          width={s.px}
+          height={s.px}
+          priority={priority}
+          className="h-full w-full object-contain"
+        />
+      </span>
       {withWordmark ? (
         <span
           className={`font-display tracking-tight ${s.wordmark} ${

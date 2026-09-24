@@ -1,17 +1,6 @@
 import Link from "next/link";
 import { BrandLogo } from "@/components/BrandLogo";
-import {
-  IconBallot,
-  IconCalendar,
-  IconChat,
-  IconCode,
-  IconFlag,
-  IconGithub,
-  IconMapPin,
-  IconMegaphone,
-  IconSearch,
-  IconUser,
-} from "@/components/Icons";
+import { IconGithub } from "@/components/Icons";
 import {
   fill,
   publicLink,
@@ -26,21 +15,6 @@ import {
 } from "@/lib/launch";
 import { PORTAL_BASE, portalHref } from "@/lib/paths";
 import { LandingContributeActions } from "@/components/LandingContributeActions";
-
-const FEATURE_ICONS = {
-  chat: IconChat,
-  mapPin: IconMapPin,
-  megaphone: IconMegaphone,
-  flag: IconFlag,
-  ballot: IconBallot,
-  search: IconSearch,
-} as const;
-
-type FeatureIconKey = keyof typeof FEATURE_ICONS;
-
-function resolveFeatureIcon(key: string) {
-  return FEATURE_ICONS[key as FeatureIconKey] ?? IconChat;
-}
 
 export function LandingPage() {
   const layout = sys.landing();
@@ -57,49 +31,45 @@ export function LandingPage() {
   };
 
   return (
-    <div className="flex min-h-[100dvh] flex-col bg-background text-foreground">
-      <header className="shrink-0 border-b border-line/80 bg-chrome text-on-chrome">
-        <div
-          className="mx-auto flex items-center justify-between gap-4 px-5 sm:px-8"
-          style={{
-            maxWidth: layout.maxWidthPx,
-            height: `${layout.headerHeightRem}rem`,
-          }}
-        >
-          <BrandLogo size="md" withWordmark onDark priority />
+    <div className="landing-stage relative flex min-h-[100dvh] flex-col items-center justify-center px-4 py-8 sm:px-6 sm:py-10">
+      <div className="landing-hero-glow pointer-events-none absolute inset-0" aria-hidden />
+      <div className="landing-hero-grid pointer-events-none absolute inset-0 opacity-40" aria-hidden />
 
-          <div className="flex min-w-0 items-center gap-3 sm:gap-5">
+      <article
+        className="landing-card animate-rise relative z-10 w-full overflow-hidden border border-white/15 bg-white shadow-[0_24px_80px_-28px_rgba(2,39,75,0.55)]"
+        style={{
+          maxWidth: layout.maxWidthPx,
+          maxHeight: `${layout.cardMaxHeightVh}vh`,
+          borderRadius: `${layout.cardRadiusRem}rem`,
+        }}
+      >
+        {/* Card top bar */}
+        <div className="flex items-center justify-between gap-3 border-b border-line/70 bg-chrome px-6 py-4 sm:px-9">
+          <BrandLogo size="md" onDark priority />
+          <div className="flex items-center gap-1">
             <nav
-              className="flex items-center gap-4 text-sm text-on-chrome/75 sm:gap-5"
+              className="flex items-center text-sm text-on-chrome/75"
               aria-label={copy.navAriaLabel}
             >
               <Link
                 href={portalHref("/about")}
-                className="transition hover:text-amber-bright"
+                className="rounded-md px-2.5 py-1.5 transition hover:bg-white/10 hover:text-on-chrome"
               >
                 {portalCopy.about}
               </Link>
               <Link
                 href={portalHref("/terms")}
-                className="transition hover:text-amber-bright"
+                className="rounded-md px-2.5 py-1.5 transition hover:bg-white/10 hover:text-on-chrome"
               >
                 {portalCopy.termsShort}
               </Link>
             </nav>
-
-            <span
-              className="inline-flex max-w-[7.5rem] items-center truncate rounded-full border border-white/15 bg-white/5 px-2 py-1 text-[10px] font-medium uppercase tracking-[0.08em] text-amber-bright/95 sm:max-w-none sm:px-2.5 sm:text-[11px] sm:tracking-[0.12em]"
-              title={copy.openSourceBadge}
-            >
-              {copy.openSourceBadge}
-            </span>
-
             {githubHref ? (
               <a
                 href={githubHref}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-on-chrome/85 transition hover:border-amber-bright/40 hover:bg-white/10 hover:text-amber-bright"
+                className="ml-1 inline-flex h-8 w-8 items-center justify-center rounded-md text-on-chrome/80 transition hover:bg-white/10 hover:text-amber-bright"
                 aria-label={copy.githubAriaLabel}
               >
                 <IconGithub className="h-4 w-4" />
@@ -107,164 +77,137 @@ export function LandingPage() {
             ) : null}
           </div>
         </div>
-      </header>
 
-      <main
-        className="mx-auto w-full flex-1 px-5 sm:px-8"
-        style={{ maxWidth: layout.maxWidthPx }}
-      >
-        {/* Hero */}
-        <section
-          className="flex flex-col justify-center py-10 sm:py-12 lg:py-14"
-          style={{ minHeight: `${layout.heroMinHeightRem}rem` }}
-        >
-          <div className="min-w-0 max-w-2xl">
-            <p className="mb-5 inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.14em] text-muted">
-              <IconCalendar className="h-3.5 w-3.5 text-saffron" aria-hidden />
-              <time dateTime={PUBLIC_LAUNCH_ISO}>
-                {fill(copy.launchBadge, vars)}
-              </time>
-            </p>
-
-            <BrandLogo
-              size={(layout.heroLogoSize as "sm" | "md" | "lg" | "hero") || "hero"}
-              withWordmark
-              onDark={false}
-              priority
-              className="mb-7"
+        <div className="px-6 py-8 sm:px-9 sm:py-10">
+          {/* Hero block */}
+          <p className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-saffron">
+            <span
+              className="inline-block h-1.5 w-1.5 rounded-full bg-amber animate-pulse-soft"
+              aria-hidden
             />
+            <time dateTime={PUBLIC_LAUNCH_ISO}>
+              {fill(copy.launchBadge, vars)}
+            </time>
+          </p>
 
-            <h1 className="font-display text-4xl leading-[1.12] tracking-tight text-navy sm:text-5xl lg:text-[3.25rem]">
-              {BRAND_TAGLINE}
-            </h1>
+          <p className="mt-4 font-display text-4xl leading-none tracking-tight text-navy sm:text-5xl">
+            {brand.name}
+          </p>
 
-            <p className="mt-4 max-w-xl text-base leading-relaxed text-muted sm:text-lg">
-              {BRAND_SUPPORT} Opens{" "}
-              <time
-                dateTime={PUBLIC_LAUNCH_ISO}
-                className="font-semibold text-navy"
+          <h1 className="mt-3 max-w-xl font-display text-xl leading-snug tracking-tight text-navy sm:text-2xl">
+            {fill(copy.heroHeadline, vars)}
+          </h1>
+
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted sm:text-base">
+            {fill(copy.heroBody, vars)}
+          </p>
+
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <Link
+              href={PORTAL_BASE}
+              className="inline-flex items-center justify-center rounded-md bg-amber px-5 py-2.5 text-sm font-semibold text-on-amber transition hover:bg-amber-bright"
+            >
+              {fill(copy.exploreCta, vars)}
+            </Link>
+            {githubHref ? (
+              <a
+                href={githubHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-1.5 rounded-md border border-line px-4 py-2.5 text-sm font-medium text-navy transition hover:border-amber/50 hover:bg-cream"
               >
-                {PUBLIC_LAUNCH_LABEL}
-              </time>
-              .
-            </p>
-
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <Link
-                href={PORTAL_BASE}
-                className="inline-flex items-center justify-center rounded-xl bg-amber px-6 py-3.5 text-sm font-semibold text-on-amber shadow-[0_1px_0_rgba(2,39,75,0.06)] transition hover:bg-amber-bright"
-              >
-                {copy.previewCta}
-              </Link>
-              <p className="text-sm text-muted sm:ml-1">{copy.earlyAccess}</p>
-            </div>
+                {copy.viewSourceCta}
+                <span className="transition group-hover:translate-x-0.5" aria-hidden>
+                  →
+                </span>
+              </a>
+            ) : null}
           </div>
-        </section>
 
-        {/* Features — six lightweight blocks */}
-        <section className="border-t border-line/70 py-10 sm:py-12" aria-labelledby="landing-features-heading">
-          <h2
-            id="landing-features-heading"
-            className="sr-only"
+          {/* Pillars */}
+          <section
+            className="mt-8 border-t border-line/80 pt-6"
+            aria-labelledby="landing-pillars-heading"
           >
-            {copy.featuresHeading}
-          </h2>
-          <ul className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 xl:gap-5">
-            {copy.features.map((feature) => {
-              const Icon = resolveFeatureIcon(feature.icon);
-              return (
-                <li key={feature.id} className="min-w-0 text-center xl:text-left">
-                  <span
-                    className="mx-auto inline-flex items-center justify-center rounded-full border border-line bg-cream text-navy xl:mx-0"
-                    style={{
-                      width: `${layout.featureIconSizeRem}rem`,
-                      height: `${layout.featureIconSizeRem}rem`,
-                    }}
-                  >
-                    <Icon className="h-5 w-5" />
-                  </span>
-                  <h3 className="mt-3 text-sm font-semibold text-navy">
-                    {feature.title}
+            <h2 id="landing-pillars-heading" className="sr-only">
+              {fill(copy.pillarsHeading, vars)}
+            </h2>
+            <ul className="grid gap-5 sm:grid-cols-3 sm:gap-4">
+              {copy.pillars.map((pillar) => (
+                <li key={pillar.id} className="min-w-0">
+                  <h3 className="text-[10px] font-semibold uppercase tracking-[0.18em] text-saffron">
+                    {pillar.title}
                   </h3>
-                  <p className="mt-1.5 text-xs leading-relaxed text-muted sm:text-[13px]">
-                    {feature.body}
+                  <p className="mt-1.5 font-display text-base leading-snug text-navy sm:text-lg">
+                    {pillar.body}
                   </p>
                 </li>
-              );
-            })}
-          </ul>
-        </section>
-
-        {/* Contribution banner */}
-        <section className="pb-12 sm:pb-14">
-          <div className="flex flex-col gap-6 rounded-2xl border border-line bg-cream/80 px-5 py-6 shadow-[0_1px_0_rgba(2,39,75,0.04)] sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:px-8 sm:py-7">
-            <div className="flex min-w-0 items-start gap-4">
-              <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-chrome text-on-chrome">
-                <IconCode className="h-5 w-5" />
-              </span>
-              <div className="min-w-0">
-                <h2 className="text-lg font-semibold tracking-tight text-navy">
-                  {fill(copy.contribute.title, vars)}
-                </h2>
-                <p className="mt-1 max-w-md text-sm leading-relaxed text-muted">
-                  {copy.contribute.body}
-                </p>
-              </div>
-            </div>
-
-            <LandingContributeActions actions={copy.contribute.actions} />
-          </div>
-        </section>
-
-        {/* Maintainers callout */}
-        <section className="pb-12 sm:pb-14">
-          <div className="flex flex-col gap-6 rounded-2xl border border-line bg-chrome px-5 py-6 text-on-chrome shadow-[0_1px_0_rgba(2,39,75,0.04)] sm:flex-row sm:items-center sm:justify-between sm:gap-8 sm:px-8 sm:py-7">
-            <div className="flex min-w-0 items-start gap-4">
-              <span className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-amber text-on-amber">
-                <IconUser className="h-5 w-5" />
-              </span>
-              <div className="min-w-0">
-                <h2 className="text-lg font-semibold tracking-tight text-amber-bright">
-                  {fill(copy.maintainers.title, vars)}
-                </h2>
-                <p className="mt-1 max-w-xl text-sm leading-relaxed text-on-chrome/75">
-                  {fill(copy.maintainers.body, vars)}
-                </p>
-              </div>
-            </div>
-            <Link
-              href={copy.maintainers.href || sys.paths().maintainersApply}
-              className="inline-flex shrink-0 items-center justify-center rounded-xl bg-amber px-6 py-3.5 text-sm font-semibold text-on-amber transition hover:bg-amber-bright"
+              ))}
+            </ul>
+            <p
+              className="mt-5 text-xs tracking-wide text-muted sm:text-sm"
+              aria-label={copy.capabilitiesHeading}
             >
-              {copy.maintainers.cta}
-            </Link>
-          </div>
-        </section>
-      </main>
-
-      <footer className="mt-auto shrink-0 border-t border-line/80 bg-cream/50">
-        <div
-          className="mx-auto flex flex-col px-5 sm:flex-row sm:items-center sm:justify-between sm:px-8"
-          style={{
-            maxWidth: layout.maxWidthPx,
-            paddingTop: `${layout.footerPaddingYRem}rem`,
-            paddingBottom: `${layout.footerPaddingYRem}rem`,
-            gap: `${layout.footerGapRem}rem`,
-          }}
-        >
-          <div className="min-w-0">
-            <p className="inline-flex items-center gap-2 text-sm font-medium text-navy">
-              <IconCalendar className="h-4 w-4 text-saffron" />
-              <time dateTime={PUBLIC_LAUNCH_ISO}>
-                {fill(copy.footer.launchLine, vars)}
-              </time>
+              {copy.capabilities.join(" · ")}
             </p>
-            <p className="mt-0.5 max-w-md text-xs leading-snug text-muted">
-              {copy.footer.support}
-            </p>
-          </div>
+          </section>
 
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
+          {/* Contribute + maintain */}
+          <section className="mt-7 grid gap-6 border-t border-line/80 pt-6 sm:grid-cols-2 sm:gap-8">
+            <div aria-labelledby="landing-contribute-heading">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-saffron">
+                {copy.contribute.eyebrow}
+              </p>
+              <h2
+                id="landing-contribute-heading"
+                className="mt-1.5 font-display text-xl tracking-tight text-navy"
+              >
+                {fill(copy.contribute.title, vars)}
+              </h2>
+              <p className="mt-1 text-sm text-muted">{copy.contribute.body}</p>
+              <div className="mt-3">
+                <LandingContributeActions
+                  actions={copy.contribute.actions}
+                  variant="buttons"
+                />
+              </div>
+            </div>
+
+            <div
+              className="rounded-xl bg-chrome px-5 py-5 text-on-chrome sm:px-6"
+              aria-labelledby="landing-maintainers-heading"
+            >
+              <h2
+                id="landing-maintainers-heading"
+                className="font-display text-xl tracking-tight text-on-chrome"
+              >
+                {fill(copy.maintainers.title, vars)}
+              </h2>
+              <p className="mt-1.5 text-sm text-on-chrome/70">
+                {fill(copy.maintainers.body, vars)}
+              </p>
+              <Link
+                href={copy.maintainers.href || sys.paths().maintainersApply}
+                className="mt-4 inline-flex items-center justify-center rounded-md bg-amber px-5 py-2.5 text-sm font-semibold text-on-amber transition hover:bg-amber-bright"
+              >
+                {copy.maintainers.cta}
+              </Link>
+            </div>
+          </section>
+        </div>
+
+        {/* Card footer */}
+        <footer className="flex flex-col gap-2 border-t border-line/70 bg-cream/60 px-5 py-3.5 text-xs text-muted sm:flex-row sm:items-center sm:justify-between sm:px-7">
+          <p>
+            <time dateTime={PUBLIC_LAUNCH_ISO} className="font-medium text-navy">
+              {fill(copy.footer.launchLine, vars)}
+            </time>
+            <span className="mx-1.5 text-line" aria-hidden>
+              ·
+            </span>
+            {copy.footer.support}
+          </p>
+          <div className="flex items-center gap-3">
             <Link
               href={portalHref("/about")}
               className="transition hover:text-navy"
@@ -277,12 +220,9 @@ export function LandingPage() {
             >
               {portalCopy.termsShort}
             </Link>
-            <span className="font-display text-sm tracking-tight text-navy">
-              {brand.name}
-            </span>
           </div>
-        </div>
-      </footer>
+        </footer>
+      </article>
     </div>
   );
 }

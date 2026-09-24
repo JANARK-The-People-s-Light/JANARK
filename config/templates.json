@@ -2,62 +2,52 @@
   "brand": {
     "name": "Janark",
     "nameNative": "जनार्क",
-    "tagline": "India's first open source social platform",
-    "support": "Independent civic discussion, petitions, reports, and community voting — built in the open."
+    "tagline": "India's open-source platform for civic participation.",
+    "support": "Discuss issues, raise concerns, create petitions, report problems, and participate in your community — openly."
   },
   "landing": {
     "metaTitle": "Coming soon · {name}",
-    "metaDescription": "{tagline}. Opens {launchLabel}.",
+    "metaDescription": "{tagline} Opens {launchLabel}.",
     "navAriaLabel": "Site",
     "openSourceBadge": "Open Source",
     "githubAriaLabel": "View on GitHub",
     "launchBadge": "Public launch · {launchLabel}",
-    "heroDescription": "{support} Opens {launchLabel}.",
-    "previewCta": "Preview the portal",
-    "earlyAccess": "Early access · Work in progress",
+    "heroHeadline": "{tagline}",
+    "heroBody": "{support}",
+    "exploreCta": "Explore {name} unreleased",
+    "viewSourceCta": "View source",
     "logoAriaLabel": "{name} logo",
-    "featuresHeading": "What you can do",
-    "features": [
+    "pillarsHeading": "How citizens use {name}",
+    "pillars": [
       {
         "id": "discuss",
-        "icon": "chat",
         "title": "Discuss",
-        "body": "Start open conversations on public issues with fellow citizens."
+        "body": "Talk about what matters."
       },
       {
-        "id": "issues",
-        "icon": "mapPin",
-        "title": "Raise issues",
-        "body": "Document civic problems with context, location, and evidence."
+        "id": "act",
+        "title": "Act",
+        "body": "Turn concerns into action."
       },
       {
-        "id": "petitions",
-        "icon": "megaphone",
-        "title": "Create petitions",
-        "body": "Rally signatures for demands that serve the public interest."
-      },
-      {
-        "id": "reports",
-        "icon": "flag",
-        "title": "Report problems",
-        "body": "Flag hazards, gaps, and local concerns so they can be seen."
-      },
-      {
-        "id": "vote",
-        "icon": "ballot",
-        "title": "Vote & participate",
-        "body": "Cast ballots on proposals and shape shared civic outcomes."
-      },
-      {
-        "id": "discover",
-        "icon": "search",
-        "title": "Discover",
-        "body": "Explore trending topics, places, and conversations worth your time."
+        "id": "participate",
+        "title": "Participate",
+        "body": "Make your voice count."
       }
     ],
+    "capabilitiesHeading": "What you can do",
+    "capabilities": [
+      "Discussions",
+      "Issues",
+      "Petitions",
+      "Reports",
+      "Voting",
+      "Discovery"
+    ],
     "contribute": {
-      "title": "Help build {name}",
-      "body": "JANARK is built in the open. Code, issues, and feedback all move the civic square forward.",
+      "title": "Build {name} with us",
+      "body": "Open source. Built in public.",
+      "eyebrow": "Open source",
       "actions": [
         { "id": "contribute", "label": "Contribute", "kind": "link", "linkKey": "github" },
         { "id": "raiseIssue", "label": "Raise issue", "kind": "link", "linkKey": "feedback" },
@@ -82,9 +72,9 @@
       }
     },
     "maintainers": {
-      "title": "Become a {name} Repository Maintainer",
-      "body": "Help maintain the {name} repository and build an open, independent civic platform. Apply with the essentials — tell us more only if you want to.",
-      "cta": "Apply as repository maintainer",
+      "title": "Help maintain {name}",
+      "body": "Help review, maintain and shape {name}.",
+      "cta": "Apply →",
       "href": "/maintainers"
     },
     "footer": {
@@ -100,7 +90,9 @@
     "drawerAriaLabel": "Navigation",
     "closeMenuAriaLabel": "Close menu",
     "openMenuAriaLabel": "Open menu",
-    "homeAriaLabel": "Janark home",
+    "homeAriaLabel": "Janark portal home",
+    "backToLanding": "← Landing",
+    "backToLandingAriaLabel": "Back to {name} landing page",
     "about": "About",
     "termsShort": "Terms",
     "termsLong": "Terms & Conditions",

@@ -37,7 +37,10 @@ export function PortalRightPanel() {
   const load = useCallback(async () => {
     try {
       const res = await fetch("/api/hashtags", { cache: "no-store" });
-      const data = await res.json();
+      const text = await res.text();
+      const data = text
+        ? (JSON.parse(text) as { hashtags?: Topic[] })
+        : { hashtags: [] };
       const all = ((data.hashtags ?? []) as Topic[]).filter(
         (t) =>
           t.tag &&
@@ -68,7 +71,7 @@ export function PortalRightPanel() {
 
   return (
     <aside
-      className="hidden h-full min-h-0 shrink-0 flex-col overflow-y-auto overscroll-contain border-l border-line/50 px-5 py-7 xl:flex"
+      className="hidden h-full min-h-0 shrink-0 flex-col overflow-y-auto overscroll-contain border-l border-line/50 px-5 py-7 lg:flex"
       style={{ width: layout.rightRailWidthPx }}
       aria-label={copy.trendingAriaLabel}
     >

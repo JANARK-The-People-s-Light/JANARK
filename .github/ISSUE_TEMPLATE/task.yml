@@ -1,0 +1,74 @@
+---
+name: Sub-issue (task)
+description: Implementable task under a parent issue (GitHub Task + sub-issue link)
+title: ""
+labels: ["roadmap"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Create this as a **sub-issue** of a parent (GitHub → Parent issue → Add sub-issue),
+        or `gh` / API after create. Prefer issue type **Task**.
+  - type: input
+    id: parent
+    attributes:
+      label: Parent issue number
+      description: Will be linked as a GitHub sub-issue (e.g. 42).
+      placeholder: "42"
+    validations:
+      required: true
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - priority:p0
+        - priority:p1
+        - priority:p2
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem / why
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+    validations:
+      required: true
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: Out of scope
+    validations:
+      required: true
+  - type: textarea
+    id: technical
+    attributes:
+      label: Technical notes
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      value: |
+        - [ ]
+        - [ ] Relevant `validate:*` scripts pass
+        - [ ] No new hardcoded copy/metrics — use `config/`
+        - [ ] Docs/ADR updated if architecture changed
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Civic / platform checks
+      options:
+        - label: Preserves anonymity (no plaintext phone in clients/logs)
+        - label: Stays non-partisan
+        - label: Does not expand Mongo role (ADR-0003) unless parent says otherwise
+        - label: Civic writes stay Prisma-first; derived systems fail soft
+---

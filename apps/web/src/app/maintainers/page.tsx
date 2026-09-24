@@ -31,20 +31,31 @@ export default function MaintainersPage() {
             height: `${layout.headerHeightRem}rem`,
           }}
         >
-          <Link href="/" aria-label={brand.name}>
+          <Link href={sys.paths().landingHome} aria-label={brand.name}>
             <BrandLogo size="md" withWordmark onDark priority />
           </Link>
-          {githubHref ? (
-            <a
-              href={githubHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-on-chrome/85 transition hover:border-amber-bright/40 hover:bg-white/10 hover:text-amber-bright"
-              aria-label={templates.landing().githubAriaLabel}
+          <div className="flex items-center gap-3">
+            <Link
+              href={sys.paths().landingHome}
+              className="rounded-lg border border-white/20 px-2.5 py-1.5 text-sm font-medium text-on-chrome/90 transition hover:border-amber-bright/40 hover:bg-white/10 hover:text-amber-bright"
+              aria-label={fill(templates.portal().backToLandingAriaLabel, {
+                name: brand.name,
+              })}
             >
-              <IconGithub className="h-4 w-4" />
-            </a>
-          ) : null}
+              {templates.portal().backToLanding}
+            </Link>
+            {githubHref ? (
+              <a
+                href={githubHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-on-chrome/85 transition hover:border-amber-bright/40 hover:bg-white/10 hover:text-amber-bright"
+                aria-label={templates.landing().githubAriaLabel}
+              >
+                <IconGithub className="h-4 w-4" />
+              </a>
+            ) : null}
+          </div>
         </div>
       </header>
 
@@ -53,7 +64,7 @@ export default function MaintainersPage() {
         style={{ maxWidth: 720 }}
       >
         <Link
-          href="/"
+          href={sys.paths().landingHome}
           className="text-sm text-muted transition hover:text-navy"
         >
           {form.backHome}
