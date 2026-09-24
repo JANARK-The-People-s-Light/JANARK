@@ -1,6 +1,6 @@
 # Architecture Decision Records
 
-Durable decisions for Janark’s data plane. Product/roadmap notes live in [../roadmap.md](../roadmap.md).
+Durable decisions for Janark’s data plane. Product/roadmap: [../product.md](../product.md). Technical handbook: [../handbook.md](../handbook.md).
 
 | ADR | Title | Status |
 |-----|--------|--------|
@@ -12,6 +12,6 @@ Durable decisions for Janark’s data plane. Product/roadmap notes live in [../r
 
 1. **Storage abstraction** (landed): `apps/web/src/lib/object-storage` — `STORAGE_PROVIDER` (`local` default).
 2. **SeaweedFS ops**: compose service + production cutover; keep `/uploads/...` URLs.
-3. **Search abstraction**: `SearchProvider` / Meilisearch + indexer hooks.
+3. **Search abstraction**: Meilisearch + indexer hooks ([ADR-0002](./0002-search-index.md)).
 4. **Search usage**: global + feed search replacing `$regex` / `contains`.
-5. Later: PostgreSQL SoT option; re-evaluate Mongo retention (ADR-0003).
+5. Later: PostgreSQL SoT option; re-evaluate Mongo retention ([ADR-0003](./0003-dual-write-strategy.md)).

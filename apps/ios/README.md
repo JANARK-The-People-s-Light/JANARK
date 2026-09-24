@@ -70,7 +70,7 @@ Janark/
 
 ## Docs
 
-[docs/mobile.md](../../docs/mobile.md) · [docs/api.md](../../docs/api.md) · [docs/authentication.md](../../docs/authentication.md)
+[docs/handbook.md](../../docs/handbook.md) · [docs/product.md](../../docs/product.md)
 
 ## License / trademark
 

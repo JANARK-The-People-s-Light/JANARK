@@ -10,6 +10,16 @@
 
 Stack: **Next.js** (App Router) · **SQLite / Prisma** · **MongoDB / Mongoose** · **Tailwind** · **Android Compose** · **iOS SwiftUI**.
 
+## Docs
+
+| Doc | Purpose |
+|-----|---------|
+| [docs/handbook.md](docs/handbook.md) | Architecture, data, auth, API, config, ads, local run, mobile contract |
+| [docs/product.md](docs/product.md) | Product intent + roadmap |
+| [docs/adr/](docs/adr/README.md) | Durable decisions |
+| [SECURITY.md](SECURITY.md) | Vulnerabilities + production checklist |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute & get help |
+
 ## Repo layout
 
 | Path | Role |
@@ -20,24 +30,7 @@ Stack: **Next.js** (App Router) · **SQLite / Prisma** · **MongoDB / Mongoose**
 | `prisma/` | Schema + migrations (repo root) |
 | `packages/` | Reserved for shared TS libs (M3+) |
 | `config/` | External sys / rules / templates · `config/ads/` |
-| `docs/` | [Documentation index](docs/README.md) |
-
-## Docs
-
-| Doc | Purpose |
-|-----|---------|
-| [docs/README.md](docs/README.md) | Index |
-| [architecture](docs/architecture.md) · [configuration](docs/configuration.md) · [ads](docs/ads.md) | System + config + monetization |
-| [development](docs/development.md) · [api](docs/api.md) | Local run + API |
-| [authentication](docs/authentication.md) · [database](docs/database.md) · [mobile](docs/mobile.md) | Auth, data, clients |
-| [product](docs/product.md) · [roadmap](docs/roadmap.md) · [adr/](docs/adr/README.md) | Product + next work |
-
-## Principles
-
-- **Browse free, act with OTP** — login only when posting, voting, commenting, or flagging.
-- **Non-partisan by design** — publishing requires [Civic Posting Terms](/terms); Janark is not responsible for UGC.
-- **Trending ≠ most likes** — Civic Trend Score (velocity, discussion quality, diversity, freshness, trust).
-- **One API** — web and native share `/api/*`; SQLite is SoT, Mongo mirrors the public feed.
+| `docs/` | Handbook, product, ADRs |
 
 ## Quick start
 
@@ -54,23 +47,20 @@ npm run dev:web                       # http://localhost:3000
 
 | Script | Purpose |
 |--------|---------|
-| `npm run dev:web` | Next.js (alias: `npm run dev`) |
+| `npm run dev:web` | Next.js (alias: `npm run dev`) — this **is** the API |
 | `npm run db:mongo` / `db:push` / `db:demo` / `db:clear` | Data plane |
 | `npm run build` / `typecheck` / `lint` | Ship gates |
 | `npm run validate` | Full validator suite (server required for HTTP checks) |
 
-More: [docs/development.md](docs/development.md).
-
-## Docker
+Details: [docs/handbook.md](docs/handbook.md#8-local-development).
 
 ```bash
-docker compose up -d --build
-docker compose logs -f app
+docker compose up -d --build   # local verification only
 ```
 
-Compose is for **local verification**. Production checklist: [SECURITY.md](SECURITY.md).
+Production checklist: [SECURITY.md](SECURITY.md).
 
-## Product surface
+## Surfaces
 
 | Path | Role |
 |------|------|
@@ -79,13 +69,7 @@ Compose is for **local verification**. Production checklist: [SECURITY.md](SECUR
 | `/api/*` | JSON API (web + Android + iOS) |
 | `/ads.txt` | Ad sellers file (when ads configured) |
 
-Portal routes (under `/unreleased` until launch): home feed, create (issue / petition / report / vote / share / notice / meme), browse lists, profiles, settings, about, terms, dashboard.
-
-Ads are **off by default**; see [docs/ads.md](docs/ads.md).
-
-## Auth
-
-Phone OTP → httpOnly `janark_sid`. Phone hashed at rest; public `anonId` only. Local: `EXPOSE_DEV_OTP=1`. Details: [docs/authentication.md](docs/authentication.md).
+Ads are **off by default**. Auth: phone OTP → httpOnly `janark_sid`; phone hashed; public `anonId` only.
 
 ## Mobile
 
@@ -94,17 +78,7 @@ Phone OTP → httpOnly `janark_sid`. Phone hashed at rest; public `anonId` only.
 | Android | [apps/android/README.md](apps/android/README.md) |
 | iOS | [apps/ios/README.md](apps/ios/README.md) |
 
-Guide: [docs/mobile.md](docs/mobile.md).
-
-## Contributing
-
-| Doc | Purpose |
-|-----|---------|
-| [CONTRIBUTING.md](CONTRIBUTING.md) | Develop, test, PRs |
-| [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | Community |
-| [SECURITY.md](SECURITY.md) | Vulnerability reporting |
-| [SUPPORT.md](SUPPORT.md) | Help |
-| [LICENSE](LICENSE) · [NOTICE](NOTICE) · [TRADEMARK.md](TRADEMARK.md) | Legal |
+Shared contract: [docs/handbook.md § Mobile](docs/handbook.md#9-mobile).
 
 ## License
 

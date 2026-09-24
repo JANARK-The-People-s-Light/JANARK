@@ -78,19 +78,24 @@ export function LandingPage() {
           </div>
         </div>
 
-        <div className="px-6 py-8 sm:px-9 sm:py-10">
-          {/* Hero block */}
-          <p className="inline-flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-saffron">
+        <div className="border-b border-amber/35 bg-amber/15 px-6 py-3.5 text-center sm:px-9 sm:py-4">
+          <p className="inline-flex items-center justify-center gap-2.5">
             <span
-              className="inline-block h-1.5 w-1.5 rounded-full bg-amber animate-pulse-soft"
+              className="inline-block h-2 w-2 shrink-0 rounded-full bg-amber animate-pulse-soft"
               aria-hidden
             />
-            <time dateTime={PUBLIC_LAUNCH_ISO}>
+            <time
+              dateTime={PUBLIC_LAUNCH_ISO}
+              className="text-sm font-bold uppercase tracking-[0.14em] text-navy sm:text-base sm:tracking-[0.16em]"
+            >
               {fill(copy.launchBadge, vars)}
             </time>
           </p>
+        </div>
 
-          <p className="mt-4 font-display text-4xl leading-none tracking-tight text-navy sm:text-5xl">
+        <div className="px-6 py-8 sm:px-9 sm:py-10">
+          {/* Hero block */}
+          <p className="mt-0 font-display text-4xl leading-none tracking-tight text-navy sm:text-5xl">
             {brand.name}
           </p>
 

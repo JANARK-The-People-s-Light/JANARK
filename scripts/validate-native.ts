@@ -326,7 +326,7 @@ async function main() {
   );
 
   // --- Docs ---
-  record("docs/mobile.md mentions iOS", read("docs/mobile.md").includes("apps/ios"), "mobile.md");
+  record("docs/handbook.md mentions iOS", read("docs/handbook.md").includes("apps/ios"), "handbook.md");
   record(
     "apps/ios/README has Simulator URL",
     read("apps/ios/README.md").includes("127.0.0.1"),
