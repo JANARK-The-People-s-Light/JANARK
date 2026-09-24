@@ -56,7 +56,7 @@ export default function AboutPage() {
       <section className="mt-12">
         <h2 className="font-display text-2xl text-navy">What matters</h2>
         <ul className="mt-4 space-y-3 leading-relaxed text-muted">
-          <li>· India&apos;s first open source social platform.</li>
+          <li>· {BRAND_TAGLINE}</li>
           <li>· Independent of governments and political parties.</li>
           <li>· Community supported and open source.</li>
           <li>· Public opinion, not official elections.</li>

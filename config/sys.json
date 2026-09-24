@@ -4,6 +4,8 @@
     "headerHeightRem": 3.5,
     "leftRailWidthPx": 340,
     "rightRailWidthPx": 340,
+    "trendingTopicRowHeightPx": 44,
+    "trendingTopicGapPx": 2,
     "mobileNavHeightRem": 3.5,
     "drawerMaxWidthRem": 18.5,
     "shellHeight": "100dvh",
@@ -39,6 +41,7 @@
     "humanTokenSecret": "HUMAN_TOKEN_SECRET",
     "ipHashSalt": "IP_HASH_SALT",
     "exposeDevOtp": "EXPOSE_DEV_OTP",
+    "allowHttpSiteUrl": "ALLOW_HTTP_SITE_URL",
     "storageProvider": "STORAGE_PROVIDER"
   },
   "links": {

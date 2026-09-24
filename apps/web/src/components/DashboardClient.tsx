@@ -9,6 +9,10 @@ import { SearchableSelect } from "@/components/SearchableSelect";
 import { usePreferences } from "@/components/PreferencesProvider";
 import { templates } from "@/lib/config";
 import { portalHref } from "@/lib/paths";
+import {
+  portalHrefWithSearch,
+  replacePortalHref,
+} from "@/lib/portal-href";
 
 type Stats = {
   citizens: number;
@@ -149,11 +153,18 @@ function DashboardInner() {
         p.delete("city");
       }
 
-      const qs = p.toString();
-      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+      replacePortalHref(router, portalHrefWithSearch(pathname, p));
     },
     [pathname, router, searchParams],
   );
+
+  const clearFilters = useCallback(() => {
+    setQ("");
+    replacePortalHref(
+      router,
+      portalHrefWithSearch(pathname, new URLSearchParams()),
+    );
+  }, [pathname, router]);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -419,7 +430,7 @@ function DashboardInner() {
           ))}
           <button
             type="button"
-            onClick={() => router.replace(pathname, { scroll: false })}
+            onClick={clearFilters}
             className="inline-flex text-muted hover:text-navy"
             aria-label="Clear filters"
           >
@@ -455,9 +466,7 @@ function DashboardInner() {
                 {hasFilters && (
                   <button
                     type="button"
-                    onClick={() =>
-                      router.replace(pathname, { scroll: false })
-                    }
+                    onClick={clearFilters}
                     className="text-xs text-link hover:underline"
                   >
                     Clear all
@@ -523,7 +532,7 @@ function DashboardInner() {
               No signal matches these filters.{" "}
               <button
                 type="button"
-                onClick={() => router.replace(pathname, { scroll: false })}
+                onClick={clearFilters}
                 className="text-link hover:underline"
               >
                 Clear filters

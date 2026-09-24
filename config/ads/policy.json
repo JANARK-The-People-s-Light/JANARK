@@ -9,7 +9,7 @@
   "adsTxt": {
     "linesEnv": "ADS_TXT_LINES",
     "defaultLines": [
-      "google.com, {publisherId}, DIRECT, f08c47fec0942fa0"
+      "google.com, {adsTxtPublisherId}, DIRECT, f08c47fec0942fa0"
     ]
   },
   "house": {

@@ -1,4 +1,7 @@
 services:
+  # Local demo stack — HTTP on :3000. For janark.org (or any public host):
+  # terminate TLS at Cloudflare/Caddy/nginx, set NEXT_PUBLIC_SITE_URL=https://…,
+  # and do NOT set ALLOW_HTTP_SITE_URL. Pass AdSense vars from the host .env.
   mongo:
     image: mongo:7
     restart: unless-stopped
@@ -15,6 +18,8 @@ services:
       context: .
       args:
         NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+        NEXT_PUBLIC_ADS_ENABLED: ${NEXT_PUBLIC_ADS_ENABLED:-}
+        NEXT_PUBLIC_ADSENSE_PUBLISHER_ID: ${NEXT_PUBLIC_ADSENSE_PUBLISHER_ID:-}
     restart: unless-stopped
     ports:
       - "${PORT:-3000}:3000"
@@ -25,6 +30,18 @@ services:
       DATABASE_URL: file:/data/janark.db
       MONGODB_URI: mongodb://mongo:27017/janark
       NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
+      # Local compose demo is HTTP — required so prod security checks allow http://localhost
+      ALLOW_HTTP_SITE_URL: ${ALLOW_HTTP_SITE_URL:-1}
+      NEXT_PUBLIC_ADS_ENABLED: ${NEXT_PUBLIC_ADS_ENABLED:-}
+      NEXT_PUBLIC_ADSENSE_PUBLISHER_ID: ${NEXT_PUBLIC_ADSENSE_PUBLISHER_ID:-}
+      ADS_TXT_LINES: ${ADS_TXT_LINES:-}
+      NEXT_PUBLIC_ADSENSE_SLOT_HOME_TOP: ${NEXT_PUBLIC_ADSENSE_SLOT_HOME_TOP:-}
+      NEXT_PUBLIC_ADSENSE_SLOT_FEED_TOP: ${NEXT_PUBLIC_ADSENSE_SLOT_FEED_TOP:-}
+      NEXT_PUBLIC_ADSENSE_SLOT_FEED_MIDDLE: ${NEXT_PUBLIC_ADSENSE_SLOT_FEED_MIDDLE:-}
+      NEXT_PUBLIC_ADSENSE_SLOT_POST_BOTTOM: ${NEXT_PUBLIC_ADSENSE_SLOT_POST_BOTTOM:-}
+      NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR: ${NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR:-}
+      NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR_BELOW_TRENDING: ${NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR_BELOW_TRENDING:-}
+      NEXT_PUBLIC_ADSENSE_SLOT_MOBILE_BOTTOM: ${NEXT_PUBLIC_ADSENSE_SLOT_MOBILE_BOTTOM:-}
       # Use DOCKER_* so a local .env with weak/dev salts does not break production checks
       PHONE_HASH_SALT: ${DOCKER_PHONE_HASH_SALT:-docker-local-phone-hash-salt-min-24}
       HUMAN_TOKEN_SECRET: ${DOCKER_HUMAN_TOKEN_SECRET:-docker-local-human-token-secret-24}

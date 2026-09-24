@@ -8,6 +8,7 @@ import {
   topicTagsOnly,
 } from "@/lib/hashtags";
 import { liveJson } from "@/lib/http";
+import { rules } from "@/lib/config";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -16,6 +17,7 @@ export const fetchCache = "force-no-store";
 /** Popular / search topic hashtags (memes catalog + feed topic tags). */
 export async function GET(req: Request) {
   try {
+    const feed = rules.feed();
     const { searchParams } = new URL(req.url);
     const q = searchParams.get("q")?.trim() ?? "";
     const needle = q
@@ -44,7 +46,7 @@ export async function GET(req: Request) {
           },
         },
         { $sort: { count: -1 } },
-        { $limit: 80 },
+        { $limit: feed.hashtagApiMaxResults * 2 },
       ]);
     } catch {
       mongoBuckets = [];
@@ -54,7 +56,7 @@ export async function GET(req: Request) {
       where: needle ? { tag: { contains: needle } } : undefined,
       include: { _count: { select: { memes: true } } },
       orderBy: { memes: { _count: "desc" } },
-      take: 40,
+      take: feed.hashtagApiMaxResults,
     });
 
     const map = new Map<string, number>();
@@ -74,7 +76,7 @@ export async function GET(req: Request) {
     const hashtags = [...map.entries()]
       .map(([tag, count]) => ({ tag, count }))
       .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag))
-      .slice(0, 12);
+      .slice(0, feed.hashtagApiMaxResults);
 
     return liveJson({ hashtags });
   } catch {

@@ -60,6 +60,16 @@ export function assertProductionSecurity(): void {
 
   if (!process.env.NEXT_PUBLIC_SITE_URL?.trim()) {
     errors.push("NEXT_PUBLIC_SITE_URL is required in production (for Origin checks)");
+  } else {
+    const site = process.env.NEXT_PUBLIC_SITE_URL.trim();
+    if (
+      !site.startsWith("https://") &&
+      process.env.ALLOW_HTTP_SITE_URL !== "1"
+    ) {
+      errors.push(
+        "NEXT_PUBLIC_SITE_URL must be an https:// origin in production (set ALLOW_HTTP_SITE_URL=1 only for local Docker demos)",
+      );
+    }
   }
 
   // SMS must be configured unless an explicit (dangerous) override is set

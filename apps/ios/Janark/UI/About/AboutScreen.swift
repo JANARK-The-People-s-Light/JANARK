@@ -9,7 +9,7 @@ struct AboutScreen: View {
                 Text("About Janark")
                     .font(.system(.largeTitle, design: .serif).weight(.semibold))
                     .foregroundStyle(c.foreground)
-                Text("India's first open source social platform.")
+                Text("India's open-source platform for civic participation.")
                     .font(.body.weight(.medium))
                     .foregroundStyle(c.foreground)
                 Text("Independent civic discussion, petitions, reports, and community voting — built in the open.")
@@ -26,7 +26,7 @@ struct AboutScreen: View {
                 bullet("Support ideas, not personalities.")
 
                 SectionLabel("What matters")
-                bullet("India's first open source social platform.")
+                bullet("India's open-source platform for civic participation.")
                 bullet("Independent of governments and political parties.")
                 bullet("Community supported and open source.")
                 bullet("Public opinion, not official elections.")

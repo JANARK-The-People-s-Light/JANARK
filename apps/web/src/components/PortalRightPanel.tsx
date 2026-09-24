@@ -25,6 +25,7 @@ function activityLabel(count: number) {
 /**
  * Right rail — Trending today with context, not bare counts.
  * Thresholds/copy from config/rules.json + config/templates.json.
+ * Shows a short viewport of topics; list scrolls up to trendingMaxTopics.
  */
 export function PortalRightPanel() {
   const pathname = usePathname();
@@ -33,6 +34,9 @@ export function PortalRightPanel() {
   const feed = rules.feed();
   const copy = templates.portal();
   const layout = sys.portal();
+  const listMaxHeightPx =
+    feed.trendingVisibleTopics * layout.trendingTopicRowHeightPx +
+    Math.max(0, feed.trendingVisibleTopics - 1) * layout.trendingTopicGapPx;
 
   const load = useCallback(async () => {
     try {
@@ -56,7 +60,12 @@ export function PortalRightPanel() {
     } finally {
       setReady(true);
     }
-  }, [feed]);
+  }, [
+    feed.hashtagMinTagLength,
+    feed.hashtagMinCount,
+    feed.trendingStrongMinCount,
+    feed.trendingMaxTopics,
+  ]);
 
   useEffect(() => {
     if (pathname.includes("/dashboard")) return;
@@ -75,43 +84,58 @@ export function PortalRightPanel() {
       style={{ width: layout.rightRailWidthPx }}
       aria-label={copy.trendingAriaLabel}
     >
-      <AdSlot placement="sidebar" className="mb-6 mt-0" />
+      <AdSlot placement="sidebar" className="mb-6 mt-0 shrink-0" />
 
-      <p className="font-display text-lg tracking-tight text-navy">
+      <p className="shrink-0 font-display text-lg tracking-tight text-navy">
         {copy.trendingTitle}
       </p>
-      <p className="mt-1 text-sm text-muted">{copy.trendingSubtitle}</p>
+      <p className="mt-1 shrink-0 text-sm text-muted">{copy.trendingSubtitle}</p>
 
       {!ready && topics.length === 0 ? (
-        <p className="mt-6 text-sm text-muted">{copy.trendingLoading}</p>
+        <p className="mt-6 shrink-0 text-sm text-muted">{copy.trendingLoading}</p>
       ) : topics.length === 0 ? (
-        <p className="mt-6 text-sm leading-relaxed text-muted">
+        <p className="mt-6 shrink-0 text-sm leading-relaxed text-muted">
           {copy.trendingEmpty}
         </p>
       ) : (
-        <ul className="mt-6 space-y-0.5">
-          {topics.map((t, i) => (
-            <li key={t.tag}>
-              <Link
-                href={portalHref(`/?tag=${encodeURIComponent(t.tag)}`)}
-                className="group flex items-center gap-3 rounded-lg px-2 py-2.5 transition hover:bg-sand/50"
-              >
-                <span className="w-4 shrink-0 text-xs tabular-nums text-muted">
-                  {i + 1}
-                </span>
-                <span className="flex min-w-0 flex-1 items-baseline justify-between gap-3">
-                  <span className="truncate text-[15px] font-medium text-navy group-hover:text-navy-mid">
-                    #{t.tag}
+        <div
+          className="mt-6 shrink-0 overflow-y-auto overscroll-contain"
+          style={
+            topics.length > feed.trendingVisibleTopics
+              ? { height: listMaxHeightPx, maxHeight: listMaxHeightPx }
+              : { maxHeight: listMaxHeightPx }
+          }
+        >
+          <ul
+            className="flex flex-col"
+            style={{ gap: layout.trendingTopicGapPx }}
+          >
+            {topics.map((t) => (
+              <li key={t.tag}>
+                <Link
+                  href={portalHref(`/?tag=${encodeURIComponent(t.tag)}`)}
+                  className="group flex items-center rounded-lg px-2 transition hover:bg-sand/50"
+                  style={{ minHeight: layout.trendingTopicRowHeightPx }}
+                >
+                  <span className="flex min-w-0 flex-1 items-baseline justify-between gap-3">
+                    <span className="truncate text-[15px] font-medium text-navy group-hover:text-navy-mid">
+                      #{t.tag}
+                    </span>
+                    <span className="shrink-0 text-right text-xs tabular-nums text-muted">
+                      {activityLabel(t.count)}
+                    </span>
                   </span>
-                  <span className="shrink-0 text-right text-xs tabular-nums text-muted">
-                    {activityLabel(t.count)}
-                  </span>
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
+
+      <AdSlot
+        placement="sidebar-below-trending"
+        className="mb-0 mt-6 shrink-0"
+      />
 
       <Link
         href={portalHref("/dashboard")}

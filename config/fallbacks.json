@@ -4,6 +4,8 @@
     "headerHeightRem": 3.5,
     "leftRailWidthPx": 300,
     "rightRailWidthPx": 300,
+    "trendingTopicRowHeightPx": 44,
+    "trendingTopicGapPx": 2,
     "shellHeight": "100vh",
     "headerSearchMaxWidthPx": 360,
     "followSuggestions": {
@@ -86,7 +88,9 @@
   },
   "feed": {
     "hashtagMinTagLength": 1,
-    "trendingMaxTopics": 5,
+    "trendingVisibleTopics": 6,
+    "trendingMaxTopics": 20,
+    "hashtagApiMaxResults": 40,
     "hashtagPollIntervalMs": 60000
   },
   "interactions": {

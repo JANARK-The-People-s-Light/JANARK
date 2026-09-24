@@ -99,7 +99,11 @@ export function WhoToFollow({ onNavigate }: { onNavigate?: () => void }) {
       className="mt-6"
       aria-label={copy.whoToFollowAriaLabel}
     >
-      <p className="mb-1.5 px-3 text-[11px] font-medium uppercase tracking-[0.08em] text-muted">
+      <p className="mb-2 flex items-center gap-2 px-3 font-display text-sm font-semibold tracking-tight text-navy">
+        <span
+          className="h-3.5 w-0.5 shrink-0 rounded-full bg-amber"
+          aria-hidden
+        />
         {copy.whoToFollowTitle}
       </p>
       {!ready ? (

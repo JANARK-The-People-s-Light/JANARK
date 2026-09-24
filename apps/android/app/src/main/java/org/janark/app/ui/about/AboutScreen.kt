@@ -26,7 +26,7 @@ fun AboutScreen() {
     ) {
         Text("About Janark", fontFamily = FontFamily.Serif, fontSize = 28.sp, fontWeight = FontWeight.SemiBold, color = c.foreground.toC())
         Text(
-            "India's first open source social platform.",
+            "India's open-source platform for civic participation.",
             color = c.foreground.toC(),
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium,
@@ -46,7 +46,7 @@ fun AboutScreen() {
         Text("· Stay anonymous with a public Janark ID — your phone number is never shown.", color = c.muted.toC())
         Text("· Support ideas, not personalities.", color = c.muted.toC())
         SectionLabel("What matters")
-        Text("· India's first open source social platform.", color = c.muted.toC())
+        Text("· India's open-source platform for civic participation.", color = c.muted.toC())
         Text("· Independent of governments and political parties.", color = c.muted.toC())
         Text("· Community supported and open source.", color = c.muted.toC())
         Text("· Public opinion, not official elections.", color = c.muted.toC())

@@ -21,7 +21,9 @@
     "hashtagMinTagLength": 3,
     "hashtagMinCount": 1,
     "trendingStrongMinCount": 2,
-    "trendingMaxTopics": 8,
+    "trendingVisibleTopics": 6,
+    "trendingMaxTopics": 20,
+    "hashtagApiMaxResults": 40,
     "hashtagPollIntervalMs": 30000,
     "activityPostsLabelMinCount": 50,
     "activityActiveLabelMinCount": 10

@@ -10,7 +10,7 @@ Product intent and where the repo is headed. Technical details: [handbook.md](./
 
 ## Positioning
 
-**Janark** — India's first open source social platform for civic action: issues, petitions, reports, votes, notices, shares, and memes; same rules on web and native.
+**Janark** — India's open-source platform for civic participation: issues, petitions, reports, votes, notices, shares, and memes; same rules on web and native.
 
 Not a government portal or party channel. Browse free; phone OTP only to act. Public identity is an **anonymity ID**, never a phone number.
 

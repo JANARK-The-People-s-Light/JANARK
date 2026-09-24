@@ -55,16 +55,23 @@ Before exposing Janark on the public internet:
 1. Set strong unique `PHONE_HASH_SALT`, `HUMAN_TOKEN_SECRET`, and `IP_HASH_SALT`
    (≥24 random characters). The process refuses to start in production with
    defaults.
-2. Set `NEXT_PUBLIC_SITE_URL` to your real HTTPS origin (used for Origin checks).
+2. Set `NEXT_PUBLIC_SITE_URL` to your real **`https://`** origin (used for Origin
+   checks, Secure cookies, CSP `upgrade-insecure-requests`, and HSTS). Production
+   refuses to start with an `http://` site URL unless `ALLOW_HTTP_SITE_URL=1`
+   (local Docker demos only). Rebuild after changing any `NEXT_PUBLIC_*` value.
 3. Set `MONGODB_URI` to a real MongoDB (no in-memory fallback in production).
 4. Configure OTP SMS via Twilio or MSG91. Do **not** set `EXPOSE_DEV_OTP`.
-5. Prefer HTTPS everywhere; HSTS is enabled when `NODE_ENV=production`.
+5. Terminate TLS at the edge (Cloudflare / Caddy / nginx) and proxy to the app.
+   Middleware also 308-redirects `http` → `https` when `x-forwarded-proto` is
+   `http` and the site URL is HTTPS. Enable “Always Use HTTPS” at the CDN too.
 6. Enable Cloudflare Turnstile (`NEXT_PUBLIC_TURNSTILE_SITE_KEY` +
    `TURNSTILE_SECRET_KEY`) for OTP abuse resistance.
 7. Keep `ALLOW_CITIZEN_SOCIAL_PUBLISH` unset unless you intentionally want
    citizen shares to post to your configured outbound channels.
 8. Use a managed database (Postgres recommended over SQLite) for multi-instance
    deploys; SQLite file paths are fine only for single-node demos.
+9. For AdSense: set publisher id + `ADS_TXT_LINES` on the **HTTPS** host so
+   `https://your-domain/ads.txt` and the `google-adsense-account` meta are live.
 
 ## Visit telemetry (privacy)
 
@@ -90,7 +97,8 @@ Ingest: `POST /api/telemetry/interaction` (client) and server `trackInteraction`
 
 ### Auth model
 
-- Sessions are **httpOnly**, `Secure` (production), `SameSite=Lax` cookies.
+- Sessions are **httpOnly**, `SameSite=Lax`, and **`Secure` when**
+  `NEXT_PUBLIC_SITE_URL` is `https://` (and `NODE_ENV=production`).
 - Phone hashes are never returned to the browser or stored in `localStorage`.
 - Client-supplied `voterKey` values are ignored for authorization.
 

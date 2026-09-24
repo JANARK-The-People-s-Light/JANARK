@@ -20,6 +20,7 @@ import {
   PUBLIC_LAUNCH_LABEL,
 } from "@/lib/launch";
 import { sys, templates } from "@/lib/config";
+import { AD_CONFIG } from "@/config/ads";
 import { DEFAULT_THEME_ID, THEME_STORAGE_KEY } from "@/lib/themes";
 import "./globals.css";
 
@@ -94,6 +95,13 @@ export const metadata: Metadata = {
     description: `${BRAND_TAGLINE}. ${BRAND_SUPPORT}`,
     images: [paths.brandLogoSolid],
   },
+  ...(AD_CONFIG.publisherId
+    ? {
+        other: {
+          "google-adsense-account": AD_CONFIG.publisherId,
+        },
+      }
+    : {}),
 };
 
 export const viewport: Viewport = {

@@ -39,6 +39,14 @@
     "labelKey": "sponsoredArea",
     "reservedHeight": 250
   },
+  "sidebar-below-trending": {
+    "enabled": true,
+    "provider": "adsense",
+    "format": "rectangle",
+    "slotIdEnv": "NEXT_PUBLIC_ADSENSE_SLOT_SIDEBAR_BELOW_TRENDING",
+    "labelKey": "sponsoredArea",
+    "reservedHeight": 250
+  },
   "mobile-bottom": {
     "enabled": false,
     "provider": "adsense",

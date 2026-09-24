@@ -67,10 +67,13 @@ function withSecurityHeaders(res: NextResponse) {
   }
   res.headers.set("Content-Security-Policy", contentSecurityPolicy(isProd));
   if (isProd) {
-    res.headers.set(
-      "Strict-Transport-Security",
-      "max-age=63072000; includeSubDomains; preload",
-    );
+    const site = process.env.NEXT_PUBLIC_SITE_URL ?? "";
+    if (site.startsWith("https://")) {
+      res.headers.set(
+        "Strict-Transport-Security",
+        "max-age=63072000; includeSubDomains; preload",
+      );
+    }
   }
   return res;
 }
@@ -86,6 +89,26 @@ export function middleware(req: NextRequest) {
   } catch (e) {
     console.error(e instanceof Error ? e.message : e);
     return new NextResponse("Server misconfigured", { status: 503 });
+  }
+
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? "").replace(/\/$/, "");
+  const httpsSite = siteUrl.startsWith("https://");
+  // Behind TLS-terminating proxies: honor x-forwarded-proto and bounce to HTTPS
+  if (httpsSite && process.env.ALLOW_HTTP_SITE_URL !== "1") {
+    const proto =
+      req.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() ||
+      req.nextUrl.protocol.replace(":", "");
+    if (proto === "http") {
+      const target = req.nextUrl.clone();
+      target.protocol = "https:";
+      try {
+        const host = new URL(siteUrl).host;
+        if (host) target.host = host;
+      } catch {
+        /* keep request host */
+      }
+      return withSecurityHeaders(NextResponse.redirect(target, 308));
+    }
   }
 
   const { pathname, search } = req.nextUrl;

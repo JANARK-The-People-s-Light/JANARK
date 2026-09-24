@@ -19,7 +19,6 @@ import { WhoToFollow } from "@/components/WhoToFollow";
 import { clearPhoneSession } from "@/lib/client-id";
 import { fill, rules, sys, templates, isPublicMarketingPath } from "@/lib/config";
 import {
-  groupedPortalNav,
   getPortalNav,
   navIsActive,
   type NavItem,
@@ -145,8 +144,6 @@ export function PortalShell({ children }: { children: ReactNode }) {
     [navItems],
   );
 
-  const navGroups = useMemo(() => groupedPortalNav(navItems), [navItems]);
-
   if (isPublicMarketingPath(pathname)) {
     return <>{children}</>;
   }
@@ -162,23 +159,14 @@ export function PortalShell({ children }: { children: ReactNode }) {
   const sidebarNav = (
     <>
       <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-2 pt-3">
-        <nav aria-label={copy.navAriaLabel} className="flex flex-col gap-5">
-          {navGroups.map((g) => (
-            <div key={g.group}>
-              <p className="mb-1.5 px-3 text-[11px] font-medium uppercase tracking-[0.08em] text-muted">
-                {g.label}
-              </p>
-              <div className="flex flex-col gap-0.5">
-                {g.items.map((item) => (
-                  <NavLink
-                    key={item.id}
-                    item={item}
-                    active={navIsActive(pathname, item, search)}
-                    onNavigate={() => setDrawerOpen(false)}
-                  />
-                ))}
-              </div>
-            </div>
+        <nav aria-label={copy.navAriaLabel} className="flex flex-col gap-0.5">
+          {navItems.map((item) => (
+            <NavLink
+              key={item.id}
+              item={item}
+              active={navIsActive(pathname, item, search)}
+              onNavigate={() => setDrawerOpen(false)}
+            />
           ))}
         </nav>
         <WhoToFollow onNavigate={() => setDrawerOpen(false)} />

@@ -6,6 +6,7 @@ export type AdPlacementKey =
   | "feed-middle"
   | "post-bottom"
   | "sidebar"
+  | "sidebar-below-trending"
   | "mobile-bottom";
 
 export interface ProviderConfig {

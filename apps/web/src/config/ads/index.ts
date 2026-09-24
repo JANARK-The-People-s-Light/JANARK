@@ -21,7 +21,11 @@ function truthy(value: string): boolean {
 }
 
 function fillLine(template: string, publisherId: string): string {
-  return template.replace(/\{publisherId\}/g, publisherId);
+  /** ads.txt uses pub-… (no ca- prefix); script/meta use ca-pub-… */
+  const adsTxtPublisherId = publisherId.replace(/^ca-/i, "");
+  return template
+    .replace(/\{adsTxtPublisherId\}/g, adsTxtPublisherId)
+    .replace(/\{publisherId\}/g, publisherId);
 }
 
 const publisherId = env(policyJson.publisherIdEnv);
@@ -45,9 +49,17 @@ const placements = Object.fromEntries(
 ) as Record<AdPlacementKey, PlacementConfig>;
 
 const adsTxtFromEnv = env(policyJson.adsTxt.linesEnv);
-const adsTxtLines = adsTxtFromEnv
-  ? adsTxtFromEnv.split("\n").map((l) => l.trim()).filter(Boolean)
-  : policyJson.adsTxt.defaultLines.map((line) => fillLine(line, publisherId));
+const adsTxtLines = (
+  adsTxtFromEnv
+    ? adsTxtFromEnv.split("\n").map((l) => l.trim()).filter(Boolean)
+    : publisherId
+      ? policyJson.adsTxt.defaultLines.map((line) => fillLine(line, publisherId))
+      : []
+).filter((line) => {
+  // Never publish a broken line like "google.com, , DIRECT, …"
+  const parts = line.split(",").map((p) => p.trim());
+  return parts.length >= 2 && Boolean(parts[1]);
+});
 
 export const AD_CONFIG: AdRuntimeConfig = {
   enabled,

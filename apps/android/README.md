@@ -1,6 +1,6 @@
 # Janark for Android
 
-Native Android client for Janark — India's first open source social platform.
+Native Android client for Janark — India's open-source platform for civic participation.
 Thin HTTP client of the monorepo web API (`apps/web` → `/api/*`).
 
 Browse is free; phone OTP is required only to post, vote, comment, sign, or flag. Public identity is an anonymity ID (`jn-xxxxxxxx`), never a phone number. No local civic database.

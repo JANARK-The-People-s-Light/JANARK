@@ -1,6 +1,6 @@
 # Janark
 
-> India's first open source social platform. Independent civic discussion, petitions, reports, and community voting — built in the open.
+> India's open-source platform for civic participation. Independent civic discussion, petitions, reports, and community voting — built in the open.
 
 **Janark** is not a government portal or party channel. Citizens browse freely; phone OTP is required only to post or react. Public identity is an **anonymity ID**, never a phone number.
 

@@ -15,6 +15,10 @@ import { SearchableSelect } from "@/components/SearchableSelect";
 import { usePreferences } from "@/components/PreferencesProvider";
 import { resolveFeedKind } from "@/lib/feed-kind";
 import { portalHref } from "@/lib/paths";
+import {
+  portalHrefWithSearch,
+  replacePortalHref,
+} from "@/lib/portal-href";
 
 type Post = {
   id: string;
@@ -85,7 +89,9 @@ function HomeTrendingInner() {
   const { prefs } = usePreferences();
 
   const type = searchParams.get("type") || "all";
-  const sort = searchParams.get("sort") || prefs.feedSort || "trending";
+  /** Sort from URL only — prefs apply as fallback without counting as a filter. */
+  const urlSort = searchParams.get("sort");
+  const sort = urlSort || prefs.feedSort || "trending";
   const tag = (searchParams.get("tag") || "").replace(/^#/, "");
   const qParam = searchParams.get("q") || "";
   const country = searchParams.get("country") || "";
@@ -118,7 +124,7 @@ function HomeTrendingInner() {
   const hasFilters =
     Boolean(tag || qParam || country || state || district || city) ||
     type !== "all" ||
-    sort !== "trending";
+    Boolean(urlSort);
 
   const setParam = useCallback(
     (key: string, value: string | null) => {
@@ -145,8 +151,10 @@ function HomeTrendingInner() {
         p.delete("city");
       }
 
-      const qs = p.toString();
-      router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+      replacePortalHref(
+        router,
+        portalHrefWithSearch(pathname, p),
+      );
     },
     [pathname, router, searchParams],
   );
@@ -222,13 +230,12 @@ function HomeTrendingInner() {
   }
 
   function clearFilters() {
-    if (type !== "all") {
-      const p = new URLSearchParams();
-      p.set("type", type);
-      router.replace(`${pathname}?${p.toString()}`, { scroll: false });
-      return;
-    }
-    router.replace(pathname, { scroll: false });
+    // Drop every filter query param (type, sort, place, tag, q).
+    // Preferred feedSort stays in prefs and is not a chip filter.
+    replacePortalHref(
+      router,
+      portalHrefWithSearch(pathname, new URLSearchParams()),
+    );
   }
 
   useEffect(() => {
@@ -258,11 +265,11 @@ function HomeTrendingInner() {
     }
     if (tag) parts.push(`#${tag}`);
     if (qParam.trim()) parts.push(`“${qParam.trim()}”`);
-    if (sort !== "trending") {
-      parts.push(SORTS.find((s) => s.value === sort)?.label ?? sort);
+    if (urlSort) {
+      parts.push(SORTS.find((s) => s.value === urlSort)?.label ?? urlSort);
     }
     return parts;
-  }, [city, district, state, country, type, tag, qParam, sort]);
+  }, [city, district, state, country, type, tag, qParam, urlSort]);
 
   const empty = !loading && posts.length === 0;
 

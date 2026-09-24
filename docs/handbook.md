@@ -178,13 +178,14 @@ Loader: `apps/web/src/lib/config` (`cfg`, `fill`). Ads runtime: `apps/web/src/co
 
 | Placement | Where |
 |-----------|--------|
-| `sidebar` | Right rail |
+| `sidebar` | Right rail (above Trending today) |
+| `sidebar-below-trending` | Right rail (below trending hashtags) |
 | `feed-middle` | Interleaved in feeds (interval choices in `policy.feedAdIntervalChoices`) |
 | `post-bottom` | Detail pages |
 | `home-top` / `feed-top` | Defined; disabled by default in placements |
 | `mobile-bottom` | Defined; disabled by default |
 
-Env: `NEXT_PUBLIC_ADSENSE_PUBLISHER_ID`, `NEXT_PUBLIC_ADSENSE_SLOT_*`, optional `ADS_TXT_LINES`. Route: `/ads.txt`. Dev shows bordered placeholders when enabled; coming-soon `/` does not show ads. Middleware CSP allows AdSense hosts when monetization is used.
+Env: `NEXT_PUBLIC_ADSENSE_PUBLISHER_ID` (`ca-pub-…`), `NEXT_PUBLIC_ADSENSE_SLOT_*`, optional `ADS_TXT_LINES` (`pub-…` without `ca-`). Route: `/ads.txt`. Root layout emits `<meta name="google-adsense-account">` when a publisher id is set. Dev shows bordered placeholders when enabled; coming-soon `/` does not show ads. Middleware CSP allows AdSense hosts when monetization is used.
 
 ---
 
@@ -217,7 +218,9 @@ npm run dev:web                       # http://localhost:3000
 HTTP validators need a running server (`BASE_URL`, default `http://localhost:3000`).
 
 ```bash
-docker compose up -d --build   # local verification only
+docker compose up -d --build   # local HTTP verification only
+# Public HTTPS: terminate TLS at the edge; set NEXT_PUBLIC_SITE_URL=https://janark.org
+# (no ALLOW_HTTP_SITE_URL) and rebuild so Next public env + ads bake in.
 ```
 
 Production hosting checklist: [SECURITY.md](../SECURITY.md).

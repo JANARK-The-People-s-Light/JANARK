@@ -439,18 +439,30 @@ async function main() {
   }
 
   {
+    const { readFileSync } = await import("node:fs");
+    const { join } = await import("node:path");
+    const templates = JSON.parse(
+      readFileSync(join(process.cwd(), "config/templates.json"), "utf8"),
+    ) as { brand: { tagline: string } };
+    const tagline = templates.brand.tagline;
     const html = await fetch(BASE + "/").then((x) => x.text());
     record(
       "Launch date on home",
       html.includes("26 January 2027"),
       html.includes("January 2027") ? "found" : "missing",
     );
+    const escaped = tagline
+      .replace(/'/g, "&#x27;")
+      .replace(/'/g, "&apos;");
     record(
       "Brand tagline on home",
-      html.includes("India's first open source social platform") ||
-        html.includes("India&#x27;s first open source social platform") ||
-        html.includes("India&apos;s first open source social platform"),
-      html.includes("open source social") ? "found" : "missing",
+      html.includes(tagline) ||
+        html.includes(tagline.replace(/'/g, "&#x27;")) ||
+        html.includes(tagline.replace(/'/g, "&apos;")) ||
+        html.includes(escaped),
+      html.includes("civic participation") || html.includes(tagline.slice(0, 20))
+        ? "found"
+        : "missing",
     );
   }
 
